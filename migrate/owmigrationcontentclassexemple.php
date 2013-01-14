@@ -1,6 +1,6 @@
 <?php
 
-class OWMigrationTest extends OWMigration {
+class OWMigrationContentClassExemple extends OWMigration {
 
     public function up( ) {
         $contentClass = new OWMigrationContentClass( 'my_class' );
