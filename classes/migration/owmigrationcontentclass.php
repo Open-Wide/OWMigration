@@ -140,9 +140,8 @@ class OWMigrationContentClass {
         $this->adjustAttributesPlacement = true;
 
         $newAttribute->storeDefined( );
-        $classAttributeID = $newAttribute->attribute( 'id' );
         $this->output->notice( "Add of attribute '$classAttributeIdentifier' done" );
-        return $classAttributeID;
+        return $newAttribute;
     }
 
     public function updateAttribute( $classAttributeIdentifier, $params = array() ) {
@@ -181,6 +180,7 @@ class OWMigrationContentClass {
         $dataType = $classAttribute->dataType( );
         $classAttribute->store( );
         $this->output->notice( "Update of attribute '$classAttributeIdentifier' done" );
+        return $classAttribute;
     }
 
 public function removeAttribute( $classAttributeIdentifier) {
