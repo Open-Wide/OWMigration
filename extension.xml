@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<software>
+    <metadata>
+        <name>OWMigration</name>
+        <version>0.1beta</version>
+        <copyright>OpenWide http://www.openwide.fr/</copyright>
+        <license>GNU General Public License v2.0</license>
+        <info_url>https://github.com/organizations/Open-Wide</info_url>
+    </metadata>
+    <dependencies></dependencies>
+</software>

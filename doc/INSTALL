@@ -1,0 +1,12 @@
+Extension : OWMigration 1.2
+Requires : eZ Publish 4.x.x (not tested on 3.X)
+Author : Open Wide <http://www.openwide.fr>
+
+Installation:
+------------
+- Copy owmigration in extension directory
+- Regenerate autoloads : php bin/php/ezpgenerateautoloads.php -e
+
+Usage
+------------
+See README for details
