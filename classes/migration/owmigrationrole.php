@@ -83,6 +83,156 @@ class OWMigrationRole {
         $this->role->store( );
     }
 
+    public function assignToUser( $user, $limitIdent = NULL, $limitValue = NULL ) {
+        self::assignTo( 'user', $user, $limitIdent, $limitValue );
+    }
+
+    public function assignToUserGroup( $group, $limitIdent = NULL, $limitValue = NULL ) {
+        self::assignTo( 'user_group', $user, $limitIdent, $limitValue );
+    }
+
+    protected function assignTo( $type, $object, $limitIdent = NULL, $limitValue = NULL ) {
+        $messageType = strtolower( sfInflector::humanize( $type ) );
+        if( is_numeric( $object ) ) {
+            $objectID = $object;
+        } elseif( is_string( $object ) ) {
+            $contentClass = eZContentClass::fetchByIdentifier( $type );
+            $contentObject = eZContentObject::fetchFilteredList( array(
+                'name' => $object,
+                'contentclass_id' => $contentClass->attribute( 'id' )
+            ) );
+            if( is_array( $contentObject ) && count( $contentObject ) > 0 ) {
+                $objectID = $contentObject[0]->attribute( 'id' );
+            } else {
+                $this->output->error( "Assign to $messageType : $messageType '$object' not found." );
+                return;
+            }
+        } elseif( is_array( $object ) ) {
+            foreach( $object as $item ) {
+                self::assignToUser( $item, $limitIdent, $limitValue );
+            }
+        } else {
+            $this->output->error( "Assign to $messageType : $messageType param must be an integer, a string or an array." );
+        }
+
+        if( !is_null( $limitIdent ) ) {
+            switch( $limitIdent ) {
+                case 'subtree' :
+                    if( !is_numeric( $limitValue ) ) {
+                        $this->output->error( "Assign to $messageType : limit value must be a nodeID." );
+                        return;
+                    }
+                    break;
+                case 'section' :
+                    if( is_string( $limitValue ) ) {
+                        $section = eZSection::fetchByIdentifier( $limitValue );
+                        if( !$section ) {
+                            $section = new eZSection( array(
+                                'name' => $limitValue,
+                                'identifier' => $limitValue
+                            ) );
+                            $section->store( );
+                            $limitValue = $section->attribute( 'id' );
+                            $this->output->notice( "Assign to $messageType : section '$limitValue' not found => create new section." );
+                        }
+                        $limitValue = $section->attribute( 'id' );
+                    } elseif( !is_numeric( $limitValue ) ) {
+                        $this->output->error( "Assign to $messageType : limit value must be a section ID or a section identifer." );
+                        return;
+                    }
+                    break;
+                default :
+                    $this->output->error( "Assign to user : $messageType identifier must be equal to 'subtree' or 'section'." );
+                    return;
+            }
+        }
+
+        if( isset( $objectID ) ) {
+            $this->role->assignToUser( $objectID, $limitIdent, $limitValue );
+            $this->output->notice( "Assign to $messageType : role assigned to user $object ($objectID)." );
+        }
+    }
+
+    public function unassignToUser( $user, $limitIdent = NULL, $limitValue = NULL ) {
+        self::unassignTo( 'user', $user, $limitIdent, $limitValue );
+    }
+
+    public function unassignToUserGroup( $group, $limitIdent = NULL, $limitValue = NULL ) {
+        self::unassignTo( 'user_group', $user, $limitIdent, $limitValue );
+    }
+
+    protected function unassignTo( $type, $object, $limitIdent = NULL, $limitValue = NULL ) {
+        $messageType = strtolower( sfInflector::humanize( $type ) );
+        if( is_numeric( $object ) ) {
+            $objectID = $object;
+        } elseif( is_string( $object ) ) {
+            $contentClass = eZContentClass::fetchByIdentifier( 'user' );
+            $contentObject = eZContentObject::fetchFilteredList( array(
+                'name' => $object,
+                'contentclass_id' => $contentClass->attribute( 'id' )
+            ) );
+            if( is_array( $contentObject ) && count( $contentObject ) > 0 ) {
+                $objectID = $contentObject[0]->attribute( 'id' );
+            } else {
+                $this->output->error( "Unassign to $messageType : $messageType '$object' not found." );
+                return;
+            }
+        } elseif( is_array( $messageType ) ) {
+            foreach( $messageType as $item ) {
+                self::unassignToUser( $item, $limitIdent, $limitValue );
+            }
+        } else {
+            $this->output->error( "Unassign to $messageType : $messageType param must be an integer, a string or an array." );
+        }
+
+        if( !is_null( $limitIdent ) ) {
+            switch( $limitIdent ) {
+                case 'subtree' :
+                    if( !is_numeric( $limitValue ) ) {
+                        $this->output->error( "Assign to $messageType : limit value must be a nodeID." );
+                        return;
+                    } else {
+                        $node = eZContentObjectTreeNode::fetch( $limitValue, false, false );
+                        if( $node ) {
+                            $limitValue = $node['path_string'];
+                        } else {
+                            $this->output->notice( "Unassign to $messageType : node not found." );
+                            return;
+                        }
+                    }
+                    break;
+                case 'section' :
+                    if( is_string( $limitValue ) ) {
+                        $section = eZSection::fetchByIdentifier( $limitValue );
+                        if( $section ) {
+                            $limitValue = $section->attribute( 'id' );
+                        } else {
+                            $this->output->notice( "Unassign to $messageType : section not found." );
+                            return;
+                        }
+
+                    } elseif( !is_numeric( $limitValue ) ) {
+                        $this->output->error( "Unassign to $messageType : limit value must be a section ID or a section identifer." );
+                        return;
+                    }
+                    break;
+                default :
+                    $this->output->error( "Unassign to $messageType : limit identifier must be equal to 'subtree' or 'section'." );
+                    return;
+            }
+        } else {
+            $limitValue = NULL;
+        }
+        if( isset( $objectID ) ) {
+            foreach( $this->role->fetchUserByRole( ) as $userRole ) {
+                if( $userRole['user_object']->attribute( 'id' ) == $objectID && strtolower( $userRole['limit_ident'] ) == $limitIdent && strtolower( $userRole['limit_value'] ) == $limitValue ) {
+                    $this->role->removeUserAssignmentByID( $userRole['user_role_id'] );
+                    $this->output->notice( "Assign to $messageType : role unassigned to user $object ($objectID)." );
+                }
+            }
+        }
+    }
+
     protected function correctLimitationArray( $limitationArray ) {
         foreach( $limitationArray as $limitationKey => $limitation ) {
             if( !is_array( $limitation ) ) {
