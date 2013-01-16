@@ -106,11 +106,13 @@ class OWMigrationContentClass {
             $classAttributeNameNameList->validate( );
         }
 
-        if( is_string( $params['description'] ) ) {
-            $attrCreateInfo['description'] = $params['description'];
-        } elseif( is_array( $params['description'] ) ) {
-            $classAttributeDescriptionNameList = new eZContentClassAttributeNameList( serialize( $params['description'] ) );
-            $classAttributeDescriptionNameList->validate( );
+        if( isset( $params['description'] ) ) {
+            if( is_string( $params['description'] ) ) {
+                $attrCreateInfo['description'] = $params['description'];
+            } elseif( is_array( $params['description'] ) ) {
+                $classAttributeDescriptionNameList = new eZContentClassAttributeNameList( serialize( $params['description'] ) );
+                $classAttributeDescriptionNameList->validate( );
+            }
         }
 
         $newAttribute = eZContentClassAttribute::create( $classID, $datatype, $attrCreateInfo );
