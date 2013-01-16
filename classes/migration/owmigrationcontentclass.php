@@ -303,10 +303,10 @@ class OWMigrationContentClass {
             }
             $class->remove( true );
             eZContentClassClassGroup::removeClassMembers( $ClassID, 0 );
-            $output->notice( "Remove content class : $ClassObjectsCount removed.", TRUE );
-            $output->notice( "Remove content class : content class '$classIdentifier' removed.", TRUE );
+            $output->notice( "Remove content class : $ClassObjectsCount removed." );
+            $output->notice( "Remove content class : content class '$classIdentifier' removed." );
         } else {
-            $output->warning( "Remove content class : content class '$classIdentifier' not found.", TRUE );
+            $output->warning( "Remove content class : content class '$classIdentifier' not found." );
         }
 
     }
