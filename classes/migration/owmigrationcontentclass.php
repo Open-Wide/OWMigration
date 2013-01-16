@@ -16,7 +16,7 @@ class OWMigrationContentClass {
         $this->userID = $user->attribute( 'contentobject_id' );
         $this->contentClassObject = eZContentClass::fetchByIdentifier( $classIdentifier );
         if( !$this->contentClassObject instanceof eZContentClass ) {
-            $this->output->notice( "Content class '$classIdentifier' not found -> create new content class.", TRUE );
+            $this->output->notice( "Content class '$classIdentifier' not found -> create new content class." );
             $this->isNew = FALSE;
             $this->contentClassObject = eZContentClass::create( $this->userID, array(
                 'version' => eZContentClass::VERSION_STATUS_DEFINED,
@@ -26,7 +26,7 @@ class OWMigrationContentClass {
             $this->contentClassObject->setName( sfInflector::humanize( $classIdentifier ) );
             $this->contentClassObject->store( );
         } else {
-            $this->output->notice( "Content class '$classIdentifier' found -> create new version.", TRUE );
+            $this->output->notice( "Content class '$classIdentifier' found -> create new version." );
         }
     }
 
@@ -38,16 +38,16 @@ class OWMigrationContentClass {
             $classGroup->store( );
         }
         $classGroup->appendClass( $this->contentClassObject );
-        $this->output->notice( "Class added in '$classGroupName' class group.", TRUE );
+        $this->output->notice( "Add to content class group : class added in '$classGroupName' group." );
     }
 
     public function removeFromContentClassGroup( $classGroupName ) {
         $classGroup = eZContentClassGroup::fetchByName( $classGroupName );
         if( $classGroup ) {
             eZContentClassClassGroup::removeGroup( $this->contentClassObject->attribute( 'id' ), null, $classGroup->attribute( 'id' ) );
-            $this->output->notice( "Class removed from '$classGroupName' class group.", TRUE );
+            $this->output->notice( "Remove from content class : class removed from group '$classGroupName'.", TRUE );
         } else {
-            $this->output->warning( "Class group '$classGroupName' not found.", TRUE );
+            $this->output->warning( "Remove from content class : group '$classGroupName' not found." );
         }
     }
 
@@ -74,7 +74,7 @@ class OWMigrationContentClass {
 
     public function addAttribute( $classAttributeIdentifier, $params = array() ) {
         if( $this->hasAttribute( $classAttributeIdentifier ) ) {
-            $this->output->error( "Attribute $classAttributeIdentifier already exists" );
+            $this->output->error( "Add attribute : attribute $classAttributeIdentifier already exists." );
             return false;
         }
 
@@ -158,46 +158,47 @@ class OWMigrationContentClass {
         $this->adjustAttributesPlacement = true;
 
         $newAttribute->storeDefined( );
-        $this->output->notice( "Add of attribute '$classAttributeIdentifier' done" );
+        $this->output->notice( "Add attribute : attribute '$classAttributeIdentifier' added." );
         return $newAttribute;
     }
 
     public function updateAttribute( $classAttributeIdentifier, $params = array() ) {
-        $classID = $this->contentClassObject->attribute( 'id' );
-
         $classAttribute = $this->contentClassObject->fetchAttributeByIdentifier( $classAttributeIdentifier );
+        if( $classAttribute ) {
+            foreach( $params as $field => $value ) {
+                switch( $field ) {
+                    case 'data_type_string' :
+                        if( $classAttribute->attribute( 'data_type_string' ) != $params['data_type_string'] ) {
+                            $this->output->warning( "\t\tDatatype conversion not possible: '" . $params['data_type_string'] . "'", 'error' );
 
-        foreach( $params as $field => $value ) {
-            switch( $field ) {
-                case 'data_type_string' :
-                    if( $classAttribute->attribute( 'data_type_string' ) != $params['data_type_string'] ) {
-                        $this->output->warning( "\t\tDatatype conversion not possible: '" . $params['data_type_string'] . "'", 'error' );
-
-                    }
-                    break;
-                case 'name' :
-                    if( is_string( $value ) ) {
-                        $classAttribute->setAttribute( 'name', $value );
-                    } elseif( is_array( $value ) ) {
-                        $nameList = new eZContentClassAttributeNameList( serialize( $value ) );
-                        $nameList->validate( );
-                        $classAttribute->NameList = $nameList;
-                    }
-                    break;
-                case 'placement' :
-                    $classAttribute->setAttribute( 'placement', $value );
-                    $this->adjustAttributesPlacement = true;
-                    break;
-                default :
-                    $classAttribute->setAttribute( $field, $value );
-                    break;
+                        }
+                        break;
+                    case 'name' :
+                        if( is_string( $value ) ) {
+                            $classAttribute->setAttribute( 'name', $value );
+                        } elseif( is_array( $value ) ) {
+                            $nameList = new eZContentClassAttributeNameList( serialize( $value ) );
+                            $nameList->validate( );
+                            $classAttribute->NameList = $nameList;
+                        }
+                        break;
+                    case 'placement' :
+                        $classAttribute->setAttribute( 'placement', $value );
+                        $this->adjustAttributesPlacement = true;
+                        break;
+                    default :
+                        $classAttribute->setAttribute( $field, $value );
+                        break;
+                }
             }
-        }
 
-        $dataType = $classAttribute->dataType( );
-        $classAttribute->store( );
-        $this->output->notice( "Update of attribute '$classAttributeIdentifier' done" );
-        return $classAttribute;
+            $dataType = $classAttribute->dataType( );
+            $classAttribute->store( );
+            $this->output->notice( "Update attribute : attribute '$classAttributeIdentifier' updated." );
+            return $classAttribute;
+        } else {
+            $this->output->warning( "Update attribute : attribute '$classAttributeIdentifier' not found." );
+        }
     }
 
     public function removeAttribute( $classAttributeIdentifier ) {
@@ -207,9 +208,9 @@ class OWMigrationContentClass {
                 $classAttribute = array( $classAttribute );
             }
             $this->contentClassObject->removeAttributes( $classAttribute );
-            $this->output->notice( "Removal of attribute '$classAttributeIdentifier' done." );
+            $this->output->notice( "Remove attribute : attribute '$classAttributeIdentifier' removed." );
         } else {
-            $this->output->warning( "Attribute '$classAttributeIdentifier' not found." );
+            $this->output->warning( "Remove attribute : attribute '$classAttributeIdentifier' not found." );
         }
 
     }
@@ -257,8 +258,7 @@ class OWMigrationContentClass {
                             $this->contentClassObject->DescriptionList = $classAttributeDescriptionList;
                         }
                         break;
-                    default
-                    ;
+                    default :
                         $this->contentClassObject->setAttribute( $name, $value );
                         break;
                 }
@@ -286,6 +286,29 @@ class OWMigrationContentClass {
                 FALSE;
             }
         }
+    }
+
+    static function removeContentClass( $classIdentifier ) {
+        $class = eZContentClass::fetchByIdentifier( $classIdentifier );
+        $output = eZCLI::instance( );
+        if( $class ) {
+            $ClassName = $class->attribute( 'name' );
+            $ClassID = $class->attribute( 'id' );
+            $classObjects = eZContentObject::fetchSameClassList( $ClassID );
+            $ClassObjectsCount = count( $classObjects );
+            if( $ClassObjectsCount == 0 ) {
+                $ClassObjectsCount .= " object";
+            } else {
+                $ClassObjectsCount .= " objects";
+            }
+            $class->remove( true );
+            eZContentClassClassGroup::removeClassMembers( $ClassID, 0 );
+            $output->notice( "Remove content class : $ClassObjectsCount removed.", TRUE );
+            $output->notice( "Remove content class : content class '$classIdentifier' removed.", TRUE );
+        } else {
+            $output->warning( "Remove content class : content class '$classIdentifier' not found.", TRUE );
+        }
+
     }
 
 }
