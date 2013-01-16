@@ -19,15 +19,35 @@ class OWMigrationContentClass {
             $this->output->notice( "Content class '$classIdentifier' not found -> create new content class.", TRUE );
             $this->isNew = FALSE;
             $this->contentClassObject = eZContentClass::create( $this->userID, array(
-                    'version' => eZContentClass::VERSION_STATUS_DEFINED,
-                    'create_lang_if_not_exist' => true,
-                    'identifier' => $classIdentifier
+                'version' => eZContentClass::VERSION_STATUS_DEFINED,
+                'create_lang_if_not_exist' => true,
+                'identifier' => $classIdentifier
             ) );
             $this->contentClassObject->setName( sfInflector::humanize( $classIdentifier ) );
             $this->contentClassObject->store( );
-        }
-        else {
+        } else {
             $this->output->notice( "Content class '$classIdentifier' found -> create new version.", TRUE );
+        }
+    }
+
+    public function addToContentClassGroup( $classGroupName ) {
+        $classGroup = eZContentClassGroup::fetchByName( $classGroupName );
+        if( !$classGroup ) {
+            $classGroup = eZContentClassGroup::create( );
+            $classGroup->setAttribute( 'name', $classGroupName );
+            $classGroup->store( );
+        }
+        $classGroup->appendClass( $this->contentClassObject );
+        $this->output->notice( "Class added in '$classGroupName' class group.", TRUE );
+    }
+
+    public function removeFromContentClassGroup( $classGroupName ) {
+        $classGroup = eZContentClassGroup::fetchByName( $classGroupName );
+        if( $classGroup ) {
+            eZContentClassClassGroup::removeGroup( $this->contentClassObject->attribute( 'id' ), null, $classGroup->attribute( 'id' ) );
+            $this->output->notice( "Class removed from '$classGroupName' class group.", TRUE );
+        } else {
+            $this->output->warning( "Class group '$classGroupName' not found.", TRUE );
         }
     }
 
@@ -39,8 +59,7 @@ class OWMigrationContentClass {
         try {
             $this->getAttribute( $identifier );
             return TRUE;
-        }
-        catch ( OWMigrationContentClassException $e ) {
+        } catch ( OWMigrationContentClassException $e ) {
             return FALSE;
         }
     }
@@ -72,27 +91,24 @@ class OWMigrationContentClass {
         $datatypeParameter = isset( $params['datatype-parameter'] ) ? $params['datatype-parameter'] : array( );
 
         $attrCreateInfo = array(
-                'identifier' => $classAttributeIdentifier,
-                'can_translate' => $canTranslate,
-                'is_required' => $isRequired,
-                'is_searchable' => $isSearchable,
-                'is_information_collector' => $isCollector
+            'identifier' => $classAttributeIdentifier,
+            'can_translate' => $canTranslate,
+            'is_required' => $isRequired,
+            'is_searchable' => $isSearchable,
+            'is_information_collector' => $isCollector
         );
         if( !isset( $params['name'] ) ) {
             $attrCreateInfo['name'] = sfInflector::humanize( $classAttributeIdentifier );
-        }
-        elseif( is_string( $params['name'] ) ) {
+        } elseif( is_string( $params['name'] ) ) {
             $attrCreateInfo['name'] = $params['name'];
-        }
-        elseif( is_array( $params['name'] ) ) {
+        } elseif( is_array( $params['name'] ) ) {
             $classAttributeNameNameList = new eZContentClassAttributeNameList( serialize( $params['name'] ) );
             $classAttributeNameNameList->validate( );
         }
-        
+
         if( is_string( $params['description'] ) ) {
             $attrCreateInfo['description'] = $params['description'];
-        }
-        elseif( is_array( $params['description'] ) ) {
+        } elseif( is_array( $params['description'] ) ) {
             $classAttributeDescriptionNameList = new eZContentClassAttributeNameList( serialize( $params['description'] ) );
             $classAttributeDescriptionNameList->validate( );
         }
@@ -101,17 +117,17 @@ class OWMigrationContentClass {
 
         if( isset( $classAttributeNameNameList ) ) {
             $newAttribute->NameList = $classAttributeNameNameList;
-        } 
+        }
 
         if( isset( $classAttributeDescriptionNameList ) ) {
             $newAttribute->DescriptionList = $classAttributeDescriptionNameList;
         }
-        
+
         foreach( $params as $field => $value ) {
-            if( !in_array($field, array_keys( $attrCreateInfo) ) && $field != 'name' && $field != 'description' ) {
-                $newAttribute->setAttribute($field, $value);
+            if( !in_array( $field, array_keys( $attrCreateInfo ) ) && $field != 'name' && $field != 'description' ) {
+                $newAttribute->setAttribute( $field, $value );
             }
-        } 
+        }
 
         $dataType = $newAttribute->dataType( );
         if( !$dataType ) {
@@ -160,11 +176,10 @@ class OWMigrationContentClass {
                 case 'name' :
                     if( is_string( $value ) ) {
                         $classAttribute->setAttribute( 'name', $value );
-                    }
-                    elseif( is_array( $value ) ) {
+                    } elseif( is_array( $value ) ) {
                         $nameList = new eZContentClassAttributeNameList( serialize( $value ) );
                         $nameList->validate( );
-                        $classAttribute->NameList = $nameList ;
+                        $classAttribute->NameList = $nameList;
                     }
                     break;
                 case 'placement' :
@@ -183,15 +198,19 @@ class OWMigrationContentClass {
         return $classAttribute;
     }
 
-public function removeAttribute( $classAttributeIdentifier) {
-    $classAttribute = $this->contentClassObject->fetchAttributeByIdentifier( $classAttributeIdentifier );
-    if( !is_array($classAttribute)) {
-        $classAttribute = array( $classAttribute );
+    public function removeAttribute( $classAttributeIdentifier ) {
+        $classAttribute = $this->contentClassObject->fetchAttributeByIdentifier( $classAttributeIdentifier );
+        if( $classAttribute ) {
+            if( !is_array( $classAttribute ) ) {
+                $classAttribute = array( $classAttribute );
+            }
+            $this->contentClassObject->removeAttributes( $classAttribute );
+            $this->output->notice( "Removal of attribute '$classAttributeIdentifier' done." );
+        } else {
+            $this->output->warning( "Attribute '$classAttributeIdentifier' not found." );
+        }
+
     }
-    $this->contentClassObject->removeAttributes($classAttribute);
-    $this->output->notice( "Removal of attribute '$classAttributeIdentifier' done" );
-    
-}
 
     protected function storeAttributesAndAdjustPlacements( ) {
         $attributes = $this->contentClassObject->fetchAttributes( );
@@ -204,10 +223,12 @@ public function removeAttribute( $classAttributeIdentifier) {
     }
 
     public function save( ) {
-        //var_dump($this->contentClassObject);
         $this->contentClassObject->store( );
         $this->contentClassObject->sync( );
-        //var_dump($this->contentClassObject);
+        $currentClassGroup = $this->contentClassObject->attribute( 'ingroup_list' );
+        if( empty( $currentClassGroup ) ) {
+            $this->addToContentClassGroup( 'Content' );
+        }
         $this->storeAttributesAndAdjustPlacements( );
 
     }
@@ -215,33 +236,31 @@ public function removeAttribute( $classAttributeIdentifier) {
     public function __set( $name, $value ) {
         if( $this->contentClassObject instanceof eZContentClass ) {
             if( $this->contentClassObject->hasAttribute( $name ) ) {
-                switch( $name){
+                switch( $name) {
                     case 'name' :
-                    if( is_string( $value ) ) {
-                        $this->contentClassObject->setAttribute( 'name', $value );
-                    }
-                    elseif( is_array( $value ) ) {
-                        $classAttributeNameList = new eZContentClassNameList( serialize( $value ) );
-                        $classAttributeNameList->validate( );
-                        $this->contentClassObject->NameList = $classAttributeNameList;
-                    }
-                    break;
-                    case 'description':
                         if( is_string( $value ) ) {
-                        $this->contentClassObject->setAttribute( 'description', $value );
-                    }
-                    elseif( is_array( $value ) ) {
-                        $classAttributeDescriptionList = new eZContentObjectNameList( serialize( $value ) );
-                        $classAttributeDescriptionList->validate( );
-                        $this->contentClassObject->DescriptionList = $classAttributeDescriptionList;
-                    }
+                            $this->contentClassObject->setAttribute( 'name', $value );
+                        } elseif( is_array( $value ) ) {
+                            $classAttributeNameList = new eZContentClassNameList( serialize( $value ) );
+                            $classAttributeNameList->validate( );
+                            $this->contentClassObject->NameList = $classAttributeNameList;
+                        }
                         break;
-                        default;
-                    $this->contentClassObject->setAttribute( $name, $value );
+                    case 'description' :
+                        if( is_string( $value ) ) {
+                            $this->contentClassObject->setAttribute( 'description', $value );
+                        } elseif( is_array( $value ) ) {
+                            $classAttributeDescriptionList = new eZContentObjectNameList( serialize( $value ) );
+                            $classAttributeDescriptionList->validate( );
+                            $this->contentClassObject->DescriptionList = $classAttributeDescriptionList;
+                        }
+                        break;
+                    default
+                    ;
+                        $this->contentClassObject->setAttribute( $name, $value );
                         break;
                 }
-            }
-            else {
+            } else {
                 throw new OWMigrationContentClassException( "Attribute $name not found" );
             }
         }
@@ -251,8 +270,7 @@ public function removeAttribute( $classAttributeIdentifier) {
         if( $this->contentClassObject instanceof eZContentClass ) {
             if( $this->contentClassObject->hasAttribute( $name ) ) {
                 return $this->contentClassObject->attribute( $name );
-            }
-            else {
+            } else {
                 throw new OWMigrationContentClassException( "Attribute $name not found." );
             }
         }
@@ -262,8 +280,7 @@ public function removeAttribute( $classAttributeIdentifier) {
         if( $this->contentClassObject instanceof eZContentClass ) {
             if( $this->contentClassObject->hasAttribute( $name ) ) {
                 TRUE;
-            }
-            else {
+            } else {
                 FALSE;
             }
         }

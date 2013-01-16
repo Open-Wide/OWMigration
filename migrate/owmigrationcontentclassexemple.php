@@ -30,12 +30,15 @@ class OWMigrationContentClassExemple extends OWMigration {
                 eZStringType::DEFAULT_STRING_FIELD => 'Corps',
                 eZStringType::MAX_LEN_FIELD => 100
         ) );
+        $contentClass->addToContentClassGroup( 'Migration classes' );
         $contentClass->save( );
     }
 
     public function down( ) {
         $contentClass = new OWMigrationContentClass( 'my_class' );
         $contentClass->removeAttribute( 'body' );
+        $contentClass->removeFromContentClassGroup( 'Migration classes' );
+        $contentClass->addToContentClassGroup( 'Content' );
     }
 
 }
