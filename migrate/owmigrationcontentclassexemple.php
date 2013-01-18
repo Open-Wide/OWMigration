@@ -3,22 +3,24 @@
 class OWMigrationContentClassExemple extends OWMigration {
 
     public function up( ) {
-        $contentClass = new OWMigrationContentClass( 'my_class' );
-        $contentClass->contentobject_name = '<name>';
-        $contentClass->name = array(
+        $migration = new OWMigrationContentClass( );
+        $migration->startMigrationOn( 'my_class' );
+        $migration->createIfNotExists();
+        $migration->contentobject_name = '<name>';
+        $migration->name = array(
             'fre-FR' => 'Ma class',
             'eng-GB' => 'My class'
         );
-        $contentClass->addAttribute( 'name' );
-        $contentClass->addAttribute( 'description', array( 'data_type_string' => 'eztext' ) );
-        $contentClass->updateAttribute( 'name', array(
+        $migration->addAttribute( 'name' );
+        $migration->addAttribute( 'description', array( 'data_type_string' => 'eztext' ) );
+        $migration->updateAttribute( 'name', array(
             'name' => array(
                 'fre-FR' => 'Nom',
                 'eng-GB' => 'Name'
             ),
             eZStringType::MAX_LEN_FIELD => 100
         ) );
-        $contentClass->addAttribute( 'body', array(
+        $migration->addAttribute( 'body', array(
             'name' => array(
                 'fre-FR' => 'Corps',
                 'eng-GB' => 'Body'
@@ -30,25 +32,30 @@ class OWMigrationContentClassExemple extends OWMigration {
             eZStringType::DEFAULT_STRING_FIELD => 'Corps',
             eZStringType::MAX_LEN_FIELD => 100
         ) );
-        $contentClass->addToContentClassGroup( 'Migration classes' );
-        $contentClass->save( );
+        $migration->addToContentClassGroup( 'Migration classes' );
+        $migration->end( );
 
-        $contentClass = new OWMigrationContentClass( 'my_class_2' );
-        $contentClass->contentobject_name = '<name>';
-        $contentClass->name = array(
+        $migration->startMigrationOn( 'my_class_2' );
+        $migration->createIfNotExists();
+        $migration->contentobject_name = '<name>';
+        $migration->name = array(
             'fre-FR' => 'Ma class (bis)',
             'eng-GB' => 'My class (bis)'
         );
-        $contentClass->addAttribute( 'name' );
-        $contentClass->save( );
+        $migration->addAttribute( 'name' );
+        $migration->end( );
     }
 
     public function down( ) {
-        $contentClass = new OWMigrationContentClass( 'my_class' );
-        $contentClass->removeAttribute( 'body' );
-        $contentClass->removeFromContentClassGroup( 'Migration classes' );
-        $contentClass->addToContentClassGroup( 'Content' );
-        OWMigrationContentClass::removeContentClass( 'my_class_2' );
+        $migration = new OWMigrationContentClass( );
+        $migration->startMigrationOn( 'my_class' );
+        $migration->removeAttribute( 'body' );
+        $migration->removeFromContentClassGroup( 'Migration classes' );
+        $migration->addToContentClassGroup( 'Content' );
+        $migration->end( );
+
+        $migration->startMigrationOn( 'my_class_2' );
+        $migration->removeClass( );
     }
 
 }

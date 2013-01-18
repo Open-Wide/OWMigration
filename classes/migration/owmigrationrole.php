@@ -1,27 +1,41 @@
 <?php
 
-class OWMigrationRole {
+class OWMigrationRole extends OWMigrationBase {
 
     protected $roleName;
     protected $role;
-    protected $output;
 
-    public function __construct( $roleName ) {
-        $this->output = eZCLI::instance( );
-        $this->roleName = $roleName;
-        $role = eZRole::fetchByName( $roleName );
+    public function startMigrationOn( $param ) {
+        $this->roleName = $param;
+        $role = eZRole::fetchByName( $this->roleName );
         if( $role instanceof eZRole ) {
             $this->role = $role;
-            $this->output->notice( "Role '$roleName' found -> create new version.", TRUE );
         } else {
-            $this->role = eZRole::create( $roleName );
-            $this->role->store( );
-            $this->output->notice( "Role '$roleName' not found -> create new content class.", TRUE );
+
         }
     }
 
+    public function end( ) {
+        $this->roleName = NULL;
+        $this->role = NULL;
+    }
+
+    public function createIfNotExists( ) {
+        if( $this->role instanceof eZRole ) {
+            $this->output->notice( "Create if not exists : role '$this->roleName' exists, nothing to do." );
+            return;
+        }
+        $this->role = eZRole::create( $this->roleName );
+        $this->role->store( );
+        $this->output->notice( "Create if not exists : role '$this->roleName' created." );
+    }
+
     public function hasPolicy( $module = '*', $function = '*', $limitation = array() ) {
-        $limitation = self::correctLimitationArray( $limitation );
+        if( !$this->role instanceof eZRole ) {
+            $this->output->error( "Has policy : role object not found." );
+            return FALSE;
+        }
+        $limitation = $this->correctLimitationArray( $limitation );
         $currentPolicies = $this->role->accessArray( );
         if( !isset( $currentPolicies[$module][$function] ) ) {
             return FALSE;
@@ -41,6 +55,10 @@ class OWMigrationRole {
     }
 
     public function addPolicy( $module = '*', $function = '*', $limitation = array() ) {
+        if( !$this->role instanceof eZRole ) {
+            $this->output->error( "Has policy : role object not found." );
+            return FALSE;
+        }
         $messagePart = empty( $limitation ) ? 'without' : 'with';
         if( !$this->hasPolicy( $module, $function, $limitation ) ) {
             $this->role->appendPolicy( $module, $function, $limitation );
@@ -52,6 +70,10 @@ class OWMigrationRole {
     }
 
     public function removePolicies( $module = FALSE, $function = FALSE, $limitation = FALSE ) {
+        if( !$this->role instanceof eZRole ) {
+            $this->output->error( "Remove policy : role object not found." );
+            return;
+        }
         if( $module === FALSE ) {
             $this->role->removePolicies( TRUE );
             $this->output->notice( "All policies deleted.", TRUE );
@@ -84,15 +106,19 @@ class OWMigrationRole {
     }
 
     public function assignToUser( $user, $limitIdent = NULL, $limitValue = NULL ) {
-        self::assignTo( 'user', $user, $limitIdent, $limitValue );
+        $this->assignTo( 'user', $user, $limitIdent, $limitValue );
     }
 
     public function assignToUserGroup( $group, $limitIdent = NULL, $limitValue = NULL ) {
-        self::assignTo( 'user_group', $user, $limitIdent, $limitValue );
+        $this->assignTo( 'user_group', $user, $limitIdent, $limitValue );
     }
 
     protected function assignTo( $type, $object, $limitIdent = NULL, $limitValue = NULL ) {
         $messageType = strtolower( sfInflector::humanize( $type ) );
+        if( !$this->role instanceof eZRole ) {
+            $this->output->error( "Assign to $messageType : role object not found." );
+            return;
+        }
         if( is_numeric( $object ) ) {
             $objectID = $object;
         } elseif( is_string( $object ) ) {
@@ -109,7 +135,7 @@ class OWMigrationRole {
             }
         } elseif( is_array( $object ) ) {
             foreach( $object as $item ) {
-                self::assignToUser( $item, $limitIdent, $limitValue );
+                $this->assignToUser( $item, $limitIdent, $limitValue );
             }
         } else {
             $this->output->error( "Assign to $messageType : $messageType param must be an integer, a string or an array." );
@@ -154,15 +180,19 @@ class OWMigrationRole {
     }
 
     public function unassignToUser( $user, $limitIdent = NULL, $limitValue = NULL ) {
-        self::unassignTo( 'user', $user, $limitIdent, $limitValue );
+        $this->unassignTo( 'user', $user, $limitIdent, $limitValue );
     }
 
     public function unassignToUserGroup( $group, $limitIdent = NULL, $limitValue = NULL ) {
-        self::unassignTo( 'user_group', $user, $limitIdent, $limitValue );
+        $this->unassignTo( 'user_group', $user, $limitIdent, $limitValue );
     }
 
     protected function unassignTo( $type, $object, $limitIdent = NULL, $limitValue = NULL ) {
         $messageType = strtolower( sfInflector::humanize( $type ) );
+        if( !$this->role instanceof eZRole ) {
+            $this->output->error( "Assign to $messageType : role object not found." );
+            return;
+        }
         if( is_numeric( $object ) ) {
             $objectID = $object;
         } elseif( is_string( $object ) ) {
@@ -179,7 +209,7 @@ class OWMigrationRole {
             }
         } elseif( is_array( $messageType ) ) {
             foreach( $messageType as $item ) {
-                self::unassignToUser( $item, $limitIdent, $limitValue );
+                $this->unassignToUser( $item, $limitIdent, $limitValue );
             }
         } else {
             $this->output->error( "Unassign to $messageType : $messageType param must be an integer, a string or an array." );

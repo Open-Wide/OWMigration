@@ -3,71 +3,75 @@
 class OWMigrationRoleExemple extends OWMigration {
 
     public function up( ) {
-        $role = new OWMigrationRole( 'Mon rôle 1' );
-        $role->addPolicy( 'content', 'create', array(
+        $migration = new OWMigrationRole( );
+        $migration->startMigrationOn( 'Mon rôle 1' );
+            $migration->createIfNotExists();
+            $migration->addPolicy(
+ 'content', 'create', array(
             'Class' => self::getContentClassId( array(
                 'folder',
                 'article'
             ) ),
             'ParentClass' => self::getContentClassId( 'folder' )
         ) );
-        $role->addPolicy( 'content', 'create', array(
+        $migration->addPolicy( 'content', 'create', array(
             'Class' => self::getContentClassId( array(
                 'folder',
                 'image'
             ) ),
             'ParentClass' => self::getContentClassId( 'folder' )
         ) );
-        $role->addPolicy( 'content', 'create', array(
+        $migration->addPolicy( 'content', 'create', array(
             'Class' => self::getContentClassId( array(
                 'folder',
                 'file'
             ) ),
             'ParentClass' => self::getContentClassId( 'folder' )
         ) );
-        $role->addPolicy( 'content', 'create', array(
+        $migration->addPolicy( 'content', 'create', array(
             'Class' => self::getContentClassId( array(
                 'folder',
                 'file'
             ) ),
             'ParentClass' => self::getContentClassId( 'toto' )
         ) );
-        $role->addPolicy( 'content', 'read' );
-        $role->addPolicy( 'content', 'bookmark' );
-        $role->addPolicy( 'ezoe' );
+        $migration->addPolicy( 'content', 'read' );
+        $migration->addPolicy( 'content', 'bookmark' );
+        $migration->addPolicy( 'ezoe' );
 
-        $role->assignToUser( 'To To', 'section', 'toto' );
-        $role->assignToUser( 'Ti Ti', 'section', 1 );
-        $role->assignToUser( 'Ti Ti' );
-        $role->assignToUser( array(
+        $migration->assignToUser( 'To To', 'section', 'toto' );
+        $migration->assignToUser( 'Ti Ti', 'section', 1 );
+        $migration->assignToUser( 'Ti Ti' );
+        $migration->assignToUser( 'Ta Ta' );
+        $migration->assignToUser( array(
             'Tu Tu',
             'To To'
         ), 'subtree', 2 );
     }
 
     public function down( ) {
-        $role = new OWMigrationRole( 'Mon rôle 1' );
-        $role->removePolicies( 'content', 'create', array(
+        $migration = new OWMigrationRole( 'Mon rôle 1' );
+        $migration->removePolicies( 'content', 'create', array(
             'Class' => self::getContentClassId( array(
                 'folder',
                 'article'
             ) ),
             'ParentClass' => self::getContentClassId( 'folder' )
         ) );
-        $role->removePolicies( 'content', 'create', array(
+        $migration->removePolicies( 'content', 'create', array(
             'Class' => self::getContentClassId( array(
                 'folder',
                 'file'
             ) ),
             'ParentClass' => self::getContentClassId( 'toto' )
         ) );
-        $role->removePolicies( 'content', 'read' );
-        $role->removePolicies( 'ezoe' );
+        $migration->removePolicies( 'content', 'read' );
+        $migration->removePolicies( 'ezoe' );
 
-        $role->unassignToUser( 'To To', 'section', 'toto' );
-        $role->unassignToUser( 'Ti Ti', 'section', 1 );
-        $role->unassignToUser( 'Ti Ti' );
-        $role->unassignToUser( 'Tu Tu', 'subtree', 2 );
+        $migration->unassignToUser( 'To To', 'section', 'toto' );
+        $migration->unassignToUser( 'Ti Ti', 'section', 1 );
+        $migration->unassignToUser( 'Ti Ti' );
+        $migration->unassignToUser( 'Tu Tu', 'subtree', 2 );
     }
 
     protected function getContentClassId( $classIdentifer ) {

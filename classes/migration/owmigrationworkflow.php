@@ -1,30 +1,74 @@
 <?php
 
-class OWMigrationWorkflow {
+class OWMigrationWorkflow extends OWMigrationBase {
 
     protected $workflowName;
     protected $workflow;
-    protected $output;
-    protected $eventList;
+    protected $eventList = array( );
 
-    public function __construct( $workflowName ) {
-        $this->output = eZCLI::instance( );
-        $this->workflowName = $workflowName;
-        $workflow = self::fetchWorkflow( );
+    public function startMigrationOn( $param ) {
+        $this->workflowName = $param;
+        $workflow = $this->fetchWorkflow( );
         if( $workflow instanceof eZWorkflow ) {
             $this->workflow = $workflow;
-            $this->output->notice( "Workflow '$workflowName' found -> create new version.", TRUE );
         } else {
             $currentUser = eZUser::currentUser( );
             $this->workflow = eZWorkflow::create( $currentUser->attribute( 'contentobject_id' ) );
-            $this->workflow->setAttribute( 'name', $workflowName );            $this->workflow->store( );
-            $this->output->notice( "Role '$workflowName' not found -> create new workflow.", TRUE );
+            $this->workflow->setAttribute( 'name', $this->workflowName );            $this->workflow->store( );
+            $this->output->notice( "Role '$this->workflowName' not found -> create new workflow.", TRUE );
             $this->addToGroup( 'Standard' );
         }
         $this->eventList = $this->workflow->fetchEvents( );
     }
 
+    public function end( ) {
+        if( $this->workflow instanceof eZWorkflow ) {
+            $currentGroupList = $this->workflow->attribute( 'ingroup_list' );
+            if( empty( $currentGroupList ) ) {
+                $this->addToGroup( 'Standard' );
+                $this->output->notice( "Ajout dans le groupe standard" );
+            }
+            $this->workflow->store( $this->eventList );
+            $WorkflowID = $this->workflow->attribute( 'id' );
+
+            $workflowgroups = eZWorkflowGroupLink::fetchGroupList( $WorkflowID, 1 );
+            foreach( $workflowgroups as $workflowgroup ) {
+                $workflowgroup->setAttribute( "workflow_version", 0 );
+                $workflowgroup->store( );
+            }
+            eZWorkflowGroupLink::removeWorkflowMembers( $WorkflowID, 1 );
+
+            eZWorkflow::removeEvents( false, $WorkflowID, 0 );
+            $this->workflow->removeThis( true );
+            $this->workflow->setVersion( 0, $this->eventList );
+            $this->workflow->adjustEventPlacements( $this->eventList );
+            $this->workflow->storeDefined( $this->eventList );
+            $this->workflow->cleanupWorkFlowProcess( );
+            eZWorkflow::removeEvents( false, $WorkflowID, 1 );
+        }
+        $this->workflowName = NULL;
+        $this->workflow = NULL;
+        $this->eventList = array( );
+    }
+
+    public function createIfNotExists( ) {
+        if( $this->workflow instanceof eZWorkflow ) {
+            $this->output->notice( "Create if not exists : workflow '$this->workflowName' exists, nothing to do." );
+            return;
+        }
+        $currentUser = eZUser::currentUser( );
+        $this->workflow = eZWorkflow::create( $currentUser->attribute( 'contentobject_id' ) );
+        $this->workflow->setAttribute( 'name', $this->workflowName );
+        $this->workflow->store( );
+        $this->output->notice( "Create if not exists : workflow '$this->workflowName' created." );
+        $this->addToGroup( 'Standard' );
+    }
+
     public function addToGroup( $groupName ) {
+        if( !$this->workflow instanceof eZWorkflow ) {
+            $this->output->error( "Add to group : workflow object not found." );
+            return;
+        }
         $workflowGroupList = eZWorkflowGroup::fetchList( );
         foreach( $workflowGroupList as $workflowGroupItem ) {
             if( $workflowGroupItem->attribute( 'name' ) == $groupName ) {
@@ -44,6 +88,10 @@ class OWMigrationWorkflow {
     }
 
     public function getEvent( $description, $workflowTypeString ) {
+        if( !$this->workflow instanceof eZWorkflow ) {
+            $this->output->error( "Get event : workflow object not found." );
+            return;
+        }
         $cond = array(
             'workflow_id' => $this->workflow->attribute( 'id' ),
             'description' => $description,
@@ -57,6 +105,10 @@ class OWMigrationWorkflow {
     }
 
     public function hasEvent( $description, $workflowTypeString ) {
+        if( !$this->workflow instanceof eZWorkflow ) {
+            $this->output->error( "Has event : workflow object not found." );
+            return;
+        }
         $event = $this->getEvent( $description, $workflowTypeString );
         if( $event ) {
             return TRUE;
@@ -65,6 +117,10 @@ class OWMigrationWorkflow {
     }
 
     public function addEvent( $description, $workflowTypeString, $params = array() ) {
+        if( !$this->workflow instanceof eZWorkflow ) {
+            $this->output->error( "Add event : workflow object not found." );
+            return;
+        }
         if( $this->hasEvent( $description, $workflowTypeString ) ) {
             $this->output->warning( "Add event : event '$description' ($workflowTypeString) already exists." );
             return;
@@ -82,7 +138,7 @@ class OWMigrationWorkflow {
         if( isset( $params['placement'] ) && is_numeric( $params['placement'] ) ) {
             $eventType->setAttribute( 'placement', (int)$params['placement'] );
         } else {
-            $eventType->setAttribute( 'placement', self::getNewEventPlacement( ) );
+            $eventType->setAttribute( 'placement', $this->getNewEventPlacement( ) );
         }
 
         foreach( $params as $attributeName => $attributeValue ) {
@@ -102,6 +158,10 @@ class OWMigrationWorkflow {
     }
 
     public function updateEvent( $description, $workflowTypeString, $params = array() ) {
+        if( !$this->workflow instanceof eZWorkflow ) {
+            $this->output->error( "Update event : workflow object not found." );
+            return;
+        }
         $event = $this->getEvent( $description, $workflowTypeString );
         if( !$event ) {
             $this->output->warning( "Update event : event '$description' ($workflowTypeString) not found." );
@@ -111,7 +171,6 @@ class OWMigrationWorkflow {
                 if( $event->hasAttribute( $attributeName ) ) {
                     $data = $this->parseAndReplaceStringReferences( $attributeValue );
                     $event->setAttribute( $attributeName, $data );
-                    var_dump( $event->content( ) );
                 } else {
                     $this->output->warning( "Update event : event '$description' ($workflowTypeString) has no attribute '$attributeName'." );
                 }
@@ -124,6 +183,10 @@ class OWMigrationWorkflow {
     }
 
     public function removeEvent( $description, $workflowTypeString ) {
+        if( !$this->workflow instanceof eZWorkflow ) {
+            $this->output->error( "Remove event : workflow object not found." );
+            return;
+        }
         $event = $this->getEvent( $description, $workflowTypeString );
         if( !$event ) {
             $this->output->warning( "Remove event : event '$description' ($workflowTypeString) not found." );
@@ -134,6 +197,10 @@ class OWMigrationWorkflow {
     }
 
     public function assignToTrigger( $module, $operation, $connectType ) {
+        if( !$this->workflow instanceof eZWorkflow ) {
+            $this->output->error( "Assign to trigger : workflow object not found." );
+            return;
+        }
         $connectType = $connectType[0];
         $parameters = array( );
         $parameters['module'] = $module;
@@ -156,75 +223,58 @@ class OWMigrationWorkflow {
                 $this->output->warning( "Assign to trigger : fail to save trigger." );
             }
         }
+        $connectType = $connectType == 'a' ? 'after' : ( $triggerOperationType == 'b' ? 'before' : $connectType );
         $this->output->notice( "Assign to trigger : workflow assigned to trigger '$module, $operation, $connectType'." );
     }
 
-    public function save( ) {
-        $currentGroupList = $this->workflow->attribute( 'ingroup_list' );
-        if( empty( $currentGroupList ) ) {
-            $this->addToGroup( 'Standard' );
-            $this->output->notice( "Ajout dans le groupe standard" );
+    public function unassignFromTrigger( $module = NULL, $operation = NULL, $connectType = NULL ) {
+        if( !$this->workflow instanceof eZWorkflow ) {
+            $this->output->error( "unassign to trigger : workflow object not found." );
+            return;
         }
-        $this->workflow->store( $this->eventList );
-        $WorkflowID = $this->workflow->attribute( 'id' );
-
-        // Remove old version 0 first
-        //eZWorkflowGroupLink::removeWorkflowMembers( $WorkflowID, 0 );
-
-        $workflowgroups = eZWorkflowGroupLink::fetchGroupList( $WorkflowID, 1 );
-        foreach( $workflowgroups as $workflowgroup ) {
-            $workflowgroup->setAttribute( "workflow_version", 0 );
-            $workflowgroup->store( );
-        }
-        // Remove version 1
-        eZWorkflowGroupLink::removeWorkflowMembers( $WorkflowID, 1 );
-
-        eZWorkflow::removeEvents( false, $WorkflowID, 0 );
-        $this->workflow->removeThis( true );
-        $this->workflow->setVersion( 0, $this->eventList );
-        $this->workflow->adjustEventPlacements( $this->eventList );
-        $this->workflow->storeDefined( $this->eventList );
-        $this->workflow->cleanupWorkFlowProcess( );
-        eZWorkflow::removeEvents( false, $WorkflowID, 1 );
-    }
-
-    static function unassignTrigger( $module, $operation, $connectType ) {
-        $output = eZCLI::instance( );
 
         $connectType = $connectType[0];
         $parameters = array( );
-        $parameters['module'] = $module;
-        $parameters['function'] = $operation;
-        $parameters['connectType'] = $connectType;
+        if( $module ) {
+            $parameters['module'] = $module;
+        }
+        if( $operation ) {
+            $parameters['function'] = $operation;
+        }
+        if( $connectType ) {
+            $parameters['connectType'] = $connectType;
+        }
 
         $triggerList = eZTrigger::fetchList( $parameters );
 
         if( count( $triggerList ) ) {
-            $trigger = $triggerList[0];
-            $trigger->remove( );
-        }
-        $output->notice( "Unassign to trigger : trigger '$module, $operation, $connectType' unassigned." );
-    }
+            foreach( $triggerList as $trigger ) {
+                if( $trigger->attribute( 'workflow_id' ) == $this->workflow->attribute( 'id' ) ) {
+                    $triggerModule = $trigger->attribute( 'module_name' );
+                    $triggerOperation = $trigger->attribute( 'function_name' );
+                    $triggerOperationType = $trigger->attribute( 'connect_type' );
+                    $triggerOperationType = $triggerOperationType == 'a' ? 'after' : ( $triggerOperationType == 'b' ? 'before' : $triggerOperationType );
+                    $trigger->remove( );
+                    $this->output->notice( "Unassign to trigger : trigger '$triggerModule, $triggerOperation, $triggerOperationType' unassigned." );
+                }
+            }
 
-    static function removeWorkflow( $workflowName ) {
-        $output = eZCLI::instance( );
-
-        $workflow = self::fetchWorkflow( $workflowName );
-        if( $workflow instanceof eZWorkflow ) {
-            $workflowID = $workflow->attribute( 'id' );
-            eZTrigger::removeTriggerForWorkflow( $workflowID );
-            eZWorkflow::setIsEnabled( false, $workflowID );
-            $output->notice( "Workflow '$workflowName' removed." );
-        } else {
-            $output->notice( "Workflow '$workflowName' nor found." );
         }
     }
 
-    protected function fetchWorkflow( $workflowName = FALSE ) {
-        if( !$workflowName ) {
-            $workflowName = $this->workflowName;
+    public function removeWorkflow( ) {
+        if( !$this->workflow instanceof eZWorkflow ) {
+            $this->output->error( "Remove workflow : workflow object not found." );
+            return;
         }
-        return eZPersistentObject::fetchObject( eZWorkflow::definition( ), null, array( "name" => $workflowName ), TRUE );
+        $workflowID = $this->workflow->attribute( 'id' );
+        eZTrigger::removeTriggerForWorkflow( $workflowID );
+        eZWorkflow::setIsEnabled( false, $workflowID );
+        $this->output->notice( "Remove workflow : workflow '$this->workflowName' removed." );
+    }
+
+    protected function fetchWorkflow( ) {
+        return eZPersistentObject::fetchObject( eZWorkflow::definition( ), null, array( "name" => $this->workflowName ), TRUE );
     }
 
     protected function getNewEventPlacement( ) {
