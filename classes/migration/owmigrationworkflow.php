@@ -14,7 +14,9 @@ class OWMigrationWorkflow extends OWMigrationBase {
         } else {
             $currentUser = eZUser::currentUser( );
             $this->workflow = eZWorkflow::create( $currentUser->attribute( 'contentobject_id' ) );
-            $this->workflow->setAttribute( 'name', $this->workflowName );            $this->workflow->store( );
+            $this->workflow->setAttribute( 'name', $this->workflowName );
+            $this->db->begin( );            $this->workflow->store( );
+            $this->db->commit( );
             $this->output->notice( "Role '$this->workflowName' not found -> create new workflow.", TRUE );
             $this->addToGroup( 'Standard' );
         }
@@ -28,16 +30,20 @@ class OWMigrationWorkflow extends OWMigrationBase {
                 $this->addToGroup( 'Standard' );
                 $this->output->notice( "Ajout dans le groupe standard" );
             }
+            $this->db->begin( );
             $this->workflow->store( $this->eventList );
+            $this->db->commit( );
             $WorkflowID = $this->workflow->attribute( 'id' );
 
             $workflowgroups = eZWorkflowGroupLink::fetchGroupList( $WorkflowID, 1 );
             foreach( $workflowgroups as $workflowgroup ) {
                 $workflowgroup->setAttribute( "workflow_version", 0 );
+                $this->db->begin( );
                 $workflowgroup->store( );
+                $this->db->commit( );
             }
+            $this->db->begin( );
             eZWorkflowGroupLink::removeWorkflowMembers( $WorkflowID, 1 );
-
             eZWorkflow::removeEvents( false, $WorkflowID, 0 );
             $this->workflow->removeThis( true );
             $this->workflow->setVersion( 0, $this->eventList );
@@ -45,6 +51,7 @@ class OWMigrationWorkflow extends OWMigrationBase {
             $this->workflow->storeDefined( $this->eventList );
             $this->workflow->cleanupWorkFlowProcess( );
             eZWorkflow::removeEvents( false, $WorkflowID, 1 );
+            $this->db->commit( );
         }
         $this->workflowName = NULL;
         $this->workflow = NULL;
@@ -59,7 +66,9 @@ class OWMigrationWorkflow extends OWMigrationBase {
         $currentUser = eZUser::currentUser( );
         $this->workflow = eZWorkflow::create( $currentUser->attribute( 'contentobject_id' ) );
         $this->workflow->setAttribute( 'name', $this->workflowName );
+        $this->db->begin( );
         $this->workflow->store( );
+        $this->db->commit( );
         $this->output->notice( "Create if not exists : workflow '$this->workflowName' created." );
         $this->addToGroup( 'Standard' );
     }
@@ -79,12 +88,16 @@ class OWMigrationWorkflow extends OWMigrationBase {
         if( !$workflowGroup ) {
             $this->output->notice( "Add to group : workflow group '$groupName' created." );
             $user = eZUser::currentUser( );
+            $this->db->begin( );
             $workflowGroup = eZWorkflowGroup::create( $user->attribute( 'contentobject_id' ) );
             $workflowGroup->setAttribute( "name", $groupName );
             $workflowGroup->store( );
+            $this->db->commit( );
         }
+        $this->db->begin( );
         $ingroup = eZWorkflowGroupLink::create( $this->workflow->attribute( 'id' ), $this->workflow->attribute( "version" ), $workflowGroup->attribute( 'id' ), $groupName );
         $ingroup->store( );
+        $this->db->commit( );
     }
 
     public function getEvent( $description, $workflowTypeString ) {
@@ -125,6 +138,7 @@ class OWMigrationWorkflow extends OWMigrationBase {
             $this->output->warning( "Add event : event '$description' ($workflowTypeString) already exists." );
             return;
         }
+        $this->db->begin( );
         $event = eZWorkflowEvent::create( $this->workflow->attribute( 'id' ), $workflowTypeString );
         $event->setAttribute( 'description', $description );
         $eventType = $event->eventType( );
@@ -135,6 +149,7 @@ class OWMigrationWorkflow extends OWMigrationBase {
         }
         $this->workflow->store( $this->eventList );
         $eventType->initializeEvent( $event );
+        $this->db->commit( );
         if( isset( $params['placement'] ) && is_numeric( $params['placement'] ) ) {
             $eventType->setAttribute( 'placement', (int)$params['placement'] );
         } else {
@@ -151,9 +166,11 @@ class OWMigrationWorkflow extends OWMigrationBase {
                 }
             }
         }
+        $this->db->begin( );
         $event->store( );
         $this->eventList[] = $event;
         $this->workflow->store( $this->eventList );
+        $this->db->commit( );
         return $event;
     }
 
@@ -176,9 +193,11 @@ class OWMigrationWorkflow extends OWMigrationBase {
                 }
             }
         }
+        $this->db->begin( );
         $event->store( );
         $this->eventList[] = $event;
         $this->workflow->store( $this->eventList );
+        $this->db->commit( );
         return $event;
     }
 
@@ -192,7 +211,9 @@ class OWMigrationWorkflow extends OWMigrationBase {
             $this->output->warning( "Remove event : event '$description' ($workflowTypeString) not found." );
             return;
         }
+        $this->db->begin( );
         $event->remove( );
+        $this->db->commit( );
         $this->output->notice( "Remove event : event '$description' ($workflowTypeString) removed." );
     }
 
@@ -223,7 +244,7 @@ class OWMigrationWorkflow extends OWMigrationBase {
                 $this->output->warning( "Assign to trigger : fail to save trigger." );
             }
         }
-        $connectType = $connectType == 'a' ? 'after' : ( $triggerOperationType == 'b' ? 'before' : $connectType );
+        $connectType = $connectType == 'a' ? 'after' : ($triggerOperationType == 'b' ? 'before' : $connectType);
         $this->output->notice( "Assign to trigger : workflow assigned to trigger '$module, $operation, $connectType'." );
     }
 
@@ -253,8 +274,10 @@ class OWMigrationWorkflow extends OWMigrationBase {
                     $triggerModule = $trigger->attribute( 'module_name' );
                     $triggerOperation = $trigger->attribute( 'function_name' );
                     $triggerOperationType = $trigger->attribute( 'connect_type' );
-                    $triggerOperationType = $triggerOperationType == 'a' ? 'after' : ( $triggerOperationType == 'b' ? 'before' : $triggerOperationType );
+                    $triggerOperationType = $triggerOperationType == 'a' ? 'after' : ($triggerOperationType == 'b' ? 'before' : $triggerOperationType);
+                    $this->db->begin( );
                     $trigger->remove( );
+                    $this->db->commit( );
                     $this->output->notice( "Unassign to trigger : trigger '$triggerModule, $triggerOperation, $triggerOperationType' unassigned." );
                 }
             }
@@ -268,8 +291,10 @@ class OWMigrationWorkflow extends OWMigrationBase {
             return;
         }
         $workflowID = $this->workflow->attribute( 'id' );
+        $this->db->begin( );
         eZTrigger::removeTriggerForWorkflow( $workflowID );
         eZWorkflow::setIsEnabled( false, $workflowID );
+        $this->db->commit( );
         $this->output->notice( "Remove workflow : workflow '$this->workflowName' removed." );
     }
 

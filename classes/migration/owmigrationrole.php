@@ -25,8 +25,10 @@ class OWMigrationRole extends OWMigrationBase {
             $this->output->notice( "Create if not exists : role '$this->roleName' exists, nothing to do." );
             return;
         }
+        $this->db->begin( );
         $this->role = eZRole::create( $this->roleName );
         $this->role->store( );
+        $this->db->commit( );
         $this->output->notice( "Create if not exists : role '$this->roleName' created." );
     }
 
@@ -61,12 +63,14 @@ class OWMigrationRole extends OWMigrationBase {
         }
         $messagePart = empty( $limitation ) ? 'without' : 'with';
         if( !$this->hasPolicy( $module, $function, $limitation ) ) {
+            $this->db->begin( );
             $this->role->appendPolicy( $module, $function, $limitation );
+            $this->role->store( );
+            $this->db->commit( );
             $this->output->notice( "Policy on $module::$function $messagePart limitation added.", TRUE );
         } else {
             $this->output->notice( "Policy on $module::$function $messagePart limitation already exists.", TRUE );
         }
-        $this->role->store( );
     }
 
     public function removePolicies( $module = FALSE, $function = FALSE, $limitation = FALSE ) {
@@ -74,8 +78,11 @@ class OWMigrationRole extends OWMigrationBase {
             $this->output->error( "Remove policy : role object not found." );
             return;
         }
+        $this->db->begin( );
         if( $module === FALSE ) {
+            $this->db->begin( );
             $this->role->removePolicies( TRUE );
+
             $this->output->notice( "All policies deleted.", TRUE );
         } elseif( $limitation === FALSE ) {
             $this->role->removePolicy( $module, $function );
@@ -83,8 +90,6 @@ class OWMigrationRole extends OWMigrationBase {
         } else {
             $policyList = $this->role->policyList( );
             if( is_array( $policyList ) && count( $policyList ) > 0 ) {
-                $db = eZDB::instance( );
-                $db->begin( );
                 foreach( $policyList as $key => $policy ) {
                     if( is_object( $policy ) ) {
                         if( $policy->attribute( 'module_name' ) == $module && $policy->attribute( 'function_name' ) == $function ) {
@@ -97,12 +102,12 @@ class OWMigrationRole extends OWMigrationBase {
                         }
                     }
                 }
-
-                $db->commit( );
             }
 
         }
         $this->role->store( );
+        $db->commit( );
+
     }
 
     public function assignToUser( $user, $limitIdent = NULL, $limitValue = NULL ) {
@@ -174,7 +179,9 @@ class OWMigrationRole extends OWMigrationBase {
         }
 
         if( isset( $objectID ) ) {
+            $this->db->begin( );
             $this->role->assignToUser( $objectID, $limitIdent, $limitValue );
+            $this->db->commit( );
             $this->output->notice( "Assign to $messageType : role assigned to user $object ($objectID)." );
         }
     }
@@ -256,7 +263,9 @@ class OWMigrationRole extends OWMigrationBase {
         if( isset( $objectID ) ) {
             foreach( $this->role->fetchUserByRole( ) as $userRole ) {
                 if( $userRole['user_object']->attribute( 'id' ) == $objectID && strtolower( $userRole['limit_ident'] ) == $limitIdent && strtolower( $userRole['limit_value'] ) == $limitValue ) {
+                    $this->db->begin( );
                     $this->role->removeUserAssignmentByID( $userRole['user_role_id'] );
+                    $this->db->commit( );
                     $this->output->notice( "Assign to $messageType : role unassigned to user $object ($objectID)." );
                 }
             }

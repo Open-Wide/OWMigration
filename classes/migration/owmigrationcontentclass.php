@@ -14,8 +14,10 @@ class OWMigrationContentClass extends OWMigrationBase {
 
     public function end( ) {
         if( $this->contentClassObject instanceof eZContentClass ) {
+            $this->db->begin( );
             $this->contentClassObject->store( );
             $this->contentClassObject->sync( );
+            $this->db->commit( );
             $currentClassGroup = $this->contentClassObject->attribute( 'ingroup_list' );
             if( empty( $currentClassGroup ) ) {
                 $this->addToContentClassGroup( 'Content' );
@@ -41,7 +43,9 @@ class OWMigrationContentClass extends OWMigrationBase {
             'identifier' => $this->classIdentifier
         ) );
         $this->contentClassObject->setName( sfInflector::humanize( $this->classIdentifier ) );
+        $this->db->begin( );
         $this->contentClassObject->store( );
+        $this->db->commit( );
         $this->output->notice( "Create if not exists : content class '$this->classIdentifier' created." );
 
     }
@@ -55,10 +59,14 @@ class OWMigrationContentClass extends OWMigrationBase {
         if( !$classGroup ) {
             $classGroup = eZContentClassGroup::create( );
             $classGroup->setAttribute( 'name', $classGroupName );
+            $this->db->begin( );
             $classGroup->store( );
+            $this->db->commit( );
             $this->output->notice( "Add to content class group : group '$classGroupName' not found, create group." );
         }
+        $this->db->begin( );
         $classGroup->appendClass( $this->contentClassObject );
+        $this->db->commit( );
         $this->output->notice( "Add to content class group : class added in '$classGroupName' group." );
     }
 
@@ -69,7 +77,9 @@ class OWMigrationContentClass extends OWMigrationBase {
         }
         $classGroup = eZContentClassGroup::fetchByName( $classGroupName );
         if( $classGroup ) {
+            $this->db->begin( );
             eZContentClassClassGroup::removeGroup( $this->contentClassObject->attribute( 'id' ), null, $classGroup->attribute( 'id' ) );
+            $this->db->commit( );
             $this->output->notice( "Remove from content class : class removed from group '$classGroupName'.", TRUE );
         } else {
             $this->output->warning( "Remove from content class : group '$classGroupName' not found." );
@@ -148,8 +158,9 @@ class OWMigrationContentClass extends OWMigrationBase {
                 $classAttributeDescriptionNameList->validate( );
             }
         }
-
+        $this->db->begin( );
         $newAttribute = eZContentClassAttribute::create( $classID, $datatype, $attrCreateInfo );
+        $this->db->commit( );
 
         if( isset( $classAttributeNameNameList ) ) {
             $newAttribute->NameList = $classAttributeNameNameList;
@@ -170,8 +181,10 @@ class OWMigrationContentClass extends OWMigrationBase {
             $this->output->error( "Unknown datatype: '$datatype'" );
             return false;
         }
+        $this->db->begin( );
         $dataType->initializeClassAttribute( $newAttribute );
         $newAttribute->store( );
+        $this->db->commit( );
 
         if( $attrContent )
             $newAttribute->setContent( $attrContent );
@@ -182,7 +195,9 @@ class OWMigrationContentClass extends OWMigrationBase {
 
         // remove temporary version
         if( $newAttribute->attribute( 'id' ) !== null ) {
+            $this->db->begin( );
             $newAttribute->remove( );
+            $this->db->commit( );
         }
 
         $newAttribute->setAttribute( 'version', $this->version );
@@ -190,8 +205,9 @@ class OWMigrationContentClass extends OWMigrationBase {
         $newAttribute->setAttribute( 'placement', $placement );
 
         $this->adjustAttributesPlacement = TRUE;
-
+        $this->db->begin( );
         $newAttribute->storeDefined( );
+        $this->db->commit( );
         $this->output->notice( "Add attribute : attribute '$classAttributeIdentifier' added." );
         return $newAttribute;
     }
@@ -231,7 +247,9 @@ class OWMigrationContentClass extends OWMigrationBase {
             }
 
             $dataType = $classAttribute->dataType( );
+            $this->db->begin( );
             $classAttribute->store( );
+            $this->db->commit( );
             $this->output->notice( "Update attribute : attribute '$classAttributeIdentifier' updated." );
             return $classAttribute;
         } else {
@@ -250,7 +268,9 @@ class OWMigrationContentClass extends OWMigrationBase {
             if( !is_array( $classAttribute ) ) {
                 $classAttribute = array( $classAttribute );
             }
+            $this->db->begin( );
             $this->contentClassObject->removeAttributes( $classAttribute );
+            $this->db->commit( );
             $this->output->notice( "Remove attribute : attribute '$classAttributeIdentifier' removed." );
         } else {
             $this->output->warning( "Remove attribute : attribute '$classAttributeIdentifier' not found." );
@@ -268,7 +288,9 @@ class OWMigrationContentClass extends OWMigrationBase {
             $this->contentClassObject->adjustAttributePlacements( $attributes );
         }
         foreach( $attributes as $attribute ) {
+            $this->db->begin( );
             $attribute->store( );
+            $this->db->commit( );
         }
         return;
     }
@@ -287,8 +309,10 @@ class OWMigrationContentClass extends OWMigrationBase {
         } else {
             $ClassObjectsCount .= " objects";
         }
+        $this->db->begin( );
         $this->contentClassObject->remove( TRUE );
         eZContentClassClassGroup::removeClassMembers( $ClassID, 0 );
+        $this->db->commit( );
         $this->output->notice( "Remove content class : $ClassObjectsCount removed." );
         $this->output->notice( "Remove content class : content class '$this->classIdentifier' removed." );
 
