@@ -6,7 +6,7 @@ $cli = eZCLI::instance( );
 $script = eZScript::instance( array(
         'description' => ("eZ Publish Migration Handler\n" . "Permet le déploiement des modifications à effextuer au n iveau de la base de données\n" . "\n" . ".extension/OWMigration/bin/php/migrate.php --migration-class=MigrationClass"),
         'use-session' => false,
-        'use-modules' => false,
+        'use-modules' => true,
         'use-extensions' => true
 ) );
 
