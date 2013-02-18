@@ -335,7 +335,7 @@ class OWMigrationContentClass extends OWMigrationBase {
                         if( is_string( $value ) ) {
                             $this->contentClassObject->setAttribute( 'description', $value );
                         } elseif( is_array( $value ) ) {
-                            $classAttributeDescriptionList = new eZContentObjectNameList( serialize( $value ) );
+                            $classAttributeDescriptionList = new eZContentClassNameList( serialize( $value ) );
                             $classAttributeDescriptionList->validate( );
                             $this->contentClassObject->DescriptionList = $classAttributeDescriptionList;
                         }
