@@ -156,7 +156,9 @@ class OWMigrationRole extends OWMigrationBase {
                     break;
                 case 'section' :
                     if( is_string( $limitValue ) ) {
-                        $section = eZSection::fetchByIdentifier( $limitValue );
+                        $section = eZPersistentObject::fetchObject( eZSection::definition(),
+                                                       null,
+                                                       array( "identifier" => $limitValue ) );
                         if( !$section ) {
                             $section = new eZSection( array(
                                 'name' => $limitValue,
