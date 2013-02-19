@@ -209,6 +209,7 @@ class OWMigrationContentClass extends OWMigrationBase {
         $newAttribute->storeDefined( );
         $this->db->commit( );
         $this->output->notice( "Add attribute : attribute '$classAttributeIdentifier' added." );
+        $newAttribute->initializeObjectAttributes();
         return $newAttribute;
     }
 
