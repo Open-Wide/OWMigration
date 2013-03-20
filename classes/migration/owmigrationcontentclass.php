@@ -169,12 +169,12 @@ class OWMigrationContentClass extends OWMigrationBase {
         $classID = $this->contentClassObject->attribute( 'id' );
 
         $datatype = isset( $params['data_type_string'] ) ? $params['data_type_string'] : 'ezstring';
-        $defaultValue = isset( $params['default_value'] ) ? $params['default_value'] : false;
-        $canTranslate = isset( $params['can_translate'] ) ? $params['can_translate'] : 0;
-        $isRequired = isset( $params['is_required'] ) ? $params['is_required'] : 0;
-        $isSearchable = isset( $params['is_searchable'] ) ? $params['is_searchable'] : 0;
-        $isCollector = isset( $params['is_information_collector'] ) ? $params['is_information_collector'] : false;
-        $attrContent = isset( $params['content'] ) ? $params['content'] : false;
+        $defaultValue = isset( $params['default_value'] ) ? $params['default_value'] : FALSE;
+        $canTranslate = isset( $params['can_translate'] ) ? $params['can_translate'] : TRUE;
+        $isRequired = isset( $params['is_required'] ) ? $params['is_required'] : FALSE;
+        $isSearchable = isset( $params['is_searchable'] ) ? $params['is_searchable'] : TRUE;
+        $isCollector = isset( $params['is_information_collector'] ) ? $params['is_information_collector'] : FALSE;
+        $attrContent = isset( $params['content'] ) ? $params['content'] : FALSE;
         $attrNode = isset( $params['attribute-node'] ) ? $params['attribute-node'] : array( );
         $datatypeParameter = isset( $params['datatype-parameter'] ) ? $params['datatype-parameter'] : array( );
 
