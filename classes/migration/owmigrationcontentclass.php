@@ -50,6 +50,50 @@ class OWMigrationContentClass extends OWMigrationBase {
 
     }
 
+    public function createFrom( $classIdentifier ) {
+        if( $this->contentClassObject instanceof eZContentClass ) {
+            $this->output->notice( "Create from : content class '$this->classIdentifier' exists, nothing to do." );
+            return;
+        }
+        $class = eZContentClass::fetchByIdentifier( $classIdentifier, true, 0 );
+        if( !$class ) {
+            $this->output->error( "Create from : content class '$classIdentifier' not found." );
+            return;
+        }
+        $this->contentClassObject = clone $class;
+        $this->contentClassObject->initializeCopy( $class );
+        $this->contentClassObject->setAttribute( 'version', eZContentClass::VERSION_STATUS_DEFINED );
+        $this->contentClassObject->setAttribute( 'identifier', $this->classIdentifier );
+
+        $nameList = $this->contentClassObject->languages( );
+        foreach( $nameList as $language => $value ) {
+            $nameList[$language] = sfInflector::humanize( $this->classIdentifier );
+        }
+        $classAttributeNameList = new eZContentClassNameList( serialize( $nameList ) );
+        $classAttributeNameList->validate( );
+        $this->contentClassObject->NameList = $classAttributeNameList;
+        $this->contentClassObject->store( );
+        $classAttributeCopies = array( );
+        $classAttributes = $class->fetchAttributes( );
+        foreach( array_keys( $classAttributes ) as $classAttributeKey ) {
+            $classAttribute = &$classAttributes[$classAttributeKey];
+            $classAttributeCopy = clone $classAttribute;
+
+            if( $datatype = $classAttributeCopy->dataType( ) )//avoiding fatal error if datatype not exist (was removed).
+            {
+                $datatype->cloneClassAttribute( $classAttribute, $classAttributeCopy );
+            } else {
+                continue;
+            }
+
+            $classAttributeCopy->setAttribute( 'contentclass_id', $this->contentClassObject->attribute( 'id' ) );
+            $classAttributeCopy->setAttribute( 'version', eZContentClass::VERSION_STATUS_DEFINED );
+            $classAttributeCopy->store( );
+            $classAttributeCopies[] = &$classAttributeCopy;
+            unset( $classAttributeCopy );
+        }
+    }
+
     public function addToContentClassGroup( $classGroupName ) {
         if( !$this->contentClassObject instanceof eZContentClass ) {
             $this->output->error( "Add to content class group : content class object not found." );
@@ -209,7 +253,7 @@ class OWMigrationContentClass extends OWMigrationBase {
         $newAttribute->storeDefined( );
         $this->db->commit( );
         $this->output->notice( "Add attribute : attribute '$classAttributeIdentifier' added." );
-        $newAttribute->initializeObjectAttributes();
+        $newAttribute->initializeObjectAttributes( );
         return $newAttribute;
     }
 
