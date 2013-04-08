@@ -248,12 +248,15 @@ class OWMigrationContentClass extends OWMigrationBase {
         $placement = isset( $params['placement'] ) ? intval( $params['placement'] ) : count( $attributes );
         $newAttribute->setAttribute( 'placement', $placement );
 
-        $this->adjustAttributesPlacement = TRUE;
         $this->db->begin( );
         $newAttribute->storeDefined( );
         $this->db->commit( );
         $this->output->notice( "Add attribute : attribute '$classAttributeIdentifier' added." );
         $newAttribute->initializeObjectAttributes( );
+        if( isset( $params['placement'] ) ) {
+            $this->storeAttributesAndAdjustPlacements( TRUE );
+            $this->adjustAttributesPlacement = TRUE;
+        }
         return $newAttribute;
     }
 
@@ -283,7 +286,6 @@ class OWMigrationContentClass extends OWMigrationBase {
                         break;
                     case 'placement' :
                         $classAttribute->setAttribute( 'placement', $value );
-                        $this->adjustAttributesPlacement = TRUE;
                         break;
                     default :
                         $classAttribute->setAttribute( $field, $value );
@@ -295,6 +297,10 @@ class OWMigrationContentClass extends OWMigrationBase {
             $this->db->begin( );
             $classAttribute->store( );
             $this->db->commit( );
+            if( isset( $params['placement'] ) ) {
+                $this->storeAttributesAndAdjustPlacements( TRUE );
+                $this->adjustAttributesPlacement = TRUE;
+            }
             $this->output->notice( "Update attribute : attribute '$classAttributeIdentifier' updated." );
             return $classAttribute;
         } else {
@@ -323,13 +329,13 @@ class OWMigrationContentClass extends OWMigrationBase {
         return;
     }
 
-    protected function storeAttributesAndAdjustPlacements( ) {
+    protected function storeAttributesAndAdjustPlacements( $force = FALSE ) {
         if( !$this->contentClassObject instanceof eZContentClass ) {
             $this->output->error( "Remove attribute : content class object not found." );
             return;
         }
         $attributes = $this->contentClassObject->fetchAttributes( );
-        if( $this->adjustAttributesPlacement ) {
+        if( $force || $this->adjustAttributesPlacement ) {
             $this->contentClassObject->adjustAttributePlacements( $attributes );
         }
         foreach( $attributes as $attribute ) {
