@@ -353,19 +353,21 @@ class OWMigrationContentClass extends OWMigrationBase {
         }
         $ClassName = $this->contentClassObject->attribute( 'name' );
         $ClassID = $this->contentClassObject->attribute( 'id' );
-        $classObjects = eZContentObject::fetchSameClassList( $ClassID );
-        $ClassObjectsCount = count( $classObjects );
-        if( $ClassObjectsCount == 0 ) {
-            $ClassObjectsCount .= " object";
+
+        if( !$this->contentClassObject->isRemovable( ) ) {
+            $this->output->notice( "Remove content class : content class '$this->classIdentifier' cannot be removed." );
         } else {
-            $ClassObjectsCount .= " objects";
+            $classObjects = eZContentObject::fetchSameClassList( $ClassID );
+            $ClassObjectsCount = count( $classObjects );
+            if( $ClassObjectsCount == 0 ) {
+                $ClassObjectsCount .= " object";
+            } else {
+                $ClassObjectsCount .= " objects";
+            }
+            eZContentClassOperations::remove( $ClassID );
+            $this->output->notice( "Remove content class : $ClassObjectsCount removed." );
+            $this->output->notice( "Remove content class : content class '$this->classIdentifier' removed." );
         }
-        $this->db->begin( );
-        $this->contentClassObject->remove( TRUE );
-        eZContentClassClassGroup::removeClassMembers( $ClassID, 0 );
-        $this->db->commit( );
-        $this->output->notice( "Remove content class : $ClassObjectsCount removed." );
-        $this->output->notice( "Remove content class : content class '$this->classIdentifier' removed." );
 
     }
 

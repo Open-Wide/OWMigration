@@ -21,6 +21,9 @@ $sys = eZSys::instance( );
 
 $script->initialize( );
 
+$user = eZUser::fetchByName( 'admin' );
+eZUser::setCurrentlyLoggedInUser( $user , $user->attribute( 'contentobject_id' ) );
+
 if( !isset( $options['migration-class'] ) ) {
     $cli->error( "--migration-class parameter is required." );
     $script->shutdown( 1 );
