@@ -35,7 +35,7 @@ class OWMigrationStateGroupExemple extends OWMigration {
     }
 
     public function down( ) {
-        $migration = new OWMigrationObjectState( );
+        $migration = new OWMigrationStateGroup( );
         $migration->startMigrationOn( 'my_state' );
         $migration->removeStateGroup( );
     }
