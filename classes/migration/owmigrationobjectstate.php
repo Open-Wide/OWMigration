@@ -1,53 +1,53 @@
 <?php
 
-class OWMigrationObjectState extends OWMigrationBase {
+class OWMigrationStateGroup extends OWMigrationBase {
 
-    protected $objectStateGroupIdentifier;
-    protected $objectStateGroup;
+    protected $stateGroupIdentifier;
+    protected $stateGroup;
     protected $topPriorityLanguage;
 
     public function startMigrationOn( $param ) {
-        $this->objectStateGroupIdentifier = $param;
+        $this->stateGroupIdentifier = $param;
         $objectStateGroup = eZContentObjectStateGroup::fetchByIdentifier( $param );
         if( $objectStateGroup instanceof eZContentObjectStateGroup ) {
-            $this->objectStateGroup = $objectStateGroup;
+            $this->stateGroup = $objectStateGroup;
         }
         $this->topPriorityLanguage = eZContentLanguage::topPriorityLanguage( );
     }
 
     public function end( ) {
-        $this->objectStateGroupIdentifier = NULL;
-        $this->objectStateGroup = NULL;
+        $this->stateGroupIdentifier = NULL;
+        $this->stateGroup = NULL;
     }
 
     public function createIfNotExists( ) {
-        if( $this->objectStateGroup instanceof eZContentObjectStateGroup ) {
-            $this->output->notice( "Create if not exists : state group '$this->objectStateGroupIdentifier' exists, nothing to do." );
+        if( $this->stateGroup instanceof eZContentObjectStateGroup ) {
+            $this->output->notice( "Create if not exists : state group '$this->stateGroupIdentifier' exists, nothing to do." );
             return;
         }
         $this->db->begin( );
-        $this->objectStateGroup = new eZContentObjectStateGroup( );
-        $this->objectStateGroup->setAttribute( 'identifier', $this->objectStateGroupIdentifier );
-        $this->objectStateGroup->setCurrentLanguage( $this->topPriorityLanguage->attribute( 'locale' ) );
-        $translations = $this->objectStateGroup->allTranslations( );
+        $this->stateGroup = new eZContentObjectStateGroup( );
+        $this->stateGroup->setAttribute( 'identifier', $this->stateGroupIdentifier );
+        $this->stateGroup->setCurrentLanguage( $this->topPriorityLanguage->attribute( 'locale' ) );
+        $translations = $this->stateGroup->allTranslations( );
         foreach( $translations as $translation ) {
-            $translation->setAttribute( 'name', sfInflector::humanize( $this->objectStateGroupIdentifier ) );
+            $translation->setAttribute( 'name', sfInflector::humanize( $this->stateGroupIdentifier ) );
         }
-        $this->objectStateGroup->store( );
+        $this->stateGroup->store( );
         $this->db->commit( );
-        $this->output->notice( "Create if not exists : state group '$this->objectStateGroupIdentifier' created." );
+        $this->output->notice( "Create if not exists : state group '$this->stateGroupIdentifier' created." );
     }
 
     public function update( $params ) {
-        if( !$this->objectStateGroup instanceof eZContentObjectStateGroup ) {
-            $this->output->error( "Update : state group '$this->objectStateGroupIdentifier' not found." );
+        if( !$this->stateGroup instanceof eZContentObjectStateGroup ) {
+            $this->output->error( "Update : state group '$this->stateGroupIdentifier' not found." );
             return;
         }
         foreach( $params as $key => $value ) {
-            if( $this->objectStateGroup->hasAttribute( $key ) ) {
-                $this->objectStateGroup->setAttribute( $key, $value );
+            if( $this->stateGroup->hasAttribute( $key ) ) {
+                $this->stateGroup->setAttribute( $key, $value );
             } else {
-                $translation = $this->objectStateGroup->translationByLocale( $key );
+                $translation = $this->stateGroup->translationByLocale( $key );
                 if( $translation instanceof eZContentObjectStateGroupLanguage ) {
                     if( is_array( $value ) ) {
                         if( isset( $value['name'] ) ) {
@@ -64,21 +64,21 @@ class OWMigrationObjectState extends OWMigrationBase {
                 }
             }
         }
-        $this->objectStateGroup->store( );
-        $this->output->notice( "update : state group '$this->objectStateGroupIdentifier' updated." );
+        $this->stateGroup->store( );
+        $this->output->notice( "update : state group '$this->stateGroupIdentifier' updated." );
     }
 
     public function addState( $identifier, $params = array() ) {
-        if( !$this->objectStateGroup instanceof eZContentObjectStateGroup ) {
-            $this->output->notice( "Add state : state group '$this->objectStateGroupIdentifier' nou found." );
+        if( !$this->stateGroup instanceof eZContentObjectStateGroup ) {
+            $this->output->notice( "Add state : state group '$this->stateGroupIdentifier' nou found." );
             return;
         }
-        $state = $this->objectStateGroup->stateByIdentifier( $identifier );
+        $state = $this->stateGroup->stateByIdentifier( $identifier );
         if( $state instanceof eZContentObjectState ) {
             $this->output->warning( "Add state : state '$identifier' already exists." );
             return;
         } else {
-            $state = $this->objectStateGroup->newState( );
+            $state = $this->stateGroup->newState( );
             $state->setAttribute( 'identifier', $identifier );
             $state->setCurrentLanguage( $this->topPriorityLanguage->attribute( 'locale' ) );
             $translations = $state->allTranslations( );
@@ -96,11 +96,11 @@ class OWMigrationObjectState extends OWMigrationBase {
     }
 
     public function updateState( $identifier, $params ) {
-        if( !$this->objectStateGroup instanceof eZContentObjectStateGroup ) {
-            $this->output->error( "Update state : state group '$this->objectStateGroupIdentifier' not found." );
+        if( !$this->stateGroup instanceof eZContentObjectStateGroup ) {
+            $this->output->error( "Update state : state group '$this->stateGroupIdentifier' not found." );
             return;
         }
-        $state = $this->objectStateGroup->stateByIdentifier( $identifier );
+        $state = $this->stateGroup->stateByIdentifier( $identifier );
         if( $state instanceof eZContentObjectState ) {
             $state = $this->fillStateWithParams( $state, $params );
             $state->store( );
@@ -111,11 +111,11 @@ class OWMigrationObjectState extends OWMigrationBase {
     }
 
     public function removeState( $identifier ) {
-        if( !$this->objectStateGroup instanceof eZContentObjectStateGroup ) {
-            $this->output->error( "Remove state : state group '$this->objectStateGroupIdentifier' not found." );
+        if( !$this->stateGroup instanceof eZContentObjectStateGroup ) {
+            $this->output->error( "Remove state : state group '$this->stateGroupIdentifier' not found." );
             return;
         }
-        $state = $this->objectStateGroup->stateByIdentifier( $identifier );
+        $state = $this->stateGroup->stateByIdentifier( $identifier );
         if( $state instanceof eZContentObjectState ) {
             $state->remove( );
             $this->output->notice( "Remove state : state '$identifier' removed." );
@@ -125,13 +125,13 @@ class OWMigrationObjectState extends OWMigrationBase {
         }
     }
 
-    public function removeObjectStateGroup( ) {
-        if( !$this->objectStateGroup instanceof eZContentObjectStateGroup ) {
-            $this->output->error( "Remove state : state group '$this->objectStateGroupIdentifier' not found." );
+    public function removeStateGroup( ) {
+        if( !$this->stateGroup instanceof eZContentObjectStateGroup ) {
+            $this->output->error( "Remove state : state group '$this->stateGroupIdentifier' not found." );
             return;
         }
-        $this->objectStateGroup->remove( );
-        $this->output->notice( "Remove state group : state group '$this->objectStateGroupIdentifier' removed." );
+        $this->stateGroup->remove( );
+        $this->output->notice( "Remove state group : state group '$this->stateGroupIdentifier' removed." );
     }
 
     protected function fillStateWithParams( $state, $params ) {

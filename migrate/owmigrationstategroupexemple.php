@@ -1,9 +1,9 @@
 <?php
 
-class OWMigrationObjectStateExemple extends OWMigration {
+class OWMigrationStateGroupExemple extends OWMigration {
 
     public function up( ) {
-        $migration = new OWMigrationObjectState( );
+        $migration = new OWMigrationStateGroup( );
         $migration->startMigrationOn( 'my_state' );
         $migration->createIfNotExists( );
         $migration->update( array(
@@ -37,7 +37,7 @@ class OWMigrationObjectStateExemple extends OWMigration {
     public function down( ) {
         $migration = new OWMigrationObjectState( );
         $migration->startMigrationOn( 'my_state' );
-        $migration->removeObjectStateGroup( );
+        $migration->removeStateGroup( );
     }
 
 }
