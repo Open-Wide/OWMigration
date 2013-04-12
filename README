@@ -17,6 +17,7 @@ php extension/OWMigration/bin/migrate.php --migration-class=yourMigrationClass -
 or
 php extension/OWMigration/bin/migrate.php --migration-class=yourMigrationClass --down
 
+You can see some exemples of migration class in the exemples directory of this extension.
 
 Enjoy !
 
