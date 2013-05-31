@@ -393,6 +393,16 @@ class OWMigrationContentClass extends OWMigrationBase {
                             $this->contentClassObject->DescriptionList = $classAttributeDescriptionList;
                         }
                         break;
+                    case 'identifier' :
+                        if( $this->contentClassObject->attribute( 'identifier' ) != $value ) {
+                            $duplicateContentClass = eZContentClass::fetchByIdentifier( $value );
+                            if( $duplicateContentClass instanceof eZContentClass ) {
+                                $this->output->error( "A content class with the idenfier '$value' already exists." );
+                            } else {
+                                $this->contentClassObject->setAttribute( $name, $value );
+                            }
+                        }
+                        break;
                     default :
                         $this->contentClassObject->setAttribute( $name, $value );
                         break;

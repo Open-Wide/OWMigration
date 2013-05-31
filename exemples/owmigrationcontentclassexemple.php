@@ -37,6 +37,8 @@ class OWMigrationContentClassExemple extends OWMigration {
 
         $migration->startMigrationOn( 'my_class_2' );
         $migration->createIfNotExists();
+        $migration->identifier = 'folder';
+        $migration->identifier = 'my_class_3';
         $migration->contentobject_name = '<name>';
         $migration->name = array(
             'fre-FR' => 'Ma class (bis)',
