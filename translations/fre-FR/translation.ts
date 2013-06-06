@@ -31,5 +31,9 @@
         <source>Display code</source>
         <translation>Afficher le code</translation>
     </message>
+    <message>
+        <source>Export code</source>
+        <translation>Exporter le code</translation>
+    </message>
 </context>
 </TS>

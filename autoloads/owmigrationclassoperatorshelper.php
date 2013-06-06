@@ -63,7 +63,7 @@ class OWMigrationClassOperatorsHelper {
         foreach( $attributesList as $attribute ) {
             $code .= "\t\t\$migration->addAttribute( '" . $attribute->attribute( 'identifier' ) . "', array( " . PHP_EOL;
             //'sort_field'
-            if( $contentClass->attribute( 'data_type_string' ) != 'ezstring' ) {
+            if( $attribute->attribute( 'data_type_string' ) != 'ezstring' ) {
                 $code .= "\t\t\t'data_type_string' => '" . $attribute->attribute( 'data_type_string' ) . "'," . PHP_EOL;
             }
             //'name'
