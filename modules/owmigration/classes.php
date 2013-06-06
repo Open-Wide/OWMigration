@@ -17,10 +17,29 @@ if( $classIdentifier && is_numeric( $classIdentifier ) ) {
 
 if( $Module->isCurrentAction( 'ExportCode' ) ) {
     $dir = eZSys::cacheDirectory( ) . '/';
-    $file = $dir . str_replace( '_', '', $classIdentifier ) . 'contentclassmigration.php';
-    @unlink( $file );
-    eZFile::create( $file, false, OWMigrationContentClassCodeGenerator::getMigrationClass( $classIdentifier ) );
-    if( !eZFile::download( $file ) ) {
+    $filepath = $dir . str_replace( '_', '', $classIdentifier ) . 'contentclassmigration.php';
+    @unlink( $filepath );
+    eZFile::create( $filepath, false, OWMigrationContentClassCodeGenerator::getMigrationClass( $classIdentifier ) );
+    if( !eZFile::download( $filepath ) ) {
+        $module->redirectTo( 'owmigration/classes' );
+    }
+} elseif( $Module->isCurrentAction( 'ExportAllClassCode' ) ) {
+    $classList = eZContentClass::fetchAllClasses( );
+    $dir = eZSys::cacheDirectory( ) . '/';
+    $archiveFile = $dir . 'contentclassmigration.zip';
+    @unlink( $archiveFile );
+    $zip = new ZipArchive;
+    if( $zip->open( $archiveFile, ZIPARCHIVE::CREATE ) === TRUE ) {
+        foreach( $classList as $class ) {
+            $file = str_replace( '_', '', $class->attribute( 'identifier' ) ) . 'contentclassmigration.php';
+            $filepath = $dir . $file;
+            @unlink( $filepath );
+            eZFile::create( $filepath, false, OWMigrationContentClassCodeGenerator::getMigrationClass( $class->attribute( 'identifier' ) ) );
+            $zip->addFile( $filepath, $file );
+        }
+        $zip->close( );
+    }
+    if( !eZFile::download( $archiveFile ) ) {
         $module->redirectTo( 'owmigration/classes' );
     }
 } else {

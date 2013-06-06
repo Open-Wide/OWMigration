@@ -23,6 +23,7 @@
 		<div class="block">
 		    <input class="button" type="submit" name="ActionGenerateCode" value="{'Display code'|i18n( 'owmigration/classes' )}" />
 		    <input class="button" type="submit" name="ActionExportCode" value="{'Export code'|i18n( 'owmigration/classes' )}" />
+            <input class="defaultbutton" type="submit" name="ActionExportAllClassCode" value="{'Export all classes code'|i18n( 'owmigration/classes' )}" />
 		</div>
     </div>
     {if $class_identifier}

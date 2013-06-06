@@ -35,5 +35,9 @@
         <source>Export code</source>
         <translation>Exporter le code</translation>
     </message>
+    <message>
+        <source>Export all classes code</source>
+        <translation>Exporter le code de toutes les classes</translation>
+    </message>
 </context>
 </TS>

@@ -11,7 +11,8 @@ $ViewList['classes'] = array(
     'params' => array( 'ContentClassIdentifier' ),
     'single_post_actions' => array(
         'ActionGenerateCode' => 'GenerateCode',
-        'ActionExportCode' => 'ExportCode'
+        'ActionExportCode' => 'ExportCode',
+        'ActionExportAllClassCode' => 'ExportAllClassCode'
     ),
     'post_action_parameters' => array(
         'GenerateCode' => array( 'ContentClassIdentifier' => 'ContentClassIdentifier' ),
