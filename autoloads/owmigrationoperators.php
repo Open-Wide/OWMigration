@@ -59,7 +59,7 @@ class OWMigrationOperators {
     }
 
     function displayContentMigrationClass( $operatorValue ) {
-        return htmlspecialchars( OWMigrationClassOperatorsHelper::getMigrationClass( $operatorValue ) );
+        return htmlspecialchars( OWMigrationContentClassCodeGenerator::getMigrationClass( $operatorValue ) );
     }
 
     /// \privatesection

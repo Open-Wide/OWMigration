@@ -19,7 +19,7 @@ if( $Module->isCurrentAction( 'ExportCode' ) ) {
     $dir = eZSys::cacheDirectory( ) . '/';
     $file = $dir . str_replace( '_', '', $classIdentifier ) . 'contentclassmigration.php';
     @unlink( $file );
-    eZFile::create( $file, false, OWMigrationClassOperatorsHelper::getMigrationClass( $classIdentifier ) );
+    eZFile::create( $file, false, OWMigrationContentClassCodeGenerator::getMigrationClass( $classIdentifier ) );
     if( !eZFile::download( $file ) ) {
         $module->redirectTo( 'owmigration/classes' );
     }

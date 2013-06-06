@@ -1,6 +1,6 @@
 <?php
 
-class OWMigrationClassOperatorsHelper {
+class OWMigrationContentClassCodeGenerator {
 
     static function getMigrationClass( $classIdentifier ) {
         $contentClass = eZContentClass::fetchByIdentifier( $classIdentifier );
