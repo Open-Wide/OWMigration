@@ -1,6 +1,6 @@
 <?php
 
-class FeedbackFormContentClassMigration extends OWMigration {
+class FeedbackFormContentClassMigrationExemple extends OWMigration {
 
     public function up( ) {
         $migration = new OWMigrationContentClass( );
