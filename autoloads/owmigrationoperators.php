@@ -59,7 +59,8 @@ class OWMigrationOperators {
     }
 
     function displayContentMigrationClass( $operatorValue ) {
-        return htmlspecialchars( OWMigrationContentClassCodeGenerator::getMigrationClass( $operatorValue ) );
+        $geshi = new GeSHi(OWMigrationContentClassCodeGenerator::getMigrationClass( $operatorValue ), 'php');
+        return $geshi->parse_code();
     }
 
     /// \privatesection
