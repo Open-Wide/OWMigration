@@ -27,6 +27,6 @@
 		</div>
     </div>
     {if $class_identifier}
-    <pre>{$class_identifier|display_content_migration_class()}</pre>
+        {$class_identifier|display_content_migration_class()}
     {/if}
 </form>
