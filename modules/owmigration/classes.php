@@ -25,11 +25,13 @@ if( $Module->isCurrentAction( 'ExportCode' ) ) {
     }
 } elseif( $Module->isCurrentAction( 'ExportAllClassCode' ) ) {
     $classList = eZContentClass::fetchAllClasses( );
-    $dir = eZSys::cacheDirectory( ) . '/';
-    $archiveFile = $dir . 'contentclassmigration.zip';
-    @unlink( $archiveFile );
+    $dir = eZSys::cacheDirectory( ) . '/owmigration/';
+    $archiveFile = 'contentclassmigration.zip';
+    $archiveFilepath = $dir . $archiveFile;
+    eZFile::create( $archiveFile, $dir );
+    @unlink( $archiveFilepath );
     $zip = new ZipArchive;
-    if( $zip->open( $archiveFile, ZIPARCHIVE::CREATE ) === TRUE ) {
+    if( $zip->open( $archiveFilepath, ZIPARCHIVE::CREATE ) === TRUE ) {
         foreach( $classList as $class ) {
             $file = str_replace( '_', '', $class->attribute( 'identifier' ) ) . 'contentclassmigration.php';
             $filepath = $dir . $file;
@@ -38,9 +40,9 @@ if( $Module->isCurrentAction( 'ExportCode' ) ) {
             $zip->addFile( $filepath, $file );
         }
         $zip->close( );
-    }
-    if( !eZFile::download( $archiveFile ) ) {
-        $module->redirectTo( 'owmigration/classes' );
+        if( !eZFile::download( $archiveFilepath, true, $archiveFile ) ) {
+            $Module->redirectTo( 'owmigration/classes' );
+        }
     }
 } else {
     $tpl->setVariable( 'class_identifier', $classIdentifier );
