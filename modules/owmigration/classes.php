@@ -46,9 +46,18 @@ if( $Module->isCurrentAction( 'ExportCode' ) ) {
     $tpl->setVariable( 'class_identifier', $classIdentifier );
     $Result['content'] = $tpl->fetch( 'design:owmigration/classes.tpl' );
     $Result['left_menu'] = 'design:owmigration/menu.tpl';
-    $Result['path'] = array( array(
-            'url' => 'owmigration/classes',
-            'text' => ezi18n( 'owmigration/classes', 'Migrate content class' )
-        ) );
+    if( function_exists( 'ezi18n' ) ) {
+        $Result['path'] = array( array(
+                'url' => 'owmigration/classes',
+                'text' => ezi18n( 'owmigration/classes', 'Migrate content class' )
+            ) );
+
+    } else {
+        $Result['path'] = array( array(
+                'url' => 'owmigration/classes',
+                'text' => ezpI18n::tr( 'owmigration/classes', 'Migrate content class' )
+            ) );
+
+    }
 }
 ?>
