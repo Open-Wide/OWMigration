@@ -1,5 +1,4 @@
 {def $classlist = fetch( 'class', 'list', hash(
-            'class_filter', ezini( 'ListSettings', 'IncludeClasses', 'lists.ini' ),
             'sort_by', array( 'name', true() ) 
 ) )}
 <form method="post" action={'owmigration/classes'|ezurl()}>

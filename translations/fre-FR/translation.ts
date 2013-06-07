@@ -9,7 +9,7 @@
 <context>
     <name>design/admin/parts/owmigration/menu</name>
     <message>
-        <source>owmigration</source>
+        <source>OW Migration</source>
         <translation>OW Migration</translation>
     </message>
     <message>
