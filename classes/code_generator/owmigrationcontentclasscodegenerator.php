@@ -5,7 +5,7 @@ class OWMigrationContentClassCodeGenerator {
     static function getMigrationClass( $classIdentifier ) {
         $contentClass = eZContentClass::fetchByIdentifier( $classIdentifier );
         $code = "<?php" . PHP_EOL . PHP_EOL;
-        $code .= "class " . sfInflector::camelize( $contentClass->attribute( 'identifier' ) ) . "ContentClassMigration extends OWMigration {" . PHP_EOL . PHP_EOL;
+        $code .= sprintf( "class %sContentClassMigration extends OWMigration {" . PHP_EOL . PHP_EOL, sfInflector::camelize( $contentClass->attribute( 'identifier' ) ) );
         $code .= self::getUpMethod( $contentClass );
         $code .= self::getDownMethod( $contentClass );
         $code .= "}" . PHP_EOL . PHP_EOL;
@@ -16,13 +16,13 @@ class OWMigrationContentClassCodeGenerator {
     static function getUpMethod( $contentClass ) {
         $code = "\tpublic function up( ) {" . PHP_EOL;
         $code .= "\t\t\$migration = new OWMigrationContentClass( );" . PHP_EOL;
-        $code .= "\t\t\$migration->startMigrationOn( '" . $contentClass->attribute( 'identifier' ) . "' );" . PHP_EOL;
+        $code .= sprintf( "\t\t\$migration->startMigrationOn( '%s' );" . PHP_EOL, self::escapeString( $contentClass->attribute( 'identifier' ) ) );
         $code .= "\t\t\$migration->createIfNotExists( );" . PHP_EOL . PHP_EOL;
         //'name'
         if( $contentClass->attribute( 'name' ) ) {
             $code .= "\t\t\$migration->name = array(" . PHP_EOL;
             foreach( $contentClass->attribute( 'nameList' ) as $key => $value ) {
-                $code .= "\t\t\t'" . $key . "' => '" . $value . "'," . PHP_EOL;
+                $code .= sprintf( "\t\t\t'%s' => '%s'," . PHP_EOL, self::escapeString( $key ), self::escapeString( $value ) );
             }
             $code .= "\t\t);" . PHP_EOL;
         }
@@ -30,17 +30,17 @@ class OWMigrationContentClassCodeGenerator {
         if( $contentClass->attribute( 'description' ) != '' ) {
             $code .= "\t\t\$migration->description = array(" . PHP_EOL;
             foreach( $contentClass->attribute( 'descriptionList' ) as $key => $value ) {
-                $code .= "\t\t\t'" . $key . "' => '" . $value . "'," . PHP_EOL;
+                $code .= sprintf( "\t\t\t'%s' => '%s'," . PHP_EOL, self::escapeString( $key ), self::escapeString( $value ) );
             }
             $code .= "\t\t);" . PHP_EOL;
         }
         //'contentobject_name'
         if( $contentClass->attribute( 'contentobject_name' ) != '' ) {
-            $code .= "\t\t\$migration->contentobject_name = '" . $contentClass->attribute( 'contentobject_name' ) . "';" . PHP_EOL;
+            $code .= sprintf( "\t\t\$migration->contentobject_name = '%s';" . PHP_EOL, self::escapeString( $contentClass->attribute( 'contentobject_name' ) ) );
         }
         //'url_alias_name'
         if( $contentClass->attribute( 'url_alias_name' ) != '' ) {
-            $code .= "\t\t\$migration->url_alias_name = '" . $contentClass->attribute( 'url_alias_name' ) . "';" . PHP_EOL;
+            $code .= sprintf( "\t\t\$migration->url_alias_name = '%s';" . PHP_EOL, self::escapeString( $contentClass->attribute( 'url_alias_name' ) ) );
         }
         //'is_container'
         if( $contentClass->attribute( 'is_container' ) == TRUE ) {
@@ -52,7 +52,7 @@ class OWMigrationContentClassCodeGenerator {
         }
         //'sort_field'
         if( $contentClass->attribute( 'sort_field' ) != 1 ) {
-            $code .= "\t\t\$migration->sort_field = " . $contentClass->attribute( 'sort_field' ) . ";" . PHP_EOL;
+            $code .= sprintf( "\t\t\$migration->sort_field = %s;" . PHP_EOL, self::escapeString( $contentClass->attribute( 'sort_field' ) ) );
         }
         //'always_available'
         if( $contentClass->attribute( 'sort_order' ) == FALSE ) {
@@ -61,16 +61,16 @@ class OWMigrationContentClassCodeGenerator {
         $code .= PHP_EOL;
         $attributesList = $contentClass->fetchAttributes( );
         foreach( $attributesList as $attribute ) {
-            $code .= "\t\t\$migration->addAttribute( '" . $attribute->attribute( 'identifier' ) . "', array( " . PHP_EOL;
+            $code .= sprintf( "\t\t\$migration->addAttribute( '%s', array( " . PHP_EOL, self::escapeString( $attribute->attribute( 'identifier' ) ) );
             //'sort_field'
             if( $attribute->attribute( 'data_type_string' ) != 'ezstring' ) {
-                $code .= "\t\t\t'data_type_string' => '" . $attribute->attribute( 'data_type_string' ) . "'," . PHP_EOL;
+                $code .= sprintf( "\t\t\t'data_type_string' => '%s'," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_type_string' ) ) );
             }
             //'name'
             if( $attribute->attribute( 'name' ) != '' ) {
                 $code .= "\t\t\t'name' => array(" . PHP_EOL;
                 foreach( $attribute->attribute( 'nameList' ) as $key => $value ) {
-                    $code .= "\t\t\t\t'" . $key . "' => '" . $value . "'," . PHP_EOL;
+                    $code .= sprintf( "\t\t\t\t'%s' => '%s'," . PHP_EOL, self::escapeString( $key ), self::escapeString( $value ) );
                 }
                 $code .= "\t\t\t)," . PHP_EOL;
             }
@@ -78,7 +78,7 @@ class OWMigrationContentClassCodeGenerator {
             if( $attribute->attribute( 'description' ) != '' ) {
                 $code .= "\t\t\t'description' => array(" . PHP_EOL;
                 foreach( $attribute->attribute( 'descriptionList' ) as $key => $value ) {
-                    $code .= "\t\t\t\t'" . $key . "' => '" . $value . "'," . PHP_EOL;
+                    $code .= sprintf( "\t\t\t\t'%s' => '%s'," . PHP_EOL, self::escapeString( $key ), self::escapeString( $value ) );
                 }
                 $code .= "\t\t\t)," . PHP_EOL;
             }
@@ -100,65 +100,65 @@ class OWMigrationContentClassCodeGenerator {
             }
             //'data_int1'
             if( $attribute->attribute( 'data_int1' ) ) {
-                $code .= "\t\t\t'data_int1' => " . $attribute->attribute( 'data_int1' ) . "," . PHP_EOL;
+                $code .= sprintf( "\t\t\t'data_int1' => %s," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_int1' ) ) );
             }
             //'data_int2'
             if( $attribute->attribute( 'data_int2' ) ) {
-                $code .= "\t\t\t'data_int2' => " . $attribute->attribute( 'data_int2' ) . "," . PHP_EOL;
+                $code .= sprintf( "\t\t\t'data_int2' => %s," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_int2' ) ) );
             }
             //'data_int3'
             if( $attribute->attribute( 'data_int3' ) ) {
-                $code .= "\t\t\t'data_int3' => " . $attribute->attribute( 'data_int3' ) . "," . PHP_EOL;
+                $code .= sprintf( "\t\t\t'data_int3' => %s," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_int3' ) ) );
             }
             //'data_int4'
             if( $attribute->attribute( 'data_int4' ) ) {
-                $code .= "\t\t\t'data_int4' => " . $attribute->attribute( 'data_int4' ) . "," . PHP_EOL;
+                $code .= sprintf( "\t\t\t'data_int4' => %s," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_int4' ) ) );
             }
             //'data_float1'
             if( $attribute->attribute( 'data_float1' ) ) {
-                $code .= "\t\t\t'data_float1' => " . $attribute->attribute( 'data_float1' ) . "," . PHP_EOL;
+                $code .= sprintf( "\t\t\t'data_float1' => %s," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_float1' ) ) );
             }
             //'data_float2'
             if( $attribute->attribute( 'data_float2' ) ) {
-                $code .= "\t\t\t'data_float2' => " . $attribute->attribute( 'data_float2' ) . "," . PHP_EOL;
+                $code .= sprintf( "\t\t\t'data_float2' => %s," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_float2' ) ) );
             }
             //'data_float3'
             if( $attribute->attribute( 'data_float3' ) ) {
-                $code .= "\t\t\t'data_float3' => " . $attribute->attribute( 'data_float3' ) . "," . PHP_EOL;
+                $code .= sprintf( "\t\t\t'data_float3' => %s," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_float3' ) ) );
             }
             //'data_float4'
             if( $attribute->attribute( 'data_float4' ) ) {
-                $code .= "\t\t\t'data_float4' => " . $attribute->attribute( 'data_float4' ) . "," . PHP_EOL;
+                $code .= sprintf( "\t\t\t'data_float4' => %s," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_float4' ) ) );
             }
             //'data_text1'
             if( $attribute->attribute( 'data_text1' ) ) {
-                $code .= "\t\t\t'data_text1' => '" . $attribute->attribute( 'data_text1' ) . "'," . PHP_EOL;
+                $code .= sprintf( "\t\t\t'data_text1' => '%s'," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_text1' ) ) );
             }
             //'data_text2'
             if( $attribute->attribute( 'data_text2' ) ) {
-                $code .= "\t\t\t'data_text2' => '" . $attribute->attribute( 'data_text2' ) . "'," . PHP_EOL;
+                $code .= sprintf( "\t\t\t'data_text2' => '%s'," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_text2' ) ) );
             }
             //'data_text3'
             if( $attribute->attribute( 'data_text3' ) ) {
-                $code .= "\t\t\t'data_text3' => '" . $attribute->attribute( 'data_text3' ) . "'," . PHP_EOL;
+                $code .= sprintf( "\t\t\t'data_text3' => '%s'," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_text3' ) ) );
             }
             //'data_text4'
             if( $attribute->attribute( 'data_text4' ) ) {
-                $code .= "\t\t\t'data_text4' => '" . $attribute->attribute( 'data_text4' ) . "'," . PHP_EOL;
+                $code .= sprintf( "\t\t\t'data_text4' => '%s'," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_text4' ) ) );
             }
             //'data_text5'
             if( $attribute->attribute( 'data_text5' ) ) {
-                $code .= "\t\t\t'data_text5' => '" . $attribute->attribute( 'data_text5' ) . "'," . PHP_EOL;
+                $code .= sprintf( "\t\t\t'data_text5' => '%s'," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_text5' ) ) );
             }
             //'category'
             if( $attribute->attribute( 'category' ) ) {
-                $code .= "\t\t\t'category' => " . $attribute->attribute( 'category' ) . "," . PHP_EOL;
+                $code .= sprintf( "\t\t\t'category' => '%s'" . PHP_EOL, self::escapeString( $attribute->attribute( 'category' ) ) );
             }
             $code .= "\t\t) );" . PHP_EOL;
         }
         $code .= PHP_EOL;
         foreach( $contentClass->attribute( 'ingroup_list' ) as $classGroup ) {
-            $code .= "\t\t\$migration->addToContentClassGroup( '" . $classGroup->attribute( 'group_name' ) . "' );" . PHP_EOL;
+            $code .= sprintf( "\t\t\$migration->addToContentClassGroup( '%s' )" . PHP_EOL, self::escapeString( $classGroup->attribute( 'group_name' ) ) );
         }
         $code .= "\t\t\$migration->end( );" . PHP_EOL;
         $code .= "\t}" . PHP_EOL . PHP_EOL;
@@ -168,10 +168,14 @@ class OWMigrationContentClassCodeGenerator {
     static function getDownMethod( $contentClass ) {
         $code = "\tpublic function down( ) {" . PHP_EOL;
         $code .= "\t\t\$migration = new OWMigrationContentClass( );" . PHP_EOL;
-        $code .= "\t\t\$migration->startMigrationOn( '" . $contentClass->attribute( 'identifier' ) . "' );" . PHP_EOL;
+        $code .= sprintf( "\t\t\$migration->startMigrationOn( '%s' );" . PHP_EOL, self::escapeString( $contentClass->attribute( 'identifier' ) ) );
         $code .= "\t\t\$migration->removeClass( );" . PHP_EOL;
         $code .= "\t}" . PHP_EOL;
         return $code;
+    }
+
+    static function escapeString( $str ) {
+        return addcslashes( $str, "'" );
     }
 
 }
