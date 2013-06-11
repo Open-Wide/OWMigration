@@ -115,7 +115,7 @@ class OWMigrationRole extends OWMigrationBase {
     }
 
     public function assignToUserGroup( $group, $limitIdent = NULL, $limitValue = NULL ) {
-        $this->assignTo( 'user_group', $user, $limitIdent, $limitValue );
+        $this->assignTo( 'user_group', $group, $limitIdent, $limitValue );
     }
 
     protected function assignTo( $type, $object, $limitIdent = NULL, $limitValue = NULL ) {
