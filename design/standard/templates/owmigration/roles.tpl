@@ -1,18 +1,15 @@
-{def $classlist = fetch( 'class', 'list', hash(
-            'sort_by', array( 'name', true() ) 
-) )}
-<form method="post" action={'owmigration/classes'|ezurl()}>
+<form method="post" action={'owmigration/roles'|ezurl()}>
     <div class="box-header">
-        <h1 class="context-title">{'Migrate content class'|i18n('owmigration/classes' )}</h1>
+        <h1 class="context-title">{'Migrate role'|i18n('owmigration/roles' )}</h1>
         <div class="header-mainline"></div>
     </div>
     <div class="box-content">
         <div class="context-attributes">
 			<div class="block">
-			    <label for="ContentClassIdentifier">{'Classes list'|i18n( 'owmigration/classes' )}
-			    <select name="ContentClassIdentifier" id="ContentClassIdentifier">
-				    {foreach $classlist as $class}
-				        <option value="{$class.identifier|wash()}"{cond( $class_identifier|eq( $class.identifier ), ' selected="selected"' , '' )}>{$class.name|wash()}</option>
+			    <label for="RoleID">{'Roles list'|i18n( 'owmigration/roles' )}
+			    <select name="RoleID" id="RoleID">
+				    {foreach $rolelist as $role}
+				        <option value="{$role.id|wash()}"{cond( $role_id|eq( $role.id ), ' selected="selected"' , '' )}>{$role.name|wash()}</option>
 				    {/foreach}
 			    </select></label>
 			</div>
@@ -25,7 +22,7 @@
             <input class="defaultbutton" type="submit" name="ActionExportAllClassCode" value="{'Export all classes code'|i18n( 'owmigration/all' )}" />
 		</div>
     </div>
-    {if $class_identifier}
-        {$class_identifier|display_content_migration_class()}
+    {if $role_id}
+        {$role_id|display_role_migration_class()}
     {/if}
 </form>

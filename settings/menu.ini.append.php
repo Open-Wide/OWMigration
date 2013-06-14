@@ -24,6 +24,7 @@ Shown[browse]=true
 [Leftmenu_owmigration]
 Name=OW Migration
 Links[content_class]=owmigration/classes
+Links[role]=owmigration/roles
 LinkNames[]
 
 */ ?>

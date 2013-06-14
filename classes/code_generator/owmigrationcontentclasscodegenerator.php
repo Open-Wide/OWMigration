@@ -1,6 +1,14 @@
 <?php
 
-class OWMigrationContentClassCodeGenerator {
+class OWMigrationContentClassCodeGenerator extends OWMigrationCodeGenerator {
+
+    static function getMigrationClassFile( $classIdentifier, $dir ) {
+        $filename = self::generateSafeFileName( $classIdentifier . 'contentclassmigration.php' );
+        $filepath = $dir . $filename;
+        @unlink( $filepath );
+        eZFile::create( $filepath, false, OWMigrationRoleCodeGenerator::getMigrationClass( $roleIdentifier ) );
+        return $filepath;
+    }
 
     static function getMigrationClass( $classIdentifier ) {
         $contentClass = eZContentClass::fetchByIdentifier( $classIdentifier );
@@ -172,10 +180,6 @@ class OWMigrationContentClassCodeGenerator {
         $code .= "\t\t\$migration->removeClass( );" . PHP_EOL;
         $code .= "\t}" . PHP_EOL;
         return $code;
-    }
-
-    static function escapeString( $str ) {
-        return addcslashes( $str, "'" );
     }
 
 }

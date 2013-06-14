@@ -7,7 +7,8 @@ class OWMigrationOperators {
     function OWMigrationOperators( ) {
         $this->Operators = array(
             'camelize',
-            'display_content_migration_class'
+            'display_content_migration_class',
+            'display_role_migration_class'
         );
     }
 
@@ -35,7 +36,8 @@ class OWMigrationOperators {
 
         return array(
             'camelize' => array( ),
-            'display_content_migration_class' => array( )
+            'display_content_migration_class' => array( ),
+            'display_role_migration_class' => array( )
         );
     }
 
@@ -51,6 +53,9 @@ class OWMigrationOperators {
             case 'display_content_migration_class' :
                 $operatorValue = $this->displayContentMigrationClass( $operatorValue );
                 break;
+            case 'display_role_migration_class' :
+                $operatorValue = $this->displayRoleMigrationClass( $operatorValue );
+                break;
         }
     }
 
@@ -60,7 +65,22 @@ class OWMigrationOperators {
 
     function displayContentMigrationClass( $operatorValue ) {
         $geshi = new GeSHi(OWMigrationContentClassCodeGenerator::getMigrationClass( $operatorValue ), 'php');
-        return $geshi->parse_code();
+        $geshi->set_tab_width(4);
+        $geshi->set_line_ending( "\n" );
+        $geshi->enable_keyword_links( FALSE );
+        $output = $geshi->parse_code();
+        $geshi->indent($output);
+        return $output;
+    }
+
+    function displayRoleMigrationClass( $operatorValue ) {
+        $geshi = new GeSHi(OWMigrationRoleCodeGenerator::getMigrationClass( $operatorValue ), 'php');
+        $geshi->set_tab_width(4);
+        $geshi->set_line_ending( "\n" );
+        $geshi->enable_keyword_links( FALSE );
+        $output = $geshi->parse_code();
+        $geshi->indent($output);
+        return $output;
     }
 
     /// \privatesection

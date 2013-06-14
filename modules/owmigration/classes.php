@@ -21,7 +21,7 @@ if( $Module->isCurrentAction( 'ExportCode' ) ) {
     @unlink( $filepath );
     eZFile::create( $filepath, false, OWMigrationContentClassCodeGenerator::getMigrationClass( $classIdentifier ) );
     if( !eZFile::download( $filepath ) ) {
-        $module->redirectTo( 'owmigration/classes' );
+        $Module->redirectTo( 'owmigration/classes' );
     }
 } elseif( $Module->isCurrentAction( 'ExportAllClassCode' ) ) {
     $classList = eZContentClass::fetchAllClasses( );

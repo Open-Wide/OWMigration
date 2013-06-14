@@ -8,6 +8,7 @@
 
 {include uri='design:parts/ini_menu.tpl' ini_section='Leftmenu_owmigration' i18n_hash=hash(
     'content_class',              'Content class'|i18n( 'design/admin/parts/owmigration/menu' ),
+    'role',                       'Role'|i18n( 'design/admin/parts/owmigration/menu' ),
 )}
 
 {* Left menu width control. *}
