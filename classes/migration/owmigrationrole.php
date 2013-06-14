@@ -37,20 +37,10 @@ class OWMigrationRole extends OWMigrationBase {
             $this->output->error( "Has policy : role object not found." );
             return FALSE;
         }
-        $limitation = $this->correctLimitationArray( $limitation );
-        $currentPolicies = $this->role->accessArray( );
-        if( !isset( $currentPolicies[$module][$function] ) ) {
-            return FALSE;
-        } else {
-            if( empty( $limitation ) ) {
+        foreach( $this->role->policyList() as $policy ) {
+            $policyLimitations = OWMigrationTools::getPolicyLimitationArray( $policy );
+            if( $policy->attribute( 'module_name' ) == $module && $policy->attribute( 'function_name' ) == $function && $policyLimitations == $limitation ) {
                 return TRUE;
-            } else {
-                foreach( $currentPolicies[$module][$function] as $currentLimitation ) {
-                    if( $currentLimitation == $limitation ) {
-                        return TRUE;
-                    }
-                }
-                return FALSE;
             }
         }
         return FALSE;
@@ -58,11 +48,13 @@ class OWMigrationRole extends OWMigrationBase {
 
     public function addPolicy( $module = '*', $function = '*', $limitation = array() ) {
         if( !$this->role instanceof eZRole ) {
-            $this->output->error( "Has policy : role object not found." );
+            $this->output->error( "Add policy : role object not found." );
             return FALSE;
         }
         $messagePart = empty( $limitation ) ? 'without' : 'with';
+
         if( !$this->hasPolicy( $module, $function, $limitation ) ) {
+            $limitation = $this->correctLimitationArray( $limitation );
             $this->db->begin( );
             $this->role->appendPolicy( $module, $function, $limitation );
             $this->role->store( );
@@ -156,9 +148,7 @@ class OWMigrationRole extends OWMigrationBase {
                     break;
                 case 'section' :
                     if( is_string( $limitValue ) ) {
-                        $section = eZPersistentObject::fetchObject( eZSection::definition(),
-                                                       null,
-                                                       array( "identifier" => $limitValue ) );
+                        $section = eZPersistentObject::fetchObject( eZSection::definition( ), null, array( "identifier" => $limitValue ) );
                         if( !$section ) {
                             $section = new eZSection( array(
                                 'name' => $limitValue,
@@ -275,9 +265,58 @@ class OWMigrationRole extends OWMigrationBase {
     }
 
     protected function correctLimitationArray( $limitationArray ) {
+        $trans = eZCharTransform::instance( );
         foreach( $limitationArray as $limitationKey => $limitation ) {
             if( !is_array( $limitation ) ) {
                 $limitationArray[$limitationKey] = array( $limitation );
+            }
+            switch( $limitationKey ) {
+                case 'Class' :
+                    $newLimitation = array( );
+                    foreach( $limitation as $limitationItem ) {
+                        if( !is_numeric( $limitationItem ) ) {
+                            $contentClass = eZContentClass::fetchByIdentifier( $limitationItem );
+                            if( $contentClass instanceof eZContentClass ) {
+                                $newLimitation[] = $contentClass->attribute( 'id' );
+                            }
+                        } else {
+                            $newLimitation[] = $limitationItem;
+                        }
+                        $limitationArray[$limitationKey] = $newLimitation;
+                    }
+                    break;
+                case 'Section' :
+                    $newLimitation = array( );
+                    foreach( $limitation as $limitationItem ) {
+                        if( !is_numeric( $limitationItem ) ) {
+                            $sectionList = eZSection::fetchFilteredList( array( 'name' => $limitationItem ) );
+                            if( count( $sectionList ) > 0 ) {
+                                $newLimitation[] = $sectionList[0]->attribute( 'id' );
+                            } elseif( $forceCreateSection ) {
+                                $section = new eZSection( array(
+                                    'name' => $limitationItem,
+                                    'identifier' => $trans->transformByGroup( $limitationItem, 'identifier' )
+                                ) );
+                                $section->store( );
+                                $limitValue = $section->attribute( 'id' );
+                            }
+                        } else {
+                            $newLimitation[] = $limitationItem;
+                        }
+                        $limitationArray[$limitationKey] = $newLimitation;
+                    }
+                    break;
+                case 'SiteAccess' :
+                    $newLimitation = array( );
+                    foreach( $limitation as $limitationItem ) {
+                        if( !is_numeric( $limitationItem ) ) {
+                            $newLimitation[] = eZSys::ezcrc32( $limitationItem );
+                        } else {
+                            $newLimitation[] = $limitationItem;
+                        }
+                        $limitationArray[$limitationKey] = $newLimitation;
+                    }
+                    break;
             }
         }
         return $limitationArray;
