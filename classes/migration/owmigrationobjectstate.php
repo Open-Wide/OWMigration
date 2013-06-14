@@ -21,6 +21,7 @@ class OWMigrationStateGroup extends OWMigrationBase {
     }
 
     public function createIfNotExists( ) {
+        $trans = eZCharTransform::instance( );
         if( $this->stateGroup instanceof eZContentObjectStateGroup ) {
             $this->output->notice( "Create if not exists : state group '$this->stateGroupIdentifier' exists, nothing to do." );
             return;
@@ -31,7 +32,7 @@ class OWMigrationStateGroup extends OWMigrationBase {
         $this->stateGroup->setCurrentLanguage( $this->topPriorityLanguage->attribute( 'locale' ) );
         $translations = $this->stateGroup->allTranslations( );
         foreach( $translations as $translation ) {
-            $translation->setAttribute( 'name', sfInflector::humanize( $this->stateGroupIdentifier ) );
+            $translation->setAttribute( 'name', $trans->transformByGroup( $this->stateGroupIdentifier, 'humanize' ) );
         }
         $this->stateGroup->store( );
         $this->db->commit( );
@@ -69,6 +70,7 @@ class OWMigrationStateGroup extends OWMigrationBase {
     }
 
     public function addState( $identifier, $params = array() ) {
+        $trans = eZCharTransform::instance( );
         if( !$this->stateGroup instanceof eZContentObjectStateGroup ) {
             $this->output->notice( "Add state : state group '$this->stateGroupIdentifier' nou found." );
             return;
@@ -84,7 +86,7 @@ class OWMigrationStateGroup extends OWMigrationBase {
             $translations = $state->allTranslations( );
             foreach( $translations as $translation ) {
                 $locale = $translation->language( )->attribute( 'locale' );
-                $translation->setAttribute( 'name', sfInflector::humanize( $identifier ) );
+                $translation->setAttribute( 'name', $trans->transformByGroup( $identifier, 'humanize' ) );
             }
             $state->store( );
             if( !empty( $params ) ) {

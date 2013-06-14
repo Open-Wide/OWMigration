@@ -31,133 +31,13 @@ class OWMigrationCodeGenerator {
     }
     
     static function generateSafeFileName( $name ) {
-        $name = self::generateUnderscoredName( $name );
-        return str_replace( "_", "", $name );
+        $trans = eZCharTransform::instance( );
+        return $trans->transformByGroup( $name, 'filename' ); 
     }
     
     static function generateClassName( $name ) {
-        $name = self::generateUnderscoredName( $name );
-        return sfInflector::camelize( $name );
+        $trans = eZCharTransform::instance( );
+        return $trans->transformByGroup( $name, 'camelize' ); 
     }
-
-    static function generateUnderscoredName( $name ) {
-        $name = str_replace( "#", "_", $name );
-        $name = str_replace( " ", "_", $name );
-        $name = str_replace( "'", "", $name );
-        $name = str_replace( '"', "", $name );
-        $name = str_replace( "__", "_", $name );
-        $name = str_replace( "&", "and", $name );
-        $name = str_replace( "/", "_", $name );
-        $name = str_replace( "\\", "_", $name );
-        $name = str_replace( "?", "", $name );
-        $name = str_replace( array(
-            'à',
-            'á',
-            'â',
-            'ã',
-            'ä',
-            'ç',
-            'è',
-            'é',
-            'ê',
-            'ë',
-            'ì',
-            'í',
-            'î',
-            'ï',
-            'ñ',
-            'ò',
-            'ó',
-            'ô',
-            'õ',
-            'ö',
-            'ù',
-            'ú',
-            'û',
-            'ü',
-            'ý',
-            'ÿ',
-            'À',
-            'Á',
-            'Â',
-            'Ã',
-            'Ä',
-            'Ç',
-            'È',
-            'É',
-            'Ê',
-            'Ë',
-            'Ì',
-            'Í',
-            'Î',
-            'Ï',
-            'Ñ',
-            'Ò',
-            'Ó',
-            'Ô',
-            'Õ',
-            'Ö',
-            'Ù',
-            'Ú',
-            'Û',
-            'Ü',
-            'Ý'
-        ), array(
-            'a',
-            'a',
-            'a',
-            'a',
-            'a',
-            'c',
-            'e',
-            'e',
-            'e',
-            'e',
-            'i',
-            'i',
-            'i',
-            'i',
-            'n',
-            'o',
-            'o',
-            'o',
-            'o',
-            'o',
-            'u',
-            'u',
-            'u',
-            'u',
-            'y',
-            'y',
-            'A',
-            'A',
-            'A',
-            'A',
-            'A',
-            'C',
-            'E',
-            'E',
-            'E',
-            'E',
-            'I',
-            'I',
-            'I',
-            'I',
-            'N',
-            'O',
-            'O',
-            'O',
-            'O',
-            'O',
-            'U',
-            'U',
-            'U',
-            'U',
-            'Y'
-        ), $name );
-        $name = sfInflector::underscore( $name );
-        return $name;
-    }
-
 }
 ?>

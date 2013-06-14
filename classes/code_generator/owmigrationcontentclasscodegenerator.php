@@ -11,9 +11,10 @@ class OWMigrationContentClassCodeGenerator extends OWMigrationCodeGenerator {
     }
 
     static function getMigrationClass( $classIdentifier ) {
+        $trans = eZCharTransform::instance( );
         $contentClass = eZContentClass::fetchByIdentifier( $classIdentifier );
         $code = "<?php" . PHP_EOL . PHP_EOL;
-        $code .= sprintf( "class %sContentClassMigration extends OWMigration {" . PHP_EOL . PHP_EOL, sfInflector::camelize( $contentClass->attribute( 'identifier' ) ) );
+        $code .= sprintf( "class %sContentClassMigration extends OWMigration {" . PHP_EOL . PHP_EOL, $trans->transformByGroup( $contentClass->attribute( 'identifier' ), 'camelize' ) );
         $code .= self::getUpMethod( $contentClass );
         $code .= self::getDownMethod( $contentClass );
         $code .= "}" . PHP_EOL . PHP_EOL;

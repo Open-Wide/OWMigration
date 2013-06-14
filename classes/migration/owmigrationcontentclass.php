@@ -30,6 +30,7 @@ class OWMigrationContentClass extends OWMigrationBase {
     }
 
     public function createIfNotExists( ) {
+        $trans = eZCharTransform::instance( );
         if( $this->contentClassObject instanceof eZContentClass ) {
             $this->output->notice( "Create if not exists : content class '$this->classIdentifier' exists, nothing to do." );
             return;
@@ -42,7 +43,7 @@ class OWMigrationContentClass extends OWMigrationBase {
             'create_lang_if_not_exist' => TRUE,
             'identifier' => $this->classIdentifier
         ) );
-        $this->contentClassObject->setName( sfInflector::humanize( $this->classIdentifier ) );
+        $this->contentClassObject->setName( $trans->transformByGroup( $this->classIdentifier, 'humanize' ) );
         $this->db->begin( );
         $this->contentClassObject->store( );
         $this->db->commit( );
@@ -51,6 +52,7 @@ class OWMigrationContentClass extends OWMigrationBase {
     }
 
     public function createFrom( $classIdentifier ) {
+        $trans = eZCharTransform::instance( );
         if( $this->contentClassObject instanceof eZContentClass ) {
             $this->output->notice( "Create from : content class '$this->classIdentifier' exists, nothing to do." );
             return;
@@ -67,7 +69,7 @@ class OWMigrationContentClass extends OWMigrationBase {
 
         $nameList = $this->contentClassObject->languages( );
         foreach( $nameList as $language => $value ) {
-            $nameList[$language] = sfInflector::humanize( $this->classIdentifier );
+            $nameList[$language] = $trans->transformByGroup( $this->classIdentifier, 'humanize' );
         }
         $classAttributeNameList = new eZContentClassNameList( serialize( $nameList ) );
         $classAttributeNameList->validate( );
@@ -157,6 +159,7 @@ class OWMigrationContentClass extends OWMigrationBase {
     }
 
     public function addAttribute( $classAttributeIdentifier, $params = array() ) {
+        $trans = eZCharTransform::instance( );
         if( !$this->contentClassObject instanceof eZContentClass ) {
             $this->output->error( "Add attribute : content class object not found." );
             return;
@@ -186,7 +189,7 @@ class OWMigrationContentClass extends OWMigrationBase {
             'is_information_collector' => $isCollector
         );
         if( !isset( $params['name'] ) ) {
-            $attrCreateInfo['name'] = sfInflector::humanize( $classAttributeIdentifier );
+            $attrCreateInfo['name'] = $trans->transformByGroup( $this->classIdentifier, 'humanize' );
         } elseif( is_string( $params['name'] ) ) {
             $attrCreateInfo['name'] = $params['name'];
         } elseif( is_array( $params['name'] ) ) {

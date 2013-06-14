@@ -60,7 +60,8 @@ class OWMigrationOperators {
     }
 
     function camelize( $operatorValue ) {
-        return sfInflector::camelize( $operatorValue );
+        $trans = eZCharTransform::instance( );
+        return $trans->transformByGroup( $operatorValue, 'camelize' ); 
     }
 
     function displayContentMigrationClass( $operatorValue ) {

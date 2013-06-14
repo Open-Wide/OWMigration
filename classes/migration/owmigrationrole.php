@@ -111,7 +111,8 @@ class OWMigrationRole extends OWMigrationBase {
     }
 
     protected function assignTo( $type, $object, $limitIdent = NULL, $limitValue = NULL ) {
-        $messageType = strtolower( sfInflector::humanize( $type ) );
+        $trans = eZCharTransform::instance( );
+        $messageType = strtolower( $trans->transformByGroup( $type, 'humanize' ) );
         if( !$this->role instanceof eZRole ) {
             $this->output->error( "Assign to $messageType : role object not found." );
             return;
@@ -187,7 +188,8 @@ class OWMigrationRole extends OWMigrationBase {
     }
 
     protected function unassignTo( $type, $object, $limitIdent = NULL, $limitValue = NULL ) {
-        $messageType = strtolower( sfInflector::humanize( $type ) );
+        $trans = eZCharTransform::instance( );
+        $messageType = strtolower( $trans->transformByGroup( $type, 'humanize' ) );
         if( !$this->role instanceof eZRole ) {
             $this->output->error( "Assign to $messageType : role object not found." );
             return;
