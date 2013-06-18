@@ -1,4 +1,4 @@
-Extension : OWMigration v1.0
+Extension : OWMigration v1.1
 Requires : eZ Publish 4.x.x (not tested on 3.X)
 Author : Open Wide <http://www.openwide.fr>
 
@@ -12,12 +12,12 @@ Usage
 1. Create a class that extends the class OWMigration.
 2. Implement the methods up () and down ().
 3. Reload autoloads
-3. Run the script migrate.php :
+4. Run the script migrate.php :
 php extension/OWMigration/bin/migrate.php --migration-class=yourMigrationClass --up
 or
 php extension/OWMigration/bin/migrate.php --migration-class=yourMigrationClass --down
 
-You can see some exemples of migration class in the exemples directory of this extension.
+You can see some exemples of migration class in the exemples directory of this extension, or see and export migration class fron back-end.
 
 Enjoy !!
 
