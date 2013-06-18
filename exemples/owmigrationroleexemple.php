@@ -5,9 +5,8 @@ class OWMigrationRoleExemple extends OWMigration {
     public function up( ) {
         $migration = new OWMigrationRole( );
         $migration->startMigrationOn( 'Mon rôle 1' );
-            $migration->createIfNotExists();
-            $migration->addPolicy(
- 'content', 'create', array(
+        $migration->createIfNotExists( );
+        $migration->addPolicy( 'content', 'create', array(
             'Class' => self::getContentClassId( array(
                 'folder',
                 'article'
