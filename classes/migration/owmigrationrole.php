@@ -107,7 +107,7 @@ class OWMigrationRole extends OWMigrationBase {
     }
 
     public function assignToUserGroup( $group, $limitIdent = NULL, $limitValue = NULL ) {
-        $this->assignTo( 'user_group', $user, $limitIdent, $limitValue );
+        $this->assignTo( 'user_group', $group, $limitIdent, $limitValue );
     }
 
     protected function assignTo( $type, $object, $limitIdent = NULL, $limitValue = NULL ) {
@@ -140,12 +140,14 @@ class OWMigrationRole extends OWMigrationBase {
         }
 
         if( !is_null( $limitIdent ) ) {
-            switch( $limitIdent ) {
+            switch( strtolower( $limitIdent ) ) {
                 case 'subtree' :
+                    /*
                     if( !is_numeric( $limitValue ) ) {
                         $this->output->error( "Assign to $messageType : limit value must be a nodeID." );
                         return;
                     }
+                     */
                     break;
                 case 'section' :
                     if( is_string( $limitValue ) ) {
@@ -322,6 +324,10 @@ class OWMigrationRole extends OWMigrationBase {
             }
         }
         return $limitationArray;
+    }
+
+    public function removeRole( ) {
+        $this->role->removeThis( );
     }
 
 }
