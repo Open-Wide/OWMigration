@@ -91,7 +91,6 @@ class FeedbackFormContentClassMigrationExemple extends OWMigration {
         $migration = new OWMigrationContentClass( );
         $migration->startMigrationOn( 'feedback_form' );
         $migration->removeClass( );
-        $migration->end( );
     }
 }
 

@@ -20,7 +20,6 @@ class EditorRoleMigrationExemple extends OWMigration {
         $migration = new OWMigrationRole( );
         $migration->startMigrationOn( 'Editor Exemple' );
         $migration->removeRole( );
-        $migration->end( );
     }
 }
 

@@ -179,7 +179,6 @@ class OWMigrationContentClassCodeGenerator extends OWMigrationCodeGenerator {
         $code .= "\t\t\$migration = new OWMigrationContentClass( );" . PHP_EOL;
         $code .= sprintf( "\t\t\$migration->startMigrationOn( '%s' );" . PHP_EOL, self::escapeString( $contentClass->attribute( 'identifier' ) ) );
         $code .= "\t\t\$migration->removeClass( );" . PHP_EOL;
-        $code .= "\t\t\$migration->end( );" . PHP_EOL;
         $code .= "\t}" . PHP_EOL;
         return $code;
     }

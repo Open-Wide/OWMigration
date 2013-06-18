@@ -78,7 +78,6 @@ class OWMigrationRoleCodeGenerator extends OWMigrationCodeGenerator {
         $code .= "\t\t\$migration = new OWMigrationRole( );" . PHP_EOL;
         $code .= sprintf( "\t\t\$migration->startMigrationOn( '%s' );" . PHP_EOL, self::escapeString( $role->attribute( 'name' ) ) );
         $code .= "\t\t\$migration->removeRole( );" . PHP_EOL;
-        $code .= "\t\t\$migration->end( );" . PHP_EOL;
         $code .= "\t}" . PHP_EOL;
         return $code;
     }

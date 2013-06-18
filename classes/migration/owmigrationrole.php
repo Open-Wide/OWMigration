@@ -328,6 +328,9 @@ class OWMigrationRole extends OWMigrationBase {
 
     public function removeRole( ) {
         $this->role->removeThis( );
+        $this->output->notice( "Remove role : role '$this->roleName' removed." );
+        $this->roleName = NULL;
+        $this->role = NULL;
     }
 
 }

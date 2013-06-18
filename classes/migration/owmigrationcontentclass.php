@@ -374,6 +374,9 @@ class OWMigrationContentClass extends OWMigrationBase {
             eZContentClassOperations::remove( $ClassID );
             $this->output->notice( "Remove content class : $ClassObjectsCount removed." );
             $this->output->notice( "Remove content class : content class '$this->classIdentifier' removed." );
+            $this->classIdentifier = NULL;
+            $this->contentClassObject = NULL;
+            $this->adjustAttributesPlacement = FALSE;
         }
 
     }
