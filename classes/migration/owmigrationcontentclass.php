@@ -290,6 +290,10 @@ class OWMigrationContentClass extends OWMigrationBase {
                     case 'placement' :
                         $classAttribute->setAttribute( 'placement', $value );
                         break;
+                    case 'content' :
+                    	$content = $classAttribute->content();
+                    	$classAttribute->setContent( array_merge( $content, $value ) );
+                    	break;
                     default :
                         $classAttribute->setAttribute( $field, $value );
                         break;

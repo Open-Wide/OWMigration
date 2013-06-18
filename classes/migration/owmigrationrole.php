@@ -98,7 +98,7 @@ class OWMigrationRole extends OWMigrationBase {
 
         }
         $this->role->store( );
-        $db->commit( );
+        $this->db->commit( );
 
     }
 

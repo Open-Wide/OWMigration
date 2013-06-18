@@ -167,7 +167,7 @@ class OWMigrationContentClassCodeGenerator extends OWMigrationCodeGenerator {
         }
         $code .= PHP_EOL;
         foreach( $contentClass->attribute( 'ingroup_list' ) as $classGroup ) {
-            $code .= sprintf( "\t\t\$migration->addToContentClassGroup( '%s' )" . PHP_EOL, self::escapeString( $classGroup->attribute( 'group_name' ) ) );
+            $code .= sprintf( "\t\t\$migration->addToContentClassGroup( '%s' );" . PHP_EOL, self::escapeString( $classGroup->attribute( 'group_name' ) ) );
         }
         $code .= "\t\t\$migration->end( );" . PHP_EOL;
         $code .= "\t}" . PHP_EOL . PHP_EOL;
