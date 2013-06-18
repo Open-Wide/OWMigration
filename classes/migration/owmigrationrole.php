@@ -273,9 +273,11 @@ class OWMigrationRole extends OWMigrationBase {
         foreach( $limitationArray as $limitationKey => $limitation ) {
             if( !is_array( $limitation ) ) {
                 $limitationArray[$limitationKey] = array( $limitation );
+                $limitation = array( $limitation );
             }
             switch( $limitationKey ) {
                 case 'Class' :
+                case 'ParentClass' :
                     $newLimitation = array( );
                     foreach( $limitation as $limitationItem ) {
                         if( !is_numeric( $limitationItem ) ) {

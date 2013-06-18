@@ -24,9 +24,9 @@ class OWMigrationTools {
             $valueList = $limitation->attribute( 'values_as_array' );
             $limitation = $functions[$currentFunction][$limitation->attribute( 'identifier' )];
             $limitationValueArray = array( );
-
             switch( $limitation['name'] ) {
                 case 'Class' :
+                case 'ParentClass' :
                     foreach( $valueList as $value ) {
                         $contentClass = eZContentClass::fetch( $value, false );
                         if( $contentClass != null ) {
