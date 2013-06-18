@@ -55,8 +55,20 @@ class OWMigrationRoleCodeGenerator extends OWMigrationCodeGenerator {
             } else {
                 $code .= " );" . PHP_EOL;
             }
-            //var_dump( $policy->limitationList( ) );
         }
+        foreach( $role->fetchUserByRole() as $roleAssignationArray ) {
+            $roleAssignation = $roleAssignationArray['user_object'];
+            if( $roleAssignation->attribute( 'class_identifier' ) == 'user_group' ) {
+                $code .= sprintf( "\t\t\$migration->assignToUserGroup( '%s'", self::escapeString( $roleAssignation->attribute( 'name' ) ) );
+            } else {
+                $code .= sprintf( "\t\t\$migration->assignToUser( '%s'", self::escapeString( $roleAssignation->attribute( 'name' ) ) );
+            }
+            if( !empty( $roleAssignationArray['limit_ident'] ) ) {
+                $code .= sprintf( ", '%s', '%s'", self::escapeString( $roleAssignationArray['limit_ident'] ), self::escapeString( $roleAssignationArray['limit_value'] ) );
+            }
+            $code .= " );" . PHP_EOL;
+        }
+        $code .= "\t\t\$migration->end( );" . PHP_EOL;
         $code .= "\t}" . PHP_EOL . PHP_EOL;
         return $code;
     }
@@ -66,6 +78,7 @@ class OWMigrationRoleCodeGenerator extends OWMigrationCodeGenerator {
         $code .= "\t\t\$migration = new OWMigrationRole( );" . PHP_EOL;
         $code .= sprintf( "\t\t\$migration->startMigrationOn( '%s' );" . PHP_EOL, self::escapeString( $role->attribute( 'name' ) ) );
         $code .= "\t\t\$migration->removeRole( );" . PHP_EOL;
+        $code .= "\t\t\$migration->end( );" . PHP_EOL;
         $code .= "\t}" . PHP_EOL;
         return $code;
     }
