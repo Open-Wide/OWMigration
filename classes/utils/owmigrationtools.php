@@ -53,9 +53,43 @@ class OWMigrationTools {
                     }
                     break;
             }
+            sort( $limitationValueArray );
             $returnValue[$limitation['name']] = $limitationValueArray;
         }
         return $returnValue;
+    }
+
+    static function correctLimitationArray( $limitationArray ) {
+        $trans = eZCharTransform::instance( );
+        foreach( $limitationArray as $limitationKey => $limitation ) {
+            if( !is_array( $limitation ) ) {
+                $limitationArray[$limitationKey] = array( $limitation );
+            } else {
+                sort( $limitationArray[$limitationKey] );
+            }
+        }
+        return $limitationArray;
+    }
+
+    static function compareArray( $array1, $array2 ) {
+        $isAssoc1 = array_keys( $array1 ) !== range( 0, count( $array1 ) - 1 );
+        $isAssoc2 = array_keys( $array2 ) !== range( 0, count( $array2 ) - 1 );
+        if( $isAssoc1 === $isAssoc2 && $isAssoc2 === TRUE ) {
+            foreach( $array1 as $key1 => $value1 ) {
+                if( array_key_exists( $key1, $array2 ) ) {
+                    if( $array2[$key1] != $value1 ) {
+                        return FALSE;
+                    }
+                } else {
+                    return FALSE;
+                }
+            }
+        } elseif( $isAssoc1 === $isAssoc2 && $isAssoc2 === FALSE ) {
+            return $array1 == $array2;
+        } else {
+            return FALSE;
+        }
+        return TRUE;
     }
 
 }

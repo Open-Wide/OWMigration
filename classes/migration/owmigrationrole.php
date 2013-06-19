@@ -33,14 +33,17 @@ class OWMigrationRole extends OWMigrationBase {
     }
 
     public function hasPolicy( $module = '*', $function = '*', $limitation = array() ) {
+        $limitation = OWMigrationTools::correctLimitationArray( $limitation );
         if( !$this->role instanceof eZRole ) {
             $this->output->error( "Has policy : role object not found." );
             return FALSE;
         }
         foreach( $this->role->policyList() as $policy ) {
-            $policyLimitations = OWMigrationTools::getPolicyLimitationArray( $policy );
-            if( $policy->attribute( 'module_name' ) == $module && $policy->attribute( 'function_name' ) == $function && $policyLimitations == $limitation ) {
-                return TRUE;
+            if( $policy->attribute( 'module_name' ) == $module && $policy->attribute( 'function_name' ) == $function ) {
+                $policyLimitations = OWMigrationTools::getPolicyLimitationArray( $policy );
+                if( OWMigrationTools::compareArray( $policyLimitations, $limitation ) ) {
+                    return TRUE;
+                }
             }
         }
         return FALSE;
@@ -143,10 +146,10 @@ class OWMigrationRole extends OWMigrationBase {
             switch( strtolower( $limitIdent ) ) {
                 case 'subtree' :
                     /*
-                    if( !is_numeric( $limitValue ) ) {
-                        $this->output->error( "Assign to $messageType : limit value must be a nodeID." );
-                        return;
-                    }
+                     if( !is_numeric( $limitValue ) ) {
+                     $this->output->error( "Assign to $messageType : limit value must be a nodeID." );
+                     return;
+                     }
                      */
                     break;
                 case 'section' :
