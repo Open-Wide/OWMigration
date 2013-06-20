@@ -10,9 +10,8 @@ class OWMigrationRole extends OWMigrationBase {
         $role = eZRole::fetchByName( $this->roleName );
         if( $role instanceof eZRole ) {
             $this->role = $role;
-        } else {
-
         }
+        $this->output->notice( "Start migration of role '$this->roleName'." );
     }
 
     public function end( ) {
