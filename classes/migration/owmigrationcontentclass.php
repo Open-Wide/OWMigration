@@ -280,11 +280,20 @@ class OWMigrationContentClass extends OWMigrationBase {
                         break;
                     case 'name' :
                         if( is_string( $value ) ) {
-                            $classAttribute->setAttribute( 'name', $value );
+                            $classAttribute->setName( $value );
                         } elseif( is_array( $value ) ) {
                             $nameList = new eZContentClassAttributeNameList( serialize( $value ) );
                             $nameList->validate( );
                             $classAttribute->NameList = $nameList;
+                        }
+                        break;
+                    case 'description' :
+                        if( is_string( $value ) ) {
+                            $classAttribute->setDescription( $value );
+                        } elseif( is_array( $value ) ) {
+                            $nameList = new eZContentClassAttributeNameList( serialize( $value ) );
+                            $nameList->validate( );
+                            $classAttribute->DescriptionList = $nameList;
                         }
                         break;
                     case 'placement' :
