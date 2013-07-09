@@ -135,7 +135,7 @@ class OWMigrationRole extends OWMigrationBase {
             }
         } elseif( is_array( $object ) ) {
             foreach( $object as $item ) {
-                $this->assignToUser( $item, $limitIdent, $limitValue );
+                $this->assignTo( $type, $item, $limitIdent, $limitValue );
             }
         } else {
             $this->output->error( "Assign to $messageType : $messageType param must be an integer, a string or an array." );
@@ -212,9 +212,9 @@ class OWMigrationRole extends OWMigrationBase {
                 $this->output->error( "Unassign to $messageType : $messageType '$object' not found." );
                 return;
             }
-        } elseif( is_array( $messageType ) ) {
-            foreach( $messageType as $item ) {
-                $this->unassignToUser( $item, $limitIdent, $limitValue );
+        } elseif( is_array( $object ) ) {
+            foreach( $object as $item ) {
+                $this->unassignTo( $type, $item, $limitIdent, $limitValue );
             }
         } else {
             $this->output->error( "Unassign to $messageType : $messageType param must be an integer, a string or an array." );
