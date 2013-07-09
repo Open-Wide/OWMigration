@@ -325,6 +325,43 @@ class OWMigrationRole extends OWMigrationBase {
                         $limitationArray[$limitationKey] = $newLimitation;
                     }
                     break;
+                case 'NewState' :
+                    $newLimitation = array( );
+                    foreach( $limitation as $limitationItem ) {
+                        if( is_numeric( $limitationItem ) ) {
+                            $newLimitation[] = $limitationItem;
+                        } else {
+                            list( $stateGroupIdentifier, $stateIdentifier ) = explode( '/', $limitationItem );
+                            $stateGroup = eZContentObjectStateGroup::fetchByIdentifier( $stateGroupIdentifier );
+                            if( $stateGroup instanceof eZContentObjectStateGroup ) {
+                                $state = eZContentObjectState::fetchByIdentifier( $stateIdentifier, $stateGroup->attribute( 'id' ) );
+                                if( $state instanceof eZContentObjectState ) {
+                                    $newLimitation[] = $state->attribute( 'id' );
+                                }
+                            }
+                        }
+                        $limitationArray[$limitationKey] = $newLimitation;
+                    }
+                    break;
+                default :
+                    if( strncmp( $limitationKey, 'StateGroup_', strlen( 'StateGroup_' ) ) == 0 ) {
+                        $newLimitation = array( );
+                        foreach( $limitation as $limitationItem ) {
+                            if( is_numeric( $limitationItem ) ) {
+                                $newLimitation[] = $limitationItem;
+                            } else {
+                                $stateGroupIdentifier = substr( $limitationKey, strlen( 'StateGroup_' ) );
+                                $stateGroup = eZContentObjectStateGroup::fetchByIdentifier( $stateGroupIdentifier );
+                                if( $stateGroup instanceof eZContentObjectStateGroup ) {
+                                    $state = eZContentObjectState::fetchByIdentifier( $limitationItem, $stateGroup->attribute( 'id' ) );
+                                    if( $state instanceof eZContentObjectState ) {
+                                        $newLimitation[] = $state->attribute( 'id' );
+                                    }
+                                }
+                            }
+                            $limitationArray[$limitationKey] = $newLimitation;
+                        }
+                    }
             }
         }
         return $limitationArray;
