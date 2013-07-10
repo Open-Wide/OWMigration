@@ -74,7 +74,6 @@ class OWMigrationRole extends OWMigrationBase {
         }
         $this->db->begin( );
         if( $module === FALSE ) {
-            $this->db->begin( );
             $this->role->removePolicies( TRUE );
 
             $this->output->notice( "All policies deleted.", TRUE );
