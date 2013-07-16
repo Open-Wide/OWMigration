@@ -45,6 +45,7 @@ class OWMigrationRoleCodeGenerator extends OWMigrationCodeGenerator {
                 $code .= ", array(" . PHP_EOL;
                 foreach( $policyLimitationArray as $limitationKey => $limitationValue ) {
                     if( is_array( $limitationValue ) ) {
+                        $limitationValue = array_map( "self::escapeString", $limitationValue );
                         $arrayString = "array(\n\t\t\t\t'" . implode( "',\n\t\t\t\t'", $limitationValue ) . "'\n\t\t\t )";
                         $code .= sprintf( "\t\t\t'%s' => %s," . PHP_EOL, self::escapeString( $limitationKey ), $arrayString );
                     } else {

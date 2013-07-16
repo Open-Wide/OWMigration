@@ -20,6 +20,8 @@ Shown[]
 Shown[navigation]=true
 Shown[default]=true
 Shown[browse]=true
+PolicyList[]
+PolicyList[]=owmigration/read
 
 [Leftmenu_owmigration]
 Name=OW Migration

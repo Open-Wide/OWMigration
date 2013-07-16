@@ -74,7 +74,6 @@ class OWMigrationRole extends OWMigrationBase {
         }
         $this->db->begin( );
         if( $module === FALSE ) {
-            $this->db->begin( );
             $this->role->removePolicies( TRUE );
 
             OWMigrationLogger::logNotice( "All policies deleted.", TRUE );
@@ -135,7 +134,7 @@ class OWMigrationRole extends OWMigrationBase {
             }
         } elseif( is_array( $object ) ) {
             foreach( $object as $item ) {
-                $this->assignToUser( $item, $limitIdent, $limitValue );
+                $this->assignTo( $type, $item, $limitIdent, $limitValue );
             }
         } else {
             OWMigrationLogger::logError( "Assign to $messageType : $messageType param must be an integer, a string or an array." );
@@ -212,9 +211,9 @@ class OWMigrationRole extends OWMigrationBase {
                 OWMigrationLogger::logError( "Unassign to $messageType : $messageType '$object' not found." );
                 return;
             }
-        } elseif( is_array( $messageType ) ) {
-            foreach( $messageType as $item ) {
-                $this->unassignToUser( $item, $limitIdent, $limitValue );
+        } elseif( is_array( $object ) ) {
+            foreach( $object as $item ) {
+                $this->unassignTo( $type, $item, $limitIdent, $limitValue );
             }
         } else {
             OWMigrationLogger::logError( "Unassign to $messageType : $messageType param must be an integer, a string or an array." );
@@ -325,6 +324,43 @@ class OWMigrationRole extends OWMigrationBase {
                         $limitationArray[$limitationKey] = $newLimitation;
                     }
                     break;
+                case 'NewState' :
+                    $newLimitation = array( );
+                    foreach( $limitation as $limitationItem ) {
+                        if( is_numeric( $limitationItem ) ) {
+                            $newLimitation[] = $limitationItem;
+                        } else {
+                            list( $stateGroupIdentifier, $stateIdentifier ) = explode( '/', $limitationItem );
+                            $stateGroup = eZContentObjectStateGroup::fetchByIdentifier( $stateGroupIdentifier );
+                            if( $stateGroup instanceof eZContentObjectStateGroup ) {
+                                $state = eZContentObjectState::fetchByIdentifier( $stateIdentifier, $stateGroup->attribute( 'id' ) );
+                                if( $state instanceof eZContentObjectState ) {
+                                    $newLimitation[] = $state->attribute( 'id' );
+                                }
+                            }
+                        }
+                        $limitationArray[$limitationKey] = $newLimitation;
+                    }
+                    break;
+                default :
+                    if( strncmp( $limitationKey, 'StateGroup_', strlen( 'StateGroup_' ) ) == 0 ) {
+                        $newLimitation = array( );
+                        foreach( $limitation as $limitationItem ) {
+                            if( is_numeric( $limitationItem ) ) {
+                                $newLimitation[] = $limitationItem;
+                            } else {
+                                $stateGroupIdentifier = substr( $limitationKey, strlen( 'StateGroup_' ) );
+                                $stateGroup = eZContentObjectStateGroup::fetchByIdentifier( $stateGroupIdentifier );
+                                if( $stateGroup instanceof eZContentObjectStateGroup ) {
+                                    $state = eZContentObjectState::fetchByIdentifier( $limitationItem, $stateGroup->attribute( 'id' ) );
+                                    if( $state instanceof eZContentObjectState ) {
+                                        $newLimitation[] = $state->attribute( 'id' );
+                                    }
+                                }
+                            }
+                            $limitationArray[$limitationKey] = $newLimitation;
+                        }
+                    }
             }
         }
         return $limitationArray;
