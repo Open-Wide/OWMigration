@@ -63,7 +63,7 @@ class OWMigrationRole extends OWMigrationBase {
             $this->db->commit( );
             OWMigrationLogger::logNotice( "Policy on $module::$function $messagePart limitation added.", TRUE );
         } else {
-            OWMigrationLogger::logNotice( "Policy on $module::$function $messagePart limitation already exists.", TRUE );
+            OWMigrationLogger::logError( "Policy on $module::$function $messagePart limitation already exists.", TRUE );
         }
     }
 

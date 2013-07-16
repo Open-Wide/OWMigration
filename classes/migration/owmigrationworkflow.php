@@ -135,7 +135,7 @@ class OWMigrationWorkflow extends OWMigrationBase {
             return;
         }
         if( $this->hasEvent( $description, $workflowTypeString ) ) {
-            OWMigrationLogger::logWarning( "Add event : event '$description' ($workflowTypeString) already exists." );
+            OWMigrationLogger::logError( "Add event : event '$description' ($workflowTypeString) already exists." );
             return;
         }
         $this->db->begin( );
