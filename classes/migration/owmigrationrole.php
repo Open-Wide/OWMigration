@@ -11,7 +11,7 @@ class OWMigrationRole extends OWMigrationBase {
         if( $role instanceof eZRole ) {
             $this->role = $role;
         }
-        OWMigrationLogger::logNotice( "Start migration of role '$this->roleName'." );
+        OWMigrationLogger::logNotice( __FUNCTION__ . " - Start migration of role '$this->roleName'." );
     }
 
     public function end( ) {
@@ -21,20 +21,20 @@ class OWMigrationRole extends OWMigrationBase {
 
     public function createIfNotExists( ) {
         if( $this->role instanceof eZRole ) {
-            OWMigrationLogger::logNotice( "Create if not exists : role '$this->roleName' exists, nothing to do." );
+            OWMigrationLogger::logNotice( __FUNCTION__ . " - Role '$this->roleName' exists, nothing to do." );
             return;
         }
         $this->db->begin( );
         $this->role = eZRole::create( $this->roleName );
         $this->role->store( );
         $this->db->commit( );
-        OWMigrationLogger::logNotice( "Create if not exists : role '$this->roleName' created." );
+        OWMigrationLogger::logNotice( __FUNCTION__ . " - Role '$this->roleName' created." );
     }
 
     public function hasPolicy( $module = '*', $function = '*', $limitation = array() ) {
         $limitation = OWMigrationTools::correctLimitationArray( $limitation );
         if( !$this->role instanceof eZRole ) {
-            OWMigrationLogger::logError( "Has policy : role object not found." );
+            OWMigrationLogger::logError( __FUNCTION__ . " - Role object not found." );
             return FALSE;
         }
         foreach( $this->role->policyList() as $policy ) {
@@ -50,7 +50,7 @@ class OWMigrationRole extends OWMigrationBase {
 
     public function addPolicy( $module = '*', $function = '*', $limitation = array() ) {
         if( !$this->role instanceof eZRole ) {
-            OWMigrationLogger::logError( "Add policy : role object not found." );
+            OWMigrationLogger::logError( __FUNCTION__ . " - Role object not found." );
             return FALSE;
         }
         $messagePart = empty( $limitation ) ? 'without' : 'with';
@@ -61,25 +61,25 @@ class OWMigrationRole extends OWMigrationBase {
             $this->role->appendPolicy( $module, $function, $limitation );
             $this->role->store( );
             $this->db->commit( );
-            OWMigrationLogger::logNotice( "Policy on $module::$function $messagePart limitation added." );
+            OWMigrationLogger::logNotice( __FUNCTION__ . " - Policy on $module::$function $messagePart limitation added." );
         } else {
-            OWMigrationLogger::logError( "Policy on $module::$function $messagePart limitation already exists." );
+            OWMigrationLogger::logError( __FUNCTION__ . " - Policy on $module::$function $messagePart limitation already exists." );
         }
     }
 
     public function removePolicies( $module = FALSE, $function = FALSE, $limitation = FALSE ) {
         if( !$this->role instanceof eZRole ) {
-            OWMigrationLogger::logError( "Remove policy : role object not found." );
+            OWMigrationLogger::logError( __FUNCTION__ . " - Role object not found." );
             return;
         }
         $this->db->begin( );
         if( $module === FALSE ) {
             $this->role->removePolicies( TRUE );
 
-            OWMigrationLogger::logNotice( "All policies deleted." );
+            OWMigrationLogger::logNotice( __FUNCTION__ . " - All policies deleted." );
         } elseif( $limitation === FALSE ) {
             $this->role->removePolicy( $module, $function );
-            OWMigrationLogger::logNotice( "Policies on $module::$function deleted." );
+            OWMigrationLogger::logNotice( __FUNCTION__ . " - Policies on $module::$function deleted." );
         } else {
             $policyList = $this->role->policyList( );
             if( is_array( $policyList ) && count( $policyList ) > 0 ) {
@@ -90,7 +90,7 @@ class OWMigrationRole extends OWMigrationBase {
                             if( current( $accessArray[$module][$function] ) == $limitation ) {
                                 $policy->removeThis( );
                                 unset( $this->role->Policies[$key] );
-                                OWMigrationLogger::logNotice( "Policies on $module::$function with limitation deleted." );
+                                OWMigrationLogger::logNotice( __FUNCTION__ . " - Policies on $module::$function with limitation deleted." );
                             }
                         }
                     }
@@ -115,7 +115,7 @@ class OWMigrationRole extends OWMigrationBase {
         $trans = eZCharTransform::instance( );
         $messageType = strtolower( $trans->transformByGroup( $type, 'humanize' ) );
         if( !$this->role instanceof eZRole ) {
-            OWMigrationLogger::logError( "Assign to $messageType : role object not found." );
+            OWMigrationLogger::logError( __FUNCTION__ . " - Role object not found." );
             return;
         }
         if( is_numeric( $object ) ) {
@@ -129,7 +129,7 @@ class OWMigrationRole extends OWMigrationBase {
             if( is_array( $contentObject ) && count( $contentObject ) > 0 ) {
                 $objectID = $contentObject[0]->attribute( 'id' );
             } else {
-                OWMigrationLogger::logError( "Assign to $messageType : $messageType '$object' not found." );
+                OWMigrationLogger::logError( __FUNCTION__ . " - $messageType '$object' not found." );
                 return;
             }
         } elseif( is_array( $object ) ) {
@@ -137,18 +137,21 @@ class OWMigrationRole extends OWMigrationBase {
                 $this->assignTo( $type, $item, $limitIdent, $limitValue );
             }
         } else {
-            OWMigrationLogger::logError( "Assign to $messageType : $messageType param must be an integer, a string or an array." );
+            OWMigrationLogger::logError( __FUNCTION__ . " - Object parameter must be an object ID, a object name or an array or object ID and object name." );
         }
 
         if( !is_null( $limitIdent ) ) {
             switch( strtolower( $limitIdent ) ) {
                 case 'subtree' :
-                    /*
-                     if( !is_numeric( $limitValue ) ) {
-                     OWMigrationLogger::logError( "Assign to $messageType : limit value must be a nodeID." );
-                     return;
-                     }
-                     */
+                    if( is_numeric( $limitValue ) ) {
+                        $node = eZContentObjectTreeNode::fetch( $limitValue, false, false );
+                        if( $node ) {
+                            $limitValue = $node['path_string'];
+                        } else {
+                            OWMigrationLogger::logNotice( __FUNCTION__ . "Node $limitValue not found." );
+                            return;
+                        }
+                    }
                     break;
                 case 'section' :
                     if( is_string( $limitValue ) ) {
@@ -160,16 +163,16 @@ class OWMigrationRole extends OWMigrationBase {
                             ) );
                             $section->store( );
                             $limitValue = $section->attribute( 'id' );
-                            OWMigrationLogger::logNotice( "Assign to $messageType : section '$limitValue' not found => create new section." );
+                            OWMigrationLogger::logNotice( __FUNCTION__ . " - Section '$limitValue' not found => create new section." );
                         }
                         $limitValue = $section->attribute( 'id' );
                     } elseif( !is_numeric( $limitValue ) ) {
-                        OWMigrationLogger::logError( "Assign to $messageType : limit value must be a section ID or a section identifer." );
+                        OWMigrationLogger::logError( __FUNCTION__ . " - Limit value must be a section ID or a section identifer." );
                         return;
                     }
                     break;
                 default :
-                    OWMigrationLogger::logError( "Assign to user : $messageType identifier must be equal to 'subtree' or 'section'." );
+                    OWMigrationLogger::logError( __FUNCTION__ . " - Limit identifier must be equal to 'subtree' or 'section'." );
                     return;
             }
         }
@@ -178,7 +181,7 @@ class OWMigrationRole extends OWMigrationBase {
             $this->db->begin( );
             $this->role->assignToUser( $objectID, $limitIdent, $limitValue );
             $this->db->commit( );
-            OWMigrationLogger::logNotice( "Assign to $messageType : role assigned to user $object ($objectID)." );
+            OWMigrationLogger::logNotice( __FUNCTION__ . " - Role assigned to $messageType $object ($objectID)." );
         }
     }
 
@@ -194,7 +197,7 @@ class OWMigrationRole extends OWMigrationBase {
         $trans = eZCharTransform::instance( );
         $messageType = strtolower( $trans->transformByGroup( $type, 'humanize' ) );
         if( !$this->role instanceof eZRole ) {
-            OWMigrationLogger::logError( "Assign to $messageType : role object not found." );
+            OWMigrationLogger::logError( __FUNCTION__ . " - Role object not found." );
             return;
         }
         if( is_numeric( $object ) ) {
@@ -208,7 +211,7 @@ class OWMigrationRole extends OWMigrationBase {
             if( is_array( $contentObject ) && count( $contentObject ) > 0 ) {
                 $objectID = $contentObject[0]->attribute( 'id' );
             } else {
-                OWMigrationLogger::logError( "Unassign to $messageType : $messageType '$object' not found." );
+                OWMigrationLogger::logError( __FUNCTION__ . " - $messageType '$object' not found." );
                 return;
             }
         } elseif( is_array( $object ) ) {
@@ -216,21 +219,18 @@ class OWMigrationRole extends OWMigrationBase {
                 $this->unassignTo( $type, $item, $limitIdent, $limitValue );
             }
         } else {
-            OWMigrationLogger::logError( "Unassign to $messageType : $messageType param must be an integer, a string or an array." );
+            OWMigrationLogger::logError( __FUNCTION__ . " - Object parameter must be an object ID, a object name or an array or object ID and object name." );
         }
 
         if( !is_null( $limitIdent ) ) {
             switch( $limitIdent ) {
                 case 'subtree' :
-                    if( !is_numeric( $limitValue ) ) {
-                        OWMigrationLogger::logError( "Assign to $messageType : limit value must be a nodeID." );
-                        return;
-                    } else {
+                    if( is_numeric( $limitValue ) ) {
                         $node = eZContentObjectTreeNode::fetch( $limitValue, false, false );
                         if( $node ) {
                             $limitValue = $node['path_string'];
                         } else {
-                            OWMigrationLogger::logNotice( "Unassign to $messageType : node not found." );
+                            OWMigrationLogger::logNotice( __FUNCTION__ . " - Node $limitValue not found." );
                             return;
                         }
                     }
@@ -241,17 +241,17 @@ class OWMigrationRole extends OWMigrationBase {
                         if( $section ) {
                             $limitValue = $section->attribute( 'id' );
                         } else {
-                            OWMigrationLogger::logNotice( "Unassign to $messageType : section not found." );
+                            OWMigrationLogger::logNotice( __FUNCTION__ . " - Section $limitValue not found." );
                             return;
                         }
 
                     } elseif( !is_numeric( $limitValue ) ) {
-                        OWMigrationLogger::logError( "Unassign to $messageType : limit value must be a section ID or a section identifer." );
+                        OWMigrationLogger::logError( __FUNCTION__ . " - Limit value must be a section ID or a section identifer." );
                         return;
                     }
                     break;
                 default :
-                    OWMigrationLogger::logError( "Unassign to $messageType : limit identifier must be equal to 'subtree' or 'section'." );
+                    OWMigrationLogger::logError( __FUNCTION__ . " - Limit identifier must be equal to 'subtree' or 'section'." );
                     return;
             }
         } else {
@@ -263,7 +263,7 @@ class OWMigrationRole extends OWMigrationBase {
                     $this->db->begin( );
                     $this->role->removeUserAssignmentByID( $userRole['user_role_id'] );
                     $this->db->commit( );
-                    OWMigrationLogger::logNotice( "Assign to $messageType : role unassigned to user $object ($objectID)." );
+                    OWMigrationLogger::logNotice( __FUNCTION__ . " - Role unassigned to $messageType $object ($objectID)." );
                 }
             }
         }
@@ -368,7 +368,7 @@ class OWMigrationRole extends OWMigrationBase {
 
     public function removeRole( ) {
         $this->role->removeThis( );
-        OWMigrationLogger::logNotice( "Remove role : role '$this->roleName' removed." );
+        OWMigrationLogger::logNotice( __FUNCTION__ . " - Role '$this->roleName' removed." );
         $this->roleName = NULL;
         $this->role = NULL;
     }

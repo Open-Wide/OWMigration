@@ -23,7 +23,7 @@ class OWMigrationStateGroup extends OWMigrationBase {
     public function createIfNotExists( ) {
         $trans = eZCharTransform::instance( );
         if( $this->stateGroup instanceof eZContentObjectStateGroup ) {
-            OWMigrationLogger::logNotice( "Create if not exists : state group '$this->stateGroupIdentifier' exists, nothing to do." );
+            OWMigrationLogger::logNotice( __FUNCTION__ . " - State group '$this->stateGroupIdentifier' exists, nothing to do." );
             return;
         }
         $this->db->begin( );
@@ -36,12 +36,12 @@ class OWMigrationStateGroup extends OWMigrationBase {
         }
         $this->stateGroup->store( );
         $this->db->commit( );
-        OWMigrationLogger::logNotice( "Create if not exists : state group '$this->stateGroupIdentifier' created." );
+        OWMigrationLogger::logNotice( __FUNCTION__ . " - State group '$this->stateGroupIdentifier' created." );
     }
 
     public function update( $params ) {
         if( !$this->stateGroup instanceof eZContentObjectStateGroup ) {
-            OWMigrationLogger::logError( "Update : state group '$this->stateGroupIdentifier' not found." );
+            OWMigrationLogger::logError( __FUNCTION__ . " - State group '$this->stateGroupIdentifier' not found." );
             return;
         }
         foreach( $params as $key => $value ) {
@@ -61,23 +61,23 @@ class OWMigrationStateGroup extends OWMigrationBase {
                         $translation->setAttribute( 'name', $value );
                     }
                 } else {
-                    OWMigrationLogger::logError( "update : attribute or translation '$key' not found." );
+                    OWMigrationLogger::logError( __FUNCTION__ . " - Attribute or translation '$key' not found." );
                 }
             }
         }
         $this->stateGroup->store( );
-        OWMigrationLogger::logNotice( "update : state group '$this->stateGroupIdentifier' updated." );
+        OWMigrationLogger::logNotice( __FUNCTION__ . " - State group '$this->stateGroupIdentifier' updated." );
     }
 
     public function addState( $identifier, $params = array() ) {
         $trans = eZCharTransform::instance( );
         if( !$this->stateGroup instanceof eZContentObjectStateGroup ) {
-            OWMigrationLogger::logNotice( "Add state : state group '$this->stateGroupIdentifier' nou found." );
+            OWMigrationLogger::logNotice( __FUNCTION__ . " - State group '$this->stateGroupIdentifier' nou found." );
             return;
         }
         $state = $this->stateGroup->stateByIdentifier( $identifier );
         if( $state instanceof eZContentObjectState ) {
-            OWMigrationLogger::logWarning( "Add state : state '$identifier' already exists." );
+            OWMigrationLogger::logWarning( __FUNCTION__ . " - State '$identifier' already exists." );
             return;
         } else {
             $state = $this->stateGroup->newState( );
@@ -93,47 +93,47 @@ class OWMigrationStateGroup extends OWMigrationBase {
                 $state = $this->fillStateWithParams( $state, $params );
             }
             $state->store( );
-            OWMigrationLogger::logNotice( "Add state : state $identifier added." );
+            OWMigrationLogger::logNotice( __FUNCTION__ . " - State $identifier added." );
         }
     }
 
     public function updateState( $identifier, $params ) {
         if( !$this->stateGroup instanceof eZContentObjectStateGroup ) {
-            OWMigrationLogger::logError( "Update state : state group '$this->stateGroupIdentifier' not found." );
+            OWMigrationLogger::logError(  __FUNCTION__ . " - State group '$this->stateGroupIdentifier' not found." );
             return;
         }
         $state = $this->stateGroup->stateByIdentifier( $identifier );
         if( $state instanceof eZContentObjectState ) {
             $state = $this->fillStateWithParams( $state, $params );
             $state->store( );
-            OWMigrationLogger::logNotice( "Update state : state '$identifier' upadted." );
+            OWMigrationLogger::logNotice(  __FUNCTION__ . " - State '$identifier' upadted." );
         } else {
-            OWMigrationLogger::logWarning( "Update state : state '$identifier' not found." );
+            OWMigrationLogger::logWarning(  __FUNCTION__ . " - State '$identifier' not found." );
         }
     }
 
     public function removeState( $identifier ) {
         if( !$this->stateGroup instanceof eZContentObjectStateGroup ) {
-            OWMigrationLogger::logError( "Remove state : state group '$this->stateGroupIdentifier' not found." );
+            OWMigrationLogger::logError(  __FUNCTION__ . " - State group '$this->stateGroupIdentifier' not found." );
             return;
         }
         $state = $this->stateGroup->stateByIdentifier( $identifier );
         if( $state instanceof eZContentObjectState ) {
             $state->remove( );
-            OWMigrationLogger::logNotice( "Remove state : state '$identifier' removed." );
+            OWMigrationLogger::logNotice(  __FUNCTION__ . " - State '$identifier' removed." );
         } else {
-            OWMigrationLogger::logWarning( "Remove state : state '$identifier' not found." );
+            OWMigrationLogger::logWarning(  __FUNCTION__ . " - State '$identifier' not found." );
             return;
         }
     }
 
     public function removeStateGroup( ) {
         if( !$this->stateGroup instanceof eZContentObjectStateGroup ) {
-            OWMigrationLogger::logError( "Remove state : state group '$this->stateGroupIdentifier' not found." );
+            OWMigrationLogger::logError(  __FUNCTION__ . " - State group '$this->stateGroupIdentifier' not found." );
             return;
         }
         $this->stateGroup->remove( );
-        OWMigrationLogger::logNotice( "Remove state group : state group '$this->stateGroupIdentifier' removed." );
+        OWMigrationLogger::logNotice(  __FUNCTION__ . " - State group '$this->stateGroupIdentifier' removed." );
     }
 
     protected function fillStateWithParams( $state, $params ) {
@@ -154,7 +154,7 @@ class OWMigrationStateGroup extends OWMigrationBase {
                         $translation->setAttribute( 'name', $value );
                     }
                 } else {
-                    OWMigrationLogger::logWarning( "fill state with params : attribute or translation '$key' not found." );
+                    OWMigrationLogger::logWarning(  __FUNCTION__ . " - Attribute or translation '$key' not found." );
                 }
             }
         }
