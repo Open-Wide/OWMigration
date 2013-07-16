@@ -85,7 +85,7 @@ class OWMigrationRoleExemple extends OWMigration {
             if( $class instanceof eZContentClass ) {
                 return $class->attribute( 'id' );
             }
-            $this->output->warning( "Class $classIdentifer not found.", TRUE );
+            OWMigrationLogger::logWarning( "Class $classIdentifer not found.", TRUE );
             return NULL;
         }
     }
