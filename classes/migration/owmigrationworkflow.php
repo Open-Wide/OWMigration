@@ -17,7 +17,7 @@ class OWMigrationWorkflow extends OWMigrationBase {
             $this->workflow->setAttribute( 'name', $this->workflowName );
             $this->db->begin( );            $this->workflow->store( );
             $this->db->commit( );
-            OWMigrationLogger::logNotice( "Role '$this->workflowName' not found -> create new workflow.", TRUE );
+            OWMigrationLogger::logNotice( "Role '$this->workflowName' not found -> create new workflow." );
             $this->addToGroup( 'Standard' );
         }
         $this->eventList = $this->workflow->fetchEvents( );

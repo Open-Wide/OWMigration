@@ -126,7 +126,7 @@ class OWMigrationContentClass extends OWMigrationBase {
             $this->db->begin( );
             eZContentClassClassGroup::removeGroup( $this->contentClassObject->attribute( 'id' ), null, $classGroup->attribute( 'id' ) );
             $this->db->commit( );
-            OWMigrationLogger::logNotice( "Remove from content class : class removed from group '$classGroupName'.", TRUE );
+            OWMigrationLogger::logNotice( "Remove from content class : class removed from group '$classGroupName'." );
         } else {
             OWMigrationLogger::logWarning( "Remove from content class : group '$classGroupName' not found." );
         }

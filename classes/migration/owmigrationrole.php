@@ -61,9 +61,9 @@ class OWMigrationRole extends OWMigrationBase {
             $this->role->appendPolicy( $module, $function, $limitation );
             $this->role->store( );
             $this->db->commit( );
-            OWMigrationLogger::logNotice( "Policy on $module::$function $messagePart limitation added.", TRUE );
+            OWMigrationLogger::logNotice( "Policy on $module::$function $messagePart limitation added." );
         } else {
-            OWMigrationLogger::logError( "Policy on $module::$function $messagePart limitation already exists.", TRUE );
+            OWMigrationLogger::logError( "Policy on $module::$function $messagePart limitation already exists." );
         }
     }
 
@@ -76,10 +76,10 @@ class OWMigrationRole extends OWMigrationBase {
         if( $module === FALSE ) {
             $this->role->removePolicies( TRUE );
 
-            OWMigrationLogger::logNotice( "All policies deleted.", TRUE );
+            OWMigrationLogger::logNotice( "All policies deleted." );
         } elseif( $limitation === FALSE ) {
             $this->role->removePolicy( $module, $function );
-            OWMigrationLogger::logNotice( "Policies on $module::$function deleted.", TRUE );
+            OWMigrationLogger::logNotice( "Policies on $module::$function deleted." );
         } else {
             $policyList = $this->role->policyList( );
             if( is_array( $policyList ) && count( $policyList ) > 0 ) {
@@ -90,7 +90,7 @@ class OWMigrationRole extends OWMigrationBase {
                             if( current( $accessArray[$module][$function] ) == $limitation ) {
                                 $policy->removeThis( );
                                 unset( $this->role->Policies[$key] );
-                                OWMigrationLogger::logNotice( "Policies on $module::$function with limitation deleted.", TRUE );
+                                OWMigrationLogger::logNotice( "Policies on $module::$function with limitation deleted." );
                             }
                         }
                     }
