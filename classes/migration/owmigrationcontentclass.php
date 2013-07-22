@@ -300,17 +300,17 @@ class OWMigrationContentClass extends OWMigrationBase {
                         $classAttribute->setAttribute( 'placement', $value );
                         break;
                     case 'content' :
-                    	$content = $classAttribute->content();
-                    	$classAttribute->setContent( array_merge( $content, $value ) );
-                    	break;
+                        $content = $classAttribute->content( );
+                        $classAttribute->setContent( array_merge( $content, $value ) );
+                        break;
                     default :
                         $classAttribute->setAttribute( $field, $value );
                         break;
                 }
             }
 
-            $dataType = $classAttribute->dataType( );
             $this->db->begin( );
+            $classAttribute->sync();
             $classAttribute->store( );
             $this->db->commit( );
             if( isset( $params['placement'] ) ) {
