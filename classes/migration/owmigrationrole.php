@@ -141,8 +141,8 @@ class OWMigrationRole extends OWMigrationBase {
         }
 
         if( !is_null( $limitIdent ) ) {
-            switch( strtolower( $limitIdent ) ) {
-                case 'subtree' :
+            switch( $limitIdent ) {
+                case 'Subtree' :
                     if( is_numeric( $limitValue ) ) {
                         $node = eZContentObjectTreeNode::fetch( $limitValue, false, false );
                         if( $node ) {
@@ -153,7 +153,7 @@ class OWMigrationRole extends OWMigrationBase {
                         }
                     }
                     break;
-                case 'section' :
+                case 'Section' :
                     if( is_string( $limitValue ) ) {
                         $section = eZPersistentObject::fetchObject( eZSection::definition( ), null, array( "identifier" => $limitValue ) );
                         if( !$section ) {
@@ -172,7 +172,7 @@ class OWMigrationRole extends OWMigrationBase {
                     }
                     break;
                 default :
-                    OWMigrationLogger::logError( __FUNCTION__ . " - Limit identifier must be equal to 'subtree' or 'section'." );
+                    OWMigrationLogger::logError( __FUNCTION__ . " - Limit identifier must be equal to 'Subtree' or 'Section'." );
                     return;
             }
         }
@@ -224,7 +224,7 @@ class OWMigrationRole extends OWMigrationBase {
 
         if( !is_null( $limitIdent ) ) {
             switch( $limitIdent ) {
-                case 'subtree' :
+                case 'Subtree' :
                     if( is_numeric( $limitValue ) ) {
                         $node = eZContentObjectTreeNode::fetch( $limitValue, false, false );
                         if( $node ) {
@@ -235,7 +235,7 @@ class OWMigrationRole extends OWMigrationBase {
                         }
                     }
                     break;
-                case 'section' :
+                case 'Section' :
                     if( is_string( $limitValue ) ) {
                         $section = eZSection::fetchByIdentifier( $limitValue );
                         if( $section ) {
@@ -259,7 +259,7 @@ class OWMigrationRole extends OWMigrationBase {
         }
         if( isset( $objectID ) ) {
             foreach( $this->role->fetchUserByRole( ) as $userRole ) {
-                if( $userRole['user_object']->attribute( 'id' ) == $objectID && strtolower( $userRole['limit_ident'] ) == $limitIdent && strtolower( $userRole['limit_value'] ) == $limitValue ) {
+                if( $userRole['user_object']->attribute( 'id' ) == $objectID && strcasecmp( $userRole['limit_ident'], $limitIdent ) == 0 && strcasecmp( $userRole['limit_value'], $limitValue ) == 0 ) {
                     $this->db->begin( );
                     $this->role->removeUserAssignmentByID( $userRole['user_role_id'] );
                     $this->db->commit( );
