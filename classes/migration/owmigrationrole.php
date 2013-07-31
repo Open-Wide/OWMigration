@@ -180,6 +180,12 @@ class OWMigrationRole extends OWMigrationBase {
         if( isset( $objectID ) ) {
             $this->db->begin( );
             $this->role->assignToUser( $objectID, $limitIdent, $limitValue );
+            /* Clean up policy cache */
+            eZUser::cleanupCache( );
+            // Clear role caches.
+            eZRole::expireCache( );
+            // Clear all content cache.
+            eZContentCacheManager::clearAllContentCache( );
             $this->db->commit( );
             OWMigrationLogger::logNotice( __FUNCTION__ . " - Role assigned to $messageType $object ($objectID)." );
         }
@@ -262,6 +268,12 @@ class OWMigrationRole extends OWMigrationBase {
                 if( $userRole['user_object']->attribute( 'id' ) == $objectID && strcasecmp( $userRole['limit_ident'], $limitIdent ) == 0 && strcasecmp( $userRole['limit_value'], $limitValue ) == 0 ) {
                     $this->db->begin( );
                     $this->role->removeUserAssignmentByID( $userRole['user_role_id'] );
+                    /* Clean up policy cache */
+                    eZUser::cleanupCache( );
+                    // Clear role caches.
+                    eZRole::expireCache( );
+                    // Clear all content cache.
+                    eZContentCacheManager::clearAllContentCache( );
                     $this->db->commit( );
                     OWMigrationLogger::logNotice( __FUNCTION__ . " - Role unassigned to $messageType $object ($objectID)." );
                 }
