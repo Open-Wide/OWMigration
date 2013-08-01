@@ -8,7 +8,6 @@ abstract class OWMigration {
     abstract public function down( );
 
     public function __construct( ) {
-        $this->output = eZCLI::instance( );
     }
 
 }

@@ -46,7 +46,18 @@ class OWMigrationTools {
                             $limitation['function']
                         ), $limitation['parameter'] );
                         foreach( $limitationValueList as $limitationValue ) {
-                            $limitationValueArray[] = $limitationValue['name'];
+                            if( in_array( $limitationValue['id'], $valueList ) ) {
+                                switch( $limitation['class'] ) {
+                                    case 'eZContentObjectStateGroup' :
+                                        $state = eZContentObjectState::fetchByID( $limitationValue['id'] );
+                                        if( $state instanceof eZContentObjectState ) {
+                                            $limitationValueArray[] = $state->attribute( 'identifier' );
+                                        }
+                                        break;
+                                    default :
+                                        $limitationValueArray[] = $limitationValue['name'];
+                                }
+                            }
                         }
                     } else {
                         $limitationValueArray = $valueList;

@@ -6,7 +6,6 @@ abstract class OWMigrationBase {
     protected $db;
 
     public function __construct( ) {
-        $this->output = eZCLI::instance( );
         $this->db = eZDB::instance( );
     }
     

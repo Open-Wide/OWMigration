@@ -42,7 +42,8 @@ if( $Module->isCurrentAction( 'ExportCode' ) ) {
         OWMigrationRoleCodeGenerator::removeDirectory( $tmpDir );
     }
 } else {
-    $tpl->setVariable( 'rolelist', eZRole::fetchList( ) );
+    $roleCount = eZRole::roleCount( );
+    $tpl->setVariable( 'rolelist', eZRole::fetchByOffset( 0, $roleCount ) );
     $tpl->setVariable( 'role_id', $roleID );
     $Result['content'] = $tpl->fetch( 'design:owmigration/roles.tpl' );
     $Result['left_menu'] = 'design:owmigration/menu.tpl';
