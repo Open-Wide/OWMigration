@@ -311,7 +311,7 @@ class OWMigrationRole extends OWMigrationBase {
                             $sectionList = eZSection::fetchFilteredList( array( 'name' => $limitationItem ) );
                             if( count( $sectionList ) > 0 ) {
                                 $newLimitation[] = $sectionList[0]->attribute( 'id' );
-                            } elseif( $forceCreateSection ) {
+                            } else {
                                 $section = new eZSection( array(
                                     'name' => $limitationItem,
                                     'identifier' => $trans->transformByGroup( $limitationItem, 'identifier' )
