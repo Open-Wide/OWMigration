@@ -309,8 +309,8 @@ class OWMigrationContentClass extends OWMigrationBase {
                 }
             }
 
-            $dataType = $classAttribute->dataType( );
             $this->db->begin( );
+            $classAttribute->sync();
             $classAttribute->store( );
             $this->db->commit( );
             if( isset( $params['placement'] ) ) {
