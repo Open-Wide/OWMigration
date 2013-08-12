@@ -189,7 +189,7 @@ class OWMigrationContentClass extends OWMigrationBase {
             'is_information_collector' => $isCollector
         );
         if( !isset( $params['name'] ) ) {
-            $attrCreateInfo['name'] = $trans->transformByGroup( $this->classIdentifier, 'humanize' );
+            $attrCreateInfo['name'] = $trans->transformByGroup( $classAttributeIdentifier, 'humanize' );
         } elseif( is_string( $params['name'] ) ) {
             $attrCreateInfo['name'] = $params['name'];
         } elseif( is_array( $params['name'] ) ) {
