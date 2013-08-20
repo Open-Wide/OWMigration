@@ -196,7 +196,7 @@ class OWMigrationRole extends OWMigrationBase {
     }
 
     public function unassignToUserGroup( $group, $limitIdent = NULL, $limitValue = NULL ) {
-        $this->unassignTo( 'user_group', $user, $limitIdent, $limitValue );
+        $this->unassignTo( 'user_group', $group, $limitIdent, $limitValue );
     }
 
     protected function unassignTo( $type, $object, $limitIdent = NULL, $limitValue = NULL ) {
@@ -209,7 +209,7 @@ class OWMigrationRole extends OWMigrationBase {
         if( is_numeric( $object ) ) {
             $objectID = $object;
         } elseif( is_string( $object ) ) {
-            $contentClass = eZContentClass::fetchByIdentifier( 'user' );
+            $contentClass = eZContentClass::fetchByIdentifier( $type );
             $contentObject = eZContentObject::fetchFilteredList( array(
                 'name' => $object,
                 'contentclass_id' => $contentClass->attribute( 'id' )
