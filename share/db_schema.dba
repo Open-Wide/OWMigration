@@ -1,0 +1,33 @@
+<?php
+// This array contains the database schema
+$schema = array(
+    'owmigration' => array(
+        'name' => 'owmigration',
+        'fields' => array(
+            'class' => array(
+                'length' => 100,
+                'type' => 'varchar',
+                'not_null' => TRUE,
+                'default' => FALSE,
+            ),
+            'method' => array(
+                'length' => 10,
+                'type' => 'varchar',
+                'not_null' => TRUE,
+                'default' => false,
+            ),
+            'date' => array(
+                'type' => 'datetime',
+                'default' => false,
+                'not_null' => TRUE,
+            ),
+            'log' => array(
+                'type' => 'longtext',
+                'default' => false,
+            ),
+        ),
+        'indexes' => array( ),
+    ),
+    '_info' => array( 'format' => 'generic', ),
+);
+?>

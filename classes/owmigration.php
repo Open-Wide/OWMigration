@@ -1,13 +1,62 @@
 <?php
 
-abstract class OWMigration {
+class OWMigration extends eZPersistentObject {
 
     protected $output;
 
-    abstract public function up( );
-    abstract public function down( );
+    public function up( ) {
+        throw new Exception( "Not implemented method" );
 
-    public function __construct( ) {
+    }
+
+    public function down( ) {
+        throw new Exception( "Not implemented method" );
+
+    }
+
+    /* eZPersistentObject methods */
+    public static function definition( ) {
+        return array(
+            'fields' => array(
+                'class' => array(
+                    'name' => 'class',
+                    'datatype' => 'string',
+                    'default' => null,
+                    'required' => true
+                ),
+                'method' => array(
+                    'name' => 'method',
+                    'datatype' => 'string',
+                    'default' => null,
+                    'required' => true
+                ),
+                'date' => array(
+                    'name' => 'date',
+                    'datatype' => 'string',
+                    'default' => null,
+                    'required' => true
+                ),
+                'log' => array(
+                    'name' => 'log',
+                    'datatype' => 'text',
+                    'default' => null,
+                    'required' => false
+                ),
+            ),
+            'keys' => array(
+                'class',
+                'method',
+                'date'
+            ),
+            'class_name' => 'OWMigration',
+            'name' => 'owmigration',
+            'function_attributes' => array( ),
+            'set_functions' => array( )
+        );
+    }
+
+    static function fetchList( $conds = array(), $limit = NULL ) {
+        return self::fetchObjectList( self::definition( ), null, $conds, array( 'date' => 'asc', ), $limit, true, false, null, null, null );
     }
 
 }
