@@ -27,6 +27,7 @@ PolicyList[]=owmigration/read
 Name=OW Migration
 Links[content_class]=owmigration/classes
 Links[role]=owmigration/roles
+Links[history]=owmigration/history
 LinkNames[]
 
 */ ?>

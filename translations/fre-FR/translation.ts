@@ -20,6 +20,10 @@
         <source>Role</source>
         <translation>Rôle et droits</translation>
     </message>
+    <message>
+        <source>History</source>
+        <translation>Historique des migrations</translation>
+    </message>
 </context>
 <context>
     <name>owmigration/all</name>
@@ -60,6 +64,33 @@
     <message>
         <source>Roles list</source>
         <translation>Liste des rôles</translation>
+    </message>
+</context>
+<context>
+    <name>owmigration/history</name>
+    <message>
+        <source>Migration history</source>
+        <translation>Historique des migrations</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Date</translation>
+    </message>
+    <message>
+        <source>Class</source>
+        <translation>Classe</translation>
+    </message>
+    <message>
+        <source>Method</source>
+        <translation>Méthode</translation>
+    </message>
+    <message>
+        <source>View logs</source>
+        <translation>Voir les logs</translation>
+    </message>
+    <message>
+        <source>Hide logs</source>
+        <translation>Cacher les logs</translation>
     </message>
 </context>
 </TS>

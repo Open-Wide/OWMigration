@@ -37,5 +37,12 @@ $ViewList['roles'] = array(
     )
 );
 
+$ViewList['history'] = array(
+    'script' => 'history.php',
+    'functions' => array( 'read' ),
+    'default_navigation_part' => 'owmigration',
+    'ui_context' => 'view',
+);
+
 $FunctionList['read'] = array( );
 ?>

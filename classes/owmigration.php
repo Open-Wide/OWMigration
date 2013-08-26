@@ -50,9 +50,13 @@ class OWMigration extends eZPersistentObject {
             ),
             'class_name' => 'OWMigration',
             'name' => 'owmigration',
-            'function_attributes' => array( ),
+            'function_attributes' => array( 'log' => 'unserializeLog' ),
             'set_functions' => array( )
         );
+    }
+
+    public function unserializeLog( ) {
+        return unserialize( $this->log );
     }
 
     static function fetchList( $conds = array(), $limit = NULL ) {
