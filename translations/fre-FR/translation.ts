@@ -92,5 +92,9 @@
         <source>Hide logs</source>
         <translation>Cacher les logs</translation>
     </message>
+    <message>
+        <source>No log data</source>
+        <translation>Aucun log enregistré</translation>
+    </message>
 </context>
 </TS>
