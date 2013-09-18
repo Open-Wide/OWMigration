@@ -47,23 +47,25 @@ class OWMigrationContentClassCodeGenerator extends OWMigrationCodeGenerator {
             $code .= "\t\t);" . PHP_EOL;
         }
         //'description'
-        $descriptionList = $contentClass->attribute( 'descriptionList' );
-        if( isset( $descriptionList['always-available'] ) ) {
-            $descriptionListAlwaysAvailable = $descriptionList['always-available'];
-            unset( $descriptionList['always-available'] );
-        } else {
-            $descriptionListAlwaysAvailable = FALSE;
-        }
-        if( implode( '', array_values( $descriptionList ) ) != '' ) {
-            $code .= "\t\t\$migration->description = array(" . PHP_EOL;
-            foreach( $descriptionList as $key => $value ) {
-                $code .= sprintf( "\t\t\t'%s' => '%s'," . PHP_EOL, self::escapeString( $key ), self::escapeString( $value ) );
+        if( $contentClass->hasAttribute( 'descriptionList' ) ) {
+            $descriptionList = $contentClass->attribute( 'descriptionList' );
+            if( isset( $descriptionList['always-available'] ) ) {
+                $descriptionListAlwaysAvailable = $descriptionList['always-available'];
+                unset( $descriptionList['always-available'] );
+            } else {
+                $descriptionListAlwaysAvailable = FALSE;
             }
-            if( $descriptionListAlwaysAvailable === FALSE ) {
-                $descriptionListAlwaysAvailable = $key;
+            if( implode( '', array_values( $descriptionList ) ) != '' ) {
+                $code .= "\t\t\$migration->description = array(" . PHP_EOL;
+                foreach( $descriptionList as $key => $value ) {
+                    $code .= sprintf( "\t\t\t'%s' => '%s'," . PHP_EOL, self::escapeString( $key ), self::escapeString( $value ) );
+                }
+                if( $descriptionListAlwaysAvailable === FALSE ) {
+                    $descriptionListAlwaysAvailable = $key;
+                }
+                $code .= sprintf( "\t\t\t'%s' => '%s'," . PHP_EOL, self::escapeString( 'always-available' ), self::escapeString( $descriptionListAlwaysAvailable ) );
+                $code .= "\t\t);" . PHP_EOL;
             }
-            $code .= sprintf( "\t\t\t'%s' => '%s'," . PHP_EOL, self::escapeString( 'always-available' ), self::escapeString( $descriptionListAlwaysAvailable ) );
-            $code .= "\t\t);" . PHP_EOL;
         }
         //'contentobject_name'
         if( $contentClass->attribute( 'contentobject_name' ) != '' ) {
@@ -117,23 +119,25 @@ class OWMigrationContentClassCodeGenerator extends OWMigrationCodeGenerator {
                 $code .= "\t\t\t)," . PHP_EOL;
             }
             //'description'
-            $descriptionList = $attribute->attribute( 'descriptionList' );
-            if( isset( $descriptionList['always-available'] ) ) {
-                $descriptionListAlwaysAvailable = $descriptionList['always-available'];
-                unset( $descriptionList['always-available'] );
-            } else {
-                $descriptionListAlwaysAvailable = FALSE;
-            }
-            if( implode( '', array_values( $descriptionList ) ) != '' ) {
-                $code .= "\t\t\t'description' => array(" . PHP_EOL;
-                foreach( $descriptionList as $key => $value ) {
-                    $code .= sprintf( "\t\t\t\t'%s' => '%s'," . PHP_EOL, self::escapeString( $key ), self::escapeString( $value ) );
+            if( $attribute->hasAttribute( 'descriptionList' ) ) {
+                $descriptionList = $attribute->attribute( 'descriptionList' );
+                if( isset( $descriptionList['always-available'] ) ) {
+                    $descriptionListAlwaysAvailable = $descriptionList['always-available'];
+                    unset( $descriptionList['always-available'] );
+                } else {
+                    $descriptionListAlwaysAvailable = FALSE;
                 }
-                if( $descriptionListAlwaysAvailable === FALSE ) {
-                    $descriptionListAlwaysAvailable = $key;
+                if( implode( '', array_values( $descriptionList ) ) != '' ) {
+                    $code .= "\t\t\t'description' => array(" . PHP_EOL;
+                    foreach( $descriptionList as $key => $value ) {
+                        $code .= sprintf( "\t\t\t\t'%s' => '%s'," . PHP_EOL, self::escapeString( $key ), self::escapeString( $value ) );
+                    }
+                    if( $descriptionListAlwaysAvailable === FALSE ) {
+                        $descriptionListAlwaysAvailable = $key;
+                    }
+                    $code .= sprintf( "\t\t\t\t'%s' => '%s'," . PHP_EOL, self::escapeString( 'always-available' ), self::escapeString( $descriptionListAlwaysAvailable ) );
+                    $code .= "\t\t\t)," . PHP_EOL;
                 }
-                $code .= sprintf( "\t\t\t\t'%s' => '%s'," . PHP_EOL, self::escapeString( 'always-available' ), self::escapeString( $descriptionListAlwaysAvailable ) );
-                $code .= "\t\t\t)," . PHP_EOL;
             }
             //'is_searchable'
             if( $attribute->attribute( 'is_searchable' ) == FALSE ) {
