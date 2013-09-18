@@ -1,0 +1,6 @@
+CREATE TABLE `owmigration` (                                                                                                                                                                                                       
+  `class` varchar(100) NOT NULL,                                                                                                                                                                                           
+  `method` varchar(10) NOT NULL,                                                                                                                                                                                           
+  `date` datetime NOT NULL,                                                                                                                                                                                                                        
+  `log` longtext COLLATE utf8_unicode_ci                                                                                                                                                                                                           
+);
