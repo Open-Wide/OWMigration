@@ -1,14 +1,14 @@
 <?php /*
 
 [NavigationPart]
-Part[owmigration]=OW Migration
+Part[owmigration]=Migration
 
 [TopAdminMenu]
 Tabs[]=owmigration
 
 [Topmenu_owmigration]
 NavigationPartIdentifier=owmigration
-Name=OW Migration
+Name=Migration
 Tooltip=Génération migration code
 URL[]
 URL[default]=owmigration/classes

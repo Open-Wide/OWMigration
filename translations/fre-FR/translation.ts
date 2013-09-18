@@ -2,8 +2,8 @@
 <context>
     <name>kernel/navigationpart</name>
     <message>
-        <source>OW Migration</source>
-        <translation>OW Migration</translation>
+        <source>Migration</source>
+        <translation>Migration</translation>
     </message>
 </context>
 <context>
