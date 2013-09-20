@@ -18,39 +18,32 @@ class OWMigration extends eZPersistentObject {
     public static function definition( ) {
         return array(
             'fields' => array(
-                'class' => array(
-                    'name' => 'class',
+                'extension' => array(
+                    'name' => 'extension',
                     'datatype' => 'string',
                     'default' => null,
                     'required' => true
                 ),
-                'method' => array(
-                    'name' => 'method',
+                'version' => array(
+                    'name' => 'version',
                     'datatype' => 'string',
                     'default' => null,
                     'required' => true
                 ),
-                'date' => array(
+                'status' => array(
                     'name' => 'date',
                     'datatype' => 'string',
                     'default' => null,
                     'required' => true
-                ),
-                'log' => array(
-                    'name' => 'log',
-                    'datatype' => 'text',
-                    'default' => null,
-                    'required' => false
-                ),
+                )
             ),
             'keys' => array(
-                'class',
-                'method',
-                'date'
+                'extension',
+                'version'
             ),
             'class_name' => 'OWMigration',
             'name' => 'owmigration',
-            'function_attributes' => array( 'log_array' => 'unserializeLog' ),
+            'function_attributes' => array( ),
             'set_functions' => array( )
         );
     }
