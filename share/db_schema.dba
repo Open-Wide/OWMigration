@@ -4,26 +4,23 @@ $schema = array(
     'owmigration' => array(
         'name' => 'owmigration',
         'fields' => array(
-            'class' => array(
+            'extension' => array(
                 'length' => 100,
                 'type' => 'varchar',
                 'not_null' => TRUE,
                 'default' => FALSE,
             ),
-            'method' => array(
+            'version' => array(
+                'length' => 3,
+                'type' => 'varchar',
+                'not_null' => TRUE,
+                'default' => FALSE,
+            ),
+            'status' => array(
                 'length' => 10,
                 'type' => 'varchar',
                 'not_null' => TRUE,
-                'default' => false,
-            ),
-            'date' => array(
-                'type' => 'datetime',
-                'default' => false,
-                'not_null' => TRUE,
-            ),
-            'log' => array(
-                'type' => 'longtext',
-                'default' => false,
+                'default' => FALSE,
             ),
         ),
         'indexes' => array( ),
