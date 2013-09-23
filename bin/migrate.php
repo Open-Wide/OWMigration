@@ -86,9 +86,11 @@ try {
     } else {
         $ini = eZINI::instance( );
         $migrationExtensions = $ini->variable( 'MigrationSettings', 'MigrationExtensions' );
-        foreach( $migrationExtensions as $extension ) {
-            $migration->startMigrationOnExtension( $extension );
-            $migration->migrate( );
+        if( $migrationExtensions ) {
+            foreach( $migrationExtensions as $extension ) {
+                $migration->startMigrationOnExtension( $extension );
+                $migration->migrate( );
+            }
         }
     }
 } catch(Exception $e) {
