@@ -1,6 +1,6 @@
 <?php
 
-class OWMigrationWorkflowExemple extends OWMigration {
+class OWMigration_v006 {
 
     public function up( ) {
         $migration = new OWMigrationWorkflow( );

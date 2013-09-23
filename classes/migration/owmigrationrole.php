@@ -11,7 +11,7 @@ class OWMigrationRole extends OWMigrationBase {
         if( $role instanceof eZRole ) {
             $this->role = $role;
         }
-        OWMigrationLogger::logNotice( __FUNCTION__ . " - Start migration of role '$this->roleName'." );
+        OWScriptLogger::logNotice( "Start migration of role '$this->roleName'.", __FUNCTION__ );
     }
 
     public function end( ) {
@@ -21,20 +21,20 @@ class OWMigrationRole extends OWMigrationBase {
 
     public function createIfNotExists( ) {
         if( $this->role instanceof eZRole ) {
-            OWMigrationLogger::logNotice( __FUNCTION__ . " - Role '$this->roleName' exists, nothing to do." );
+            OWScriptLogger::logNotice( "Role '$this->roleName' exists, nothing to do.", __FUNCTION__ );
             return;
         }
         $this->db->begin( );
         $this->role = eZRole::create( $this->roleName );
         $this->role->store( );
         $this->db->commit( );
-        OWMigrationLogger::logNotice( __FUNCTION__ . " - Role '$this->roleName' created." );
+        OWScriptLogger::logNotice( "Role '$this->roleName' created.", __FUNCTION__ );
     }
 
     public function hasPolicy( $module = '*', $function = '*', $limitation = array() ) {
         $limitation = OWMigrationTools::correctLimitationArray( $limitation );
         if( !$this->role instanceof eZRole ) {
-            OWMigrationLogger::logError( __FUNCTION__ . " - Role object not found." );
+            OWScriptLogger::logError( "Role object not found.", __FUNCTION__ );
             return FALSE;
         }
         foreach( $this->role->policyList() as $policy ) {
@@ -50,7 +50,7 @@ class OWMigrationRole extends OWMigrationBase {
 
     public function addPolicy( $module = '*', $function = '*', $limitation = array() ) {
         if( !$this->role instanceof eZRole ) {
-            OWMigrationLogger::logError( __FUNCTION__ . " - Role object not found." );
+            OWScriptLogger::logError( "Role object not found.", __FUNCTION__ );
             return FALSE;
         }
         $messagePart = empty( $limitation ) ? 'without' : 'with';
@@ -61,25 +61,25 @@ class OWMigrationRole extends OWMigrationBase {
             $this->role->appendPolicy( $module, $function, $limitation );
             $this->role->store( );
             $this->db->commit( );
-            OWMigrationLogger::logNotice( __FUNCTION__ . " - Policy on $module::$function $messagePart limitation added." );
+            OWScriptLogger::logNotice( "Policy on $module::$function $messagePart limitation added.", __FUNCTION__ );
         } else {
-            OWMigrationLogger::logError( __FUNCTION__ . " - Policy on $module::$function $messagePart limitation already exists." );
+            OWScriptLogger::logError( "Policy on $module::$function $messagePart limitation already exists.", __FUNCTION__ );
         }
     }
 
     public function removePolicies( $module = FALSE, $function = FALSE, $limitation = FALSE ) {
         if( !$this->role instanceof eZRole ) {
-            OWMigrationLogger::logError( __FUNCTION__ . " - Role object not found." );
+            OWScriptLogger::logError( "Role object not found.", __FUNCTION__ );
             return;
         }
         $this->db->begin( );
         if( $module === FALSE ) {
             $this->role->removePolicies( TRUE );
 
-            OWMigrationLogger::logNotice( __FUNCTION__ . " - All policies deleted." );
+            OWScriptLogger::logNotice( "All policies deleted.", __FUNCTION__ );
         } elseif( $limitation === FALSE ) {
             $this->role->removePolicy( $module, $function );
-            OWMigrationLogger::logNotice( __FUNCTION__ . " - Policies on $module::$function deleted." );
+            OWScriptLogger::logNotice( "Policies on $module::$function deleted.", __FUNCTION__ );
         } else {
             $policyList = $this->role->policyList( );
             if( is_array( $policyList ) && count( $policyList ) > 0 ) {
@@ -90,7 +90,7 @@ class OWMigrationRole extends OWMigrationBase {
                             if( current( $accessArray[$module][$function] ) == $limitation ) {
                                 $policy->removeThis( );
                                 unset( $this->role->Policies[$key] );
-                                OWMigrationLogger::logNotice( __FUNCTION__ . " - Policies on $module::$function with limitation deleted." );
+                                OWScriptLogger::logNotice( "Policies on $module::$function with limitation deleted.", __FUNCTION__ );
                             }
                         }
                     }
@@ -115,7 +115,7 @@ class OWMigrationRole extends OWMigrationBase {
         $trans = eZCharTransform::instance( );
         $messageType = strtolower( $trans->transformByGroup( $type, 'humanize' ) );
         if( !$this->role instanceof eZRole ) {
-            OWMigrationLogger::logError( __FUNCTION__ . " - Role object not found." );
+            OWScriptLogger::logError( "Role object not found.", __FUNCTION__ );
             return;
         }
         if( is_numeric( $object ) ) {
@@ -129,7 +129,7 @@ class OWMigrationRole extends OWMigrationBase {
             if( is_array( $contentObject ) && count( $contentObject ) > 0 ) {
                 $objectID = $contentObject[0]->attribute( 'id' );
             } else {
-                OWMigrationLogger::logError( __FUNCTION__ . " - $messageType '$object' not found." );
+                OWScriptLogger::logError( "$messageType '$object' not found." , __FUNCTION__ );
                 return;
             }
         } elseif( is_array( $object ) ) {
@@ -137,7 +137,7 @@ class OWMigrationRole extends OWMigrationBase {
                 $this->assignTo( $type, $item, $limitIdent, $limitValue );
             }
         } else {
-            OWMigrationLogger::logError( __FUNCTION__ . " - Object parameter must be an object ID, a object name or an array or object ID and object name." );
+            OWScriptLogger::logError( "Object parameter must be an object ID, a object name or an array or object ID and object name." , __FUNCTION__ );
         }
 
         if( !is_null( $limitIdent ) ) {
@@ -148,7 +148,7 @@ class OWMigrationRole extends OWMigrationBase {
                         if( $node ) {
                             $limitValue = $node['path_string'];
                         } else {
-                            OWMigrationLogger::logNotice( __FUNCTION__ . "Node $limitValue not found." );
+                            OWScriptLogger::logNotice( "Node $limitValue not found." , __FUNCTION__ );
                             return;
                         }
                     }
@@ -163,16 +163,16 @@ class OWMigrationRole extends OWMigrationBase {
                             ) );
                             $section->store( );
                             $limitValue = $section->attribute( 'id' );
-                            OWMigrationLogger::logNotice( __FUNCTION__ . " - Section '$limitValue' not found => create new section." );
+                            OWScriptLogger::logNotice( "Section '$limitValue' not found => create new section." , __FUNCTION__ );
                         }
                         $limitValue = $section->attribute( 'id' );
                     } elseif( !is_numeric( $limitValue ) ) {
-                        OWMigrationLogger::logError( __FUNCTION__ . " - Limit value must be a section ID or a section identifer." );
+                        OWScriptLogger::logError( "Limit value must be a section ID or a section identifer." , __FUNCTION__ );
                         return;
                     }
                     break;
                 default :
-                    OWMigrationLogger::logError( __FUNCTION__ . " - Limit identifier must be equal to 'Subtree' or 'Section'." );
+                    OWScriptLogger::logError( "Limit identifier must be equal to 'Subtree' or 'Section'.", __FUNCTION__ );
                     return;
             }
         }
@@ -187,7 +187,7 @@ class OWMigrationRole extends OWMigrationBase {
             // Clear all content cache.
             eZContentCacheManager::clearAllContentCache( );
             $this->db->commit( );
-            OWMigrationLogger::logNotice( __FUNCTION__ . " - Role assigned to $messageType $object ($objectID)." );
+            OWScriptLogger::logNotice( "Role assigned to $messageType $object ($objectID)." , __FUNCTION__ );
         }
     }
 
@@ -203,7 +203,7 @@ class OWMigrationRole extends OWMigrationBase {
         $trans = eZCharTransform::instance( );
         $messageType = strtolower( $trans->transformByGroup( $type, 'humanize' ) );
         if( !$this->role instanceof eZRole ) {
-            OWMigrationLogger::logError( __FUNCTION__ . " - Role object not found." );
+            OWScriptLogger::logError( "Role object not found." , __FUNCTION__ );
             return;
         }
         if( is_numeric( $object ) ) {
@@ -217,7 +217,7 @@ class OWMigrationRole extends OWMigrationBase {
             if( is_array( $contentObject ) && count( $contentObject ) > 0 ) {
                 $objectID = $contentObject[0]->attribute( 'id' );
             } else {
-                OWMigrationLogger::logError( __FUNCTION__ . " - $messageType '$object' not found." );
+                OWScriptLogger::logError( "$messageType '$object' not found." , __FUNCTION__ );
                 return;
             }
         } elseif( is_array( $object ) ) {
@@ -225,7 +225,7 @@ class OWMigrationRole extends OWMigrationBase {
                 $this->unassignTo( $type, $item, $limitIdent, $limitValue );
             }
         } else {
-            OWMigrationLogger::logError( __FUNCTION__ . " - Object parameter must be an object ID, a object name or an array or object ID and object name." );
+            OWScriptLogger::logError( "Object parameter must be an object ID, a object name or an array or object ID and object name." , __FUNCTION__ );
         }
 
         if( !is_null( $limitIdent ) ) {
@@ -236,7 +236,7 @@ class OWMigrationRole extends OWMigrationBase {
                         if( $node ) {
                             $limitValue = $node['path_string'];
                         } else {
-                            OWMigrationLogger::logNotice( __FUNCTION__ . " - Node $limitValue not found." );
+                            OWScriptLogger::logNotice( "Node $limitValue not found." , __FUNCTION__ );
                             return;
                         }
                     }
@@ -247,17 +247,17 @@ class OWMigrationRole extends OWMigrationBase {
                         if( $section ) {
                             $limitValue = $section->attribute( 'id' );
                         } else {
-                            OWMigrationLogger::logNotice( __FUNCTION__ . " - Section $limitValue not found." );
+                            OWScriptLogger::logNotice( "Section $limitValue not found." , __FUNCTION__ );
                             return;
                         }
 
                     } elseif( !is_numeric( $limitValue ) ) {
-                        OWMigrationLogger::logError( __FUNCTION__ . " - Limit value must be a section ID or a section identifer." );
+                        OWScriptLogger::logError( "Limit value must be a section ID or a section identifer." , __FUNCTION__ );
                         return;
                     }
                     break;
                 default :
-                    OWMigrationLogger::logError( __FUNCTION__ . " - Limit identifier must be equal to 'subtree' or 'section'." );
+                    OWScriptLogger::logError( "Limit identifier must be equal to 'subtree' or 'section'." , __FUNCTION__ );
                     return;
             }
         } else {
@@ -275,7 +275,7 @@ class OWMigrationRole extends OWMigrationBase {
                     // Clear all content cache.
                     eZContentCacheManager::clearAllContentCache( );
                     $this->db->commit( );
-                    OWMigrationLogger::logNotice( __FUNCTION__ . " - Role unassigned to $messageType $object ($objectID)." );
+                    OWScriptLogger::logNotice( "Role unassigned to $messageType $object ($objectID)." , __FUNCTION__ );
                 }
             }
         }
@@ -380,7 +380,7 @@ class OWMigrationRole extends OWMigrationBase {
 
     public function removeRole( ) {
         $this->role->removeThis( );
-        OWMigrationLogger::logNotice( __FUNCTION__ . " - Role '$this->roleName' removed." );
+        OWScriptLogger::logNotice( "Role '$this->roleName' removed.", __FUNCTION__ );
         $this->roleName = NULL;
         $this->role = NULL;
     }

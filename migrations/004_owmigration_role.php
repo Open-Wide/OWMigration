@@ -1,6 +1,6 @@
 <?php
 
-class OWMigrationRoleExemple extends OWMigration {
+class OWMigration_v004 {
 
     public function up( ) {
         $migration = new OWMigrationRole( );
@@ -85,7 +85,6 @@ class OWMigrationRoleExemple extends OWMigration {
             if( $class instanceof eZContentClass ) {
                 return $class->attribute( 'id' );
             }
-            OWMigrationLogger::logWarning( "Class $classIdentifer not found.", TRUE );
             return NULL;
         }
     }
