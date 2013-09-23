@@ -1,21 +1,22 @@
-Extension : OWMigration v1.1
+Extension : OWMigration v2.0
 Requires : eZ Publish 4.x.x (not tested on 3.X)
 Author : Open Wide <http://www.openwide.fr>
 
 What is OWMigration?
 -------------------
 
-OW Migration provides an API to migrate content class.
+OW Migration provides an API to migrate content class, roles, workflows and object states.
  
 Usage
 ------
-1. Create a class that extends the class OWMigration.
-2. Implement the methods up () and down ().
+1. Create a "migrations" folder in you extension
+2. Activate migration in the site.ini :
+[MigrationSettings]
+MigrationExtensions[]=myExtension
+2. Place your migration classes in this folder and implement the methods up () and down () inside. Take care to the name of you classes.
 3. Reload autoloads
 4. Run the script migrate.php :
-php extension/OWMigration/bin/migrate.php --migration-class=yourMigrationClass --up
-or
-php extension/OWMigration/bin/migrate.php --migration-class=yourMigrationClass --down
+php extension/OWMigration/bin/migrate.php [--extension=myExtension [--version=2 --force=[up|down]]]
 
 You can see some exemples of migration class in the exemples directory of this extension, or see and export migration class fron back-end.
 
