@@ -1,6 +1,6 @@
 <?php
 
-class OWMigrationStateGroupExemple extends OWMigration {
+class OWMigration_v005 {
 
     public function up( ) {
         $migration = new OWMigrationStateGroup( );

@@ -1,6 +1,6 @@
 <?php
 
-class OWMigrationRoleExemple extends OWMigration {
+class OWMigration_v004 {
 
     public function up( ) {
         $migration = new OWMigrationRole( );
