@@ -2,11 +2,6 @@
 
 class OWMigration {
 
-    const INSTALLED_STATUS = 'installed';
-    const UNINSTALLED_STATUS = 'uninstalled';
-    const NEVER_INSTALLED_STATUS = 'never-installed';
-    const NONEXISTANT_STATUS = 'nonexistent';
-
     protected $_extension;
     protected $_currentVersion = 0;
     protected $_migrationClasses = array( );
@@ -115,7 +110,7 @@ class OWMigration {
     }
 
     protected function _doMigrateStep( $direction, $num ) {
-                OWScriptLogger::logNotice( 'migrate ' . $direction . ' ' . $this->_extension . ' to version ' . sprintf( '%03d', $num ), 'migrate' );
+        OWScriptLogger::logNotice( 'migrate ' . $direction . ' ' . $this->_extension . ' to version ' . sprintf( '%03d', $num ), 'migrate' );
         $migration = $this->_getMigrationClass( $num );
         if( method_exists( $migration, $direction ) ) {
             $migration->$direction( );
@@ -141,6 +136,27 @@ class OWMigration {
             return new $className( );
         }
         throw new Exception( 'Could not find migration class for migration step: ' . $num, 0 );
+    }
+
+    static function extensionList( ) {
+        $extensionList = array( );
+        $ini = eZINI::instance( );
+        $migration = new self( );
+        if( $ini->hasVariable( 'MigrationSettings', 'MigrationExtensions' ) ) {
+            $migrationExtensions = $ini->variable( 'MigrationSettings', 'MigrationExtensions' );
+            if( $migrationExtensions ) {
+                foreach( $migrationExtensions as $extension ) {
+                    $migration->startMigrationOnExtension( $extension );
+                    $extensionList[] = array(
+                        'name' => $extension,
+                        'current_version' => $migration->getCurrentVersion( ),
+                        'latest_version' => $migration->getLatestVersion( ),
+                        'all_versions' => OWMigrationVersion::fetchAllVersion( $extension )
+                    );
+                }
+            }
+        }
+        return $extensionList;
     }
 
 }

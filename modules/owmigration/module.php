@@ -37,8 +37,8 @@ $ViewList['roles'] = array(
     )
 );
 
-$ViewList['history'] = array(
-    'script' => 'history.php',
+$ViewList['dashboard'] = array(
+    'script' => 'dashboard.php',
     'functions' => array( 'read' ),
     'default_navigation_part' => 'owmigration',
     'ui_context' => 'view',

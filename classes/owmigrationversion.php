@@ -50,11 +50,8 @@ class OWMigrationVersion extends eZPersistentObject {
         return self::fetchObject( self::definition( ), null, $conds );
     }
 
-    static function fetchAllVersion( $extension, $includeNeverInstalled ) {
-        $version = self::fetchList( array( 'extension' => $extension ) );
-        if( $includeNeverInstalled ) {
-            // TODO scan extension directory to add migration whose are not in database
-        }
+    static function fetchAllVersion( $extension ) {
+        return self::fetchList( array( 'extension' => $extension ) );
     }
 
     static function fetchLastestVersion( $extension, $status = self::INSTALLED_STATUS ) {

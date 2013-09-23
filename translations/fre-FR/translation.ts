@@ -21,8 +21,8 @@
         <translation>Rôle et droits</translation>
     </message>
     <message>
-        <source>History</source>
-        <translation>Historique des migrations</translation>
+        <source>Dashboard</source>
+        <translation>Tableau de bord</translation>
     </message>
 </context>
 <context>
@@ -67,34 +67,50 @@
     </message>
 </context>
 <context>
-    <name>owmigration/history</name>
+    <name>owmigration/dashboard</name>
     <message>
-        <source>Migration history</source>
-        <translation>Historique des migrations</translation>
+        <source>Migration dashboard</source>
+        <translation>Tableau de bord des migrations</translation>
     </message>
     <message>
-        <source>Date</source>
-        <translation>Date</translation>
+        <source>Extension</source>
+        <translation>Extension</translation>
     </message>
     <message>
-        <source>Class</source>
-        <translation>Classe</translation>
+        <source>Current version</source>
+        <translation>Version actuelle</translation>
     </message>
     <message>
-        <source>Method</source>
-        <translation>Méthode</translation>
+        <source>Latest version</source>
+        <translation>Dernière version</translation>
     </message>
     <message>
-        <source>View logs</source>
-        <translation>Voir les logs</translation>
+        <source>View all versions</source>
+        <translation>Voir toutes les versions</translation>
     </message>
     <message>
-        <source>Hide logs</source>
-        <translation>Cacher les logs</translation>
+        <source>Hide all versions</source>
+        <translation>Cacher toutes les versions</translation>
     </message>
     <message>
-        <source>No log data</source>
-        <translation>Aucun log enregistré</translation>
+        <source>No version data</source>
+        <translation>Aucune version trouvée</translation>
+    </message>
+    <message>
+        <source>installed</source>
+        <translation>installée</translation>
+    </message>
+    <message>
+        <source>uninstalled</source>
+        <translation>désinstallée</translation>
+    </message>
+    <message>
+        <source>never-installed</source>
+        <translation>jamais installée</translation>
+    </message>
+    <message>
+        <source>nonexistent</source>
+        <translation>inexistante</translation>
     </message>
 </context>
 </TS>

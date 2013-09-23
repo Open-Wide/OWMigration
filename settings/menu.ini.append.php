@@ -11,7 +11,7 @@ NavigationPartIdentifier=owmigration
 Name=Migration
 Tooltip=Génération migration code
 URL[]
-URL[default]=owmigration/history
+URL[default]=owmigration/dashboard
 Enabled[]
 Enabled[default]=true
 Enabled[browse]=false
@@ -25,7 +25,7 @@ PolicyList[]=owmigration/read
 
 [Leftmenu_owmigration]
 Name=OW Migration
-Links[history]=owmigration/history
+Links[dashboard]=owmigration/dashboard
 Links[content_class]=owmigration/classes
 Links[role]=owmigration/roles
 LinkNames[]
