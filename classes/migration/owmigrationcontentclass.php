@@ -8,7 +8,7 @@ class OWMigrationContentClass extends OWMigrationBase {
     public function startMigrationOn( $param ) {
         $this->classIdentifier = $param;
         $this->contentClassObject = eZContentClass::fetchByIdentifier( $this->classIdentifier );
-        OWMigrationLogger::logNotice( __FUNCTION__ . " - Start migration of content class '$this->classIdentifier'." );
+        OWScriptLogger::logNotice( "Content class '$this->classIdentifier'.", 'start_migration' );
     }
 
     public function end( ) {
@@ -29,7 +29,7 @@ class OWMigrationContentClass extends OWMigrationBase {
     public function createIfNotExists( ) {
         $trans = eZCharTransform::instance( );
         if( $this->contentClassObject instanceof eZContentClass ) {
-            OWMigrationLogger::logNotice( __FUNCTION__ . " - Content class '$this->classIdentifier' exists, nothing to do." );
+            OWScriptLogger::logNotice( "Content class '$this->classIdentifier' exists, nothing to do.", __FUNCTION__ );
             return;
         }
         $user = eZUser::currentUser( );
@@ -44,19 +44,19 @@ class OWMigrationContentClass extends OWMigrationBase {
         $this->db->begin( );
         $this->contentClassObject->store( );
         $this->db->commit( );
-        OWMigrationLogger::logNotice( __FUNCTION__ . " - Content class '$this->classIdentifier' created." );
+        OWScriptLogger::logNotice( "Content class '$this->classIdentifier' created.", __FUNCTION__ );
 
     }
 
     public function createFrom( $classIdentifier ) {
         $trans = eZCharTransform::instance( );
         if( $this->contentClassObject instanceof eZContentClass ) {
-            OWMigrationLogger::logNotice( __FUNCTION__ . " - Content class '$this->classIdentifier' exists, nothing to do." );
+            OWScriptLogger::logNotice( "Content class '$this->classIdentifier' exists, nothing to do.", __FUNCTION__ );
             return;
         }
         $class = eZContentClass::fetchByIdentifier( $classIdentifier, true, 0 );
         if( !$class ) {
-            OWMigrationLogger::logError( __FUNCTION__ . " - Content class '$classIdentifier' not found." );
+            OWScriptLogger::logError( "Content class '$classIdentifier' not found.", __FUNCTION__ );
             return;
         }
         $this->contentClassObject = clone $class;
@@ -95,7 +95,7 @@ class OWMigrationContentClass extends OWMigrationBase {
 
     public function addToContentClassGroup( $classGroupName ) {
         if( !$this->contentClassObject instanceof eZContentClass ) {
-            OWMigrationLogger::logError( __FUNCTION__ . " - Content class object not found." );
+            OWScriptLogger::logError( "Content class object not found.", __FUNCTION__ );
             return;
         }
         $classGroup = eZContentClassGroup::fetchByName( $classGroupName );
@@ -105,17 +105,17 @@ class OWMigrationContentClass extends OWMigrationBase {
             $this->db->begin( );
             $classGroup->store( );
             $this->db->commit( );
-            OWMigrationLogger::logNotice( __FUNCTION__ . " - Group '$classGroupName' not found, create group." );
+            OWScriptLogger::logNotice( "Group '$classGroupName' not found, create group.", __FUNCTION__ );
         }
         $this->db->begin( );
         $classGroup->appendClass( $this->contentClassObject );
         $this->db->commit( );
-        OWMigrationLogger::logNotice( __FUNCTION__ . " - Class added in '$classGroupName' group." );
+        OWScriptLogger::logNotice( "Class added in '$classGroupName' group.", __FUNCTION__ );
     }
 
     public function removeFromContentClassGroup( $classGroupName ) {
         if( !$this->contentClassObject instanceof eZContentClass ) {
-            OWMigrationLogger::logError( __FUNCTION__ . " - Content class object not found." );
+            OWScriptLogger::logError( "Content class object not found.", __FUNCTION__ );
             return;
         }
         $classGroup = eZContentClassGroup::fetchByName( $classGroupName );
@@ -123,9 +123,9 @@ class OWMigrationContentClass extends OWMigrationBase {
             $this->db->begin( );
             eZContentClassClassGroup::removeGroup( $this->contentClassObject->attribute( 'id' ), null, $classGroup->attribute( 'id' ) );
             $this->db->commit( );
-            OWMigrationLogger::logNotice( __FUNCTION__ . " - Class removed from group '$classGroupName'." );
+            OWScriptLogger::logNotice( "Class removed from group '$classGroupName'.", __FUNCTION__ );
         } else {
-            OWMigrationLogger::logWarning( __FUNCTION__ . " - Group '$classGroupName' not found." );
+            OWScriptLogger::logWarning( "Group '$classGroupName' not found.", __FUNCTION__ );
         }
     }
 
@@ -133,7 +133,7 @@ class OWMigrationContentClass extends OWMigrationBase {
         if( $this->contentClassObject instanceof eZContentClass ) {
             return $this->contentClassObject->fetchAttributes( );
         }
-        OWMigrationLogger::logError( __FUNCTION__ . " - Content class object not found." );
+        OWScriptLogger::logError( "Content class object not found.", __FUNCTION__ );
     }
 
     public function hasAttribute( $identifier ) {
@@ -145,7 +145,7 @@ class OWMigrationContentClass extends OWMigrationBase {
 
     public function getAttribute( $identifier ) {
         if( !$this->contentClassObject instanceof eZContentClass ) {
-            OWMigrationLogger::logError( __FUNCTION__ . " - Content class object not found." );
+            OWScriptLogger::logError( "Content class object not found.", __FUNCTION__ );
             return;
         }
         $attribute = $this->contentClassObject->fetchAttributeByIdentifier( $identifier );
@@ -158,11 +158,11 @@ class OWMigrationContentClass extends OWMigrationBase {
     public function addAttribute( $classAttributeIdentifier, $params = array() ) {
         $trans = eZCharTransform::instance( );
         if( !$this->contentClassObject instanceof eZContentClass ) {
-            OWMigrationLogger::logError( __FUNCTION__ . " - Content class object not found." );
+            OWScriptLogger::logError( "Content class object not found.", __FUNCTION__ );
             return false;
         }
         if( $this->hasAttribute( $classAttributeIdentifier ) ) {
-            OWMigrationLogger::logError( __FUNCTION__ . " - Attribute '$classAttributeIdentifier' already exists." );
+            OWScriptLogger::logError( "Attribute '$classAttributeIdentifier' already exists.", __FUNCTION__ );
             return false;
         }
 
@@ -222,7 +222,7 @@ class OWMigrationContentClass extends OWMigrationBase {
         }
         $dataType = $newAttribute->dataType( );
         if( !$dataType ) {
-            OWMigrationLogger::logError( __FUNCTION__ . " - Unknown datatype: '$datatype'" );
+            OWScriptLogger::logError( "Unknown datatype: '$datatype'", __FUNCTION__ );
             return false;
         }
         $this->db->begin( );
@@ -249,7 +249,7 @@ class OWMigrationContentClass extends OWMigrationBase {
         $this->db->begin( );
         $newAttribute->storeDefined( );
         $this->db->commit( );
-        OWMigrationLogger::logNotice( __FUNCTION__ . " - Attribute '$classAttributeIdentifier' added." );
+        OWScriptLogger::logNotice( "Attribute '$classAttributeIdentifier' added.", __FUNCTION__ );
         $newAttribute->initializeObjectAttributes( );
 
         return $newAttribute;
@@ -257,7 +257,7 @@ class OWMigrationContentClass extends OWMigrationBase {
 
     public function updateAttribute( $classAttributeIdentifier, $params = array() ) {
         if( !$this->contentClassObject instanceof eZContentClass ) {
-            OWMigrationLogger::logError( __FUNCTION__ . " - Content class object not found." );
+            OWScriptLogger::logError( "Content class object not found.", __FUNCTION__ );
             return;
         }
         $attributes = $this->contentClassObject->fetchAttributes( );
@@ -272,7 +272,7 @@ class OWMigrationContentClass extends OWMigrationBase {
                 switch( $field ) {
                     case 'data_type_string' :
                         if( $classAttribute->attribute( 'data_type_string' ) != $params['data_type_string'] ) {
-                            OWMigrationLogger::logError( __FUNCTION__ . " - Datatype conversion not possible: '" . $params['data_type_string'] . "'" );
+                            OWScriptLogger::logError( "Datatype conversion not possible: '" . $params['data_type_string'] . "'", __FUNCTION__ );
                             return;
                         }
                         break;
@@ -312,17 +312,17 @@ class OWMigrationContentClass extends OWMigrationBase {
             $classAttribute->sync( );
             $classAttribute->store( );
             $this->db->commit( );
-            OWMigrationLogger::logNotice( __FUNCTION__ . " - Attribute '$classAttributeIdentifier' updated." );
+            OWScriptLogger::logNotice( "Attribute '$classAttributeIdentifier' updated.", __FUNCTION__ );
             return $classAttribute;
         } else {
-            OWMigrationLogger::logWarning( __FUNCTION__ . " - Attribute '$classAttributeIdentifier' not found." );
+            OWScriptLogger::logWarning( "Attribute '$classAttributeIdentifier' not found.", __FUNCTION__ );
             return;
         }
     }
 
     public function removeAttribute( $classAttributeIdentifier ) {
         if( !$this->contentClassObject instanceof eZContentClass ) {
-            OWMigrationLogger::logError( __FUNCTION__ . " - Content class object not found." );
+            OWScriptLogger::logError( "Content class object not found.", __FUNCTION__ );
             return;
         }
         $classAttribute = $this->contentClassObject->fetchAttributeByIdentifier( $classAttributeIdentifier );
@@ -334,16 +334,16 @@ class OWMigrationContentClass extends OWMigrationBase {
             $this->contentClassObject->removeAttributes( $classAttribute );
             $this->db->commit( );
             // TODO
-            OWMigrationLogger::logNotice( __FUNCTION__ . " - Attribute '$classAttributeIdentifier' removed." );
+            OWScriptLogger::logNotice( "Attribute '$classAttributeIdentifier' removed.", __FUNCTION__ );
         } else {
-            OWMigrationLogger::logWarning( __FUNCTION__ . " - Attribute '$classAttributeIdentifier' not found." );
+            OWScriptLogger::logWarning( "Attribute '$classAttributeIdentifier' not found.", __FUNCTION__ );
         }
         return;
     }
 
     protected function adjustPlacementsAndStoreAttributes( $attributes ) {
         if( !$this->contentClassObject instanceof eZContentClass ) {
-            OWMigrationLogger::logError( __FUNCTION__ . " - Content class object not found." );
+            OWScriptLogger::logError( "Content class object not found.", __FUNCTION__ );
             return;
         }
         $this->contentClassObject->adjustAttributePlacements( $attributes );
@@ -357,14 +357,14 @@ class OWMigrationContentClass extends OWMigrationBase {
 
     public function removeClass( ) {
         if( !$this->contentClassObject instanceof eZContentClass ) {
-            OWMigrationLogger::logWarning( __FUNCTION__ . " - Content class '$this->classIdentifier' not found." );
+            OWScriptLogger::logWarning( "Content class '$this->classIdentifier' not found.", __FUNCTION__ );
             return;
         }
         $ClassName = $this->contentClassObject->attribute( 'name' );
         $ClassID = $this->contentClassObject->attribute( 'id' );
 
         if( !$this->contentClassObject->isRemovable( ) ) {
-            OWMigrationLogger::logNotice( __FUNCTION__ . " - Content class '$this->classIdentifier' cannot be removed." );
+            OWScriptLogger::logNotice( "Content class '$this->classIdentifier' cannot be removed.", __FUNCTION__ );
         } else {
             $classObjects = eZContentObject::fetchSameClassList( $ClassID );
             $ClassObjectsCount = count( $classObjects );
@@ -374,8 +374,8 @@ class OWMigrationContentClass extends OWMigrationBase {
                 $ClassObjectsCount .= " objects";
             }
             eZContentClassOperations::remove( $ClassID );
-            OWMigrationLogger::logNotice( __FUNCTION__ . " - $ClassObjectsCount objects removed." );
-            OWMigrationLogger::logNotice( __FUNCTION__ . " - Content class '$this->classIdentifier' removed." );
+            OWScriptLogger::logNotice( "$ClassObjectsCount objects removed.", __FUNCTION__ );
+            OWScriptLogger::logNotice( "Content class '$this->classIdentifier' removed.", __FUNCTION__ );
             $this->classIdentifier = NULL;
             $this->contentClassObject = NULL;
         }
@@ -408,7 +408,7 @@ class OWMigrationContentClass extends OWMigrationBase {
                         if( $this->contentClassObject->attribute( 'identifier' ) != $value ) {
                             $duplicateContentClass = eZContentClass::fetchByIdentifier( $value );
                             if( $duplicateContentClass instanceof eZContentClass ) {
-                                OWMigrationLogger::logError( __FUNCTION__ . " - A content class with the idenfier '$value' already exists." );
+                                OWScriptLogger::logError( "A content class with the idenfier '$value' already exists.", __FUNCTION__ );
                             } else {
                                 $this->contentClassObject->setAttribute( $name, $value );
                             }
@@ -419,7 +419,7 @@ class OWMigrationContentClass extends OWMigrationBase {
                         break;
                 }
             } else {
-                throw new OWMigrationContentClassException( __FUNCTION__ . " - Attribute $name not found" );
+                throw new OWMigrationContentClassException( "Attribute $name not found" );
             }
         }
     }
@@ -429,7 +429,7 @@ class OWMigrationContentClass extends OWMigrationBase {
             if( $this->contentClassObject->hasAttribute( $name ) ) {
                 return $this->contentClassObject->attribute( $name );
             } else {
-                throw new OWMigrationContentClassException( __FUNCTION__ . " - Attribute $name not found." );
+                throw new OWMigrationContentClassException( "Attribute $name not found." );
             }
         }
     }

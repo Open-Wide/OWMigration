@@ -85,7 +85,6 @@ class OWMigration_v004 {
             if( $class instanceof eZContentClass ) {
                 return $class->attribute( 'id' );
             }
-            OWMigrationLogger::logWarning( "Class $classIdentifer not found.", TRUE );
             return NULL;
         }
     }

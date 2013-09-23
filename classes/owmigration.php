@@ -18,20 +18,29 @@ class OWMigration {
     }
 
     public function migrate( $toVersion = NULL, $forceDirection = NULL ) {
-        if( $forceDirection ) {
-            if( $toVersion ) {
-                $this->_doMigrateStep( $forceDirection, $toVersion );
+        try {
+            if( $forceDirection ) {
+                if( $toVersion ) {
+                    $this->_doMigrateStep( $forceDirection, $toVersion );
+                } else {
+                    throw new Exception( $this->_extension . ' missing version with force option', 0 );
+                }
             } else {
-                throw new Exception( $this->_extension . ' missing version with force option', 0 );
+                if( $toVersion === null ) {
+                    $toVersion = $this->getLatestVersion( );
+                }
+                $this->_doMigrate( $toVersion );
             }
-        } else {
-            if( $toVersion === null ) {
-                $toVersion = $this->getLatestVersion( );
+        } catch(Exception $e) {
+            if( $e->getCode( ) == 0 ) {
+                OWScriptLogger::logError( $e->getMessage( ), 'migrate' );
+            } else {
+                OWScriptLogger::logNotice( $e->getMessage( ), 'migrate' );
             }
-            $this->_doMigrate( $toVersion );
         }
         $this->_extension = NULL;
         $this->_currentVersion = 0;
+
     }
 
     public function getCurrentVersion( ) {
@@ -106,6 +115,7 @@ class OWMigration {
     }
 
     protected function _doMigrateStep( $direction, $num ) {
+                OWScriptLogger::logNotice( 'migrate ' . $direction . ' ' . $this->_extension . ' to version ' . sprintf( '%03d', $num ), 'migrate' );
         $migration = $this->_getMigrationClass( $num );
         if( method_exists( $migration, $direction ) ) {
             $migration->$direction( );

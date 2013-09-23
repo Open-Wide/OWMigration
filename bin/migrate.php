@@ -48,19 +48,22 @@ if( isset( $options['list'] ) && $options['list'] === TRUE ) {
 
 $validOptions = TRUE;
 $migration = new OWMigration( );
-
+$passedOptions = array( );
 if( isset( $options['force'] ) ) {
     $force = $options['force'];
     if( $force != 'up' && $force != 'down' ) {
         $cli->error( 'Authorized values for force option are up or down.' );
         $validOptions = FALSE;
     }
+    $passedOptions[] = '--force=' . $force;
 }
 if( isset( $options['version'] ) ) {
     $version = $options['version'];
+    $passedOptions[] = '--version=' . $version;
 }
 if( isset( $options['extension'] ) ) {
     $extension = $options['extension'];
+    $passedOptions[] = '--extension=' . $extension;
     $migration->startMigrationOnExtension( $extension );
 }
 
@@ -76,28 +79,29 @@ if( !$validOptions ) {
     $script->shutdown( 0 );
 }
 
-try {
-    if( isset( $force ) ) {
-        $migration->migrate( $version, $force );
-    } elseif( isset( $version ) ) {
-        $migration->migrate( $version );
-    } elseif( isset( $extension ) ) {
-        $migration->migrate( );
-    } else {
-        $ini = eZINI::instance( );
-        $migrationExtensions = $ini->variable( 'MigrationSettings', 'MigrationExtensions' );
-        if( $migrationExtensions ) {
-            foreach( $migrationExtensions as $extension ) {
-                $migration->startMigrationOnExtension( $extension );
-                $migration->migrate( );
-            }
+if( empty( $passedOptions ) ) {
+    $optionString = 'No option';
+} else {
+    $optionString = 'option(s) = ' . implode( ' ', array_reverse( $passedOptions ) );
+}
+
+OWScriptLogger::startLog( 'owmigration_migrate' );
+OWScriptLogger::logNotice( $optionString, 'migrate' );
+
+if( isset( $force ) ) {
+    $migration->migrate( $version, $force );
+} elseif( isset( $version ) ) {
+    $migration->migrate( $version );
+} elseif( isset( $extension ) ) {
+    $migration->migrate( );
+} else {
+    $ini = eZINI::instance( );
+    $migrationExtensions = $ini->variable( 'MigrationSettings', 'MigrationExtensions' );
+    if( $migrationExtensions ) {
+        foreach( $migrationExtensions as $extension ) {
+            $migration->startMigrationOnExtension( $extension );
+            $migration->migrate( );
         }
-    }
-} catch(Exception $e) {
-    if( $e->getCode( ) == 0 ) {
-        $cli->error( $e->getMessage( ) );
-    } else {
-        $cli->notice( $e->getMessage( ) );
     }
 }
 
