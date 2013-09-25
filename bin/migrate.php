@@ -28,22 +28,19 @@ eZUser::setCurrentlyLoggedInUser( $user, $user->attribute( 'contentobject_id' ) 
 // test si owscriptlogger est installée
 
 if( isset( $options['list'] ) && $options['list'] === TRUE ) {
-    // TODO :: display extension version
-    /*
-     $migrationList = OWMigration::fetchList( );
-     if( $migrationList ) {
-     $separationFormat = "-%'-21s-%'-42s-%'-12s-";
-     $lineFormat = "| %-19s | %-40s | %-10s |";
-     $cli->notice( sprintf( $separationFormat, '-', '-', '-' ) );
-     $cli->notice( sprintf( $lineFormat, 'Date', 'Class', 'Method' ) );
-     $cli->notice( sprintf( $separationFormat, '-', '-', '-' ) );
-     foreach( $migrationList as $migration ) {
-     $cli->notice( sprintf( $lineFormat, $migration->attribute( 'date' ), $migration->attribute( 'class' ), $migration->attribute( 'method' ) ) );
-     }
-     $cli->notice( sprintf( $separationFormat, '-', '-', '-' ) );
-     }
-     $script->shutdown( 0 );
-     */
+    $extensionList = OWMigration::extensionList( );
+    if( $extensionList ) {
+        $separationFormat = "-%'-42s-%'-17s-%'-17s-";
+        $lineFormat = "| %-40s | %-15s | %-15s |";
+        $cli->notice( sprintf( $separationFormat, '-', '-', '-' ) );
+        $cli->notice( sprintf( $lineFormat, 'Extension', 'Current version', 'Latest version' ) );
+        $cli->notice( sprintf( $separationFormat, '-', '-', '-' ) );
+        foreach( $extensionList as $extension ) {
+            $cli->notice( sprintf( $lineFormat, $extension['name'], $extension['current_version'], $extension['latest_version'] ) );
+        }
+        $cli->notice( sprintf( $separationFormat, '-', '-', '-' ) );
+    }
+    $script->shutdown( 0 );
 }
 
 $validOptions = TRUE;
