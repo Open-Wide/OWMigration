@@ -10,7 +10,7 @@ class OWMigrationRoleCodeGenerator extends OWMigrationCodeGenerator {
             return FALSE;
         }
         self::createDirectory( $dir );
-        $filename = self::generateSafeFileName( $role->attribute( 'name' ) . 'rolemigration.php' );
+        $filename = self::generateSafeFileName( $role->attribute( 'name' ) . '_role.php' );
         $filepath = $dir . $filename;
         @unlink( $filepath );
         eZFile::create( $filepath, false, OWMigrationRoleCodeGenerator::getMigrationClass( $role ) );
@@ -25,7 +25,7 @@ class OWMigrationRoleCodeGenerator extends OWMigrationCodeGenerator {
             return FALSE;
         }
         $code = "<?php" . PHP_EOL . PHP_EOL;
-        $code .= sprintf( "class %sRoleMigration extends OWMigration {" . PHP_EOL, self::generateClassName( $role->attribute( 'name' ) ) );
+        $code .= sprintf( "class myExtension_xxx_%sRole {" . PHP_EOL, self::generateClassName( $role->attribute( 'name' ) ) );
         $code .= self::getUpMethod( $role );
         $code .= self::getDownMethod( $role );
         $code .= "}" . PHP_EOL . PHP_EOL;

@@ -3,10 +3,10 @@
 class OWMigrationContentClassCodeGenerator extends OWMigrationCodeGenerator {
 
     static function getMigrationClassFile( $classIdentifier, $dir ) {
-        $filename = self::generateSafeFileName( $classIdentifier . 'contentclassmigration.php' );
+        $filename = self::generateSafeFileName( $classIdentifier . '.php' );
         $filepath = $dir . $filename;
         @unlink( $filepath );
-        eZFile::create( $filepath, false, OWMigrationRoleCodeGenerator::getMigrationClass( $roleIdentifier ) );
+        eZFile::create( $filepath, false, self::getMigrationClass( $classIdentifier ) );
         return $filepath;
     }
 
@@ -14,7 +14,7 @@ class OWMigrationContentClassCodeGenerator extends OWMigrationCodeGenerator {
         $trans = eZCharTransform::instance( );
         $contentClass = eZContentClass::fetchByIdentifier( $classIdentifier );
         $code = "<?php" . PHP_EOL . PHP_EOL;
-        $code .= sprintf( "class %sContentClassMigration extends OWMigration {" . PHP_EOL . PHP_EOL, $trans->transformByGroup( $contentClass->attribute( 'identifier' ), 'camelize' ) );
+        $code .= sprintf( "class myExtension_xxx_%s {" . PHP_EOL . PHP_EOL, $trans->transformByGroup( $contentClass->attribute( 'identifier' ), 'camelize' ) );
         $code .= self::getUpMethod( $contentClass );
         $code .= self::getDownMethod( $contentClass );
         $code .= "}" . PHP_EOL . PHP_EOL;
