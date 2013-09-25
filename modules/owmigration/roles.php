@@ -15,18 +15,19 @@ if( $Module->hasActionParameter( 'RoleID' ) ) {
 if( $roleID && is_numeric( $roleID ) ) {
     $role = eZRole::fetch( $roleID );
 }
-if( $role instanceof eZRole && ($Module->isCurrentAction( 'ExportCode' ) || $Module->isCurrentAction( 'ExportAllClassCode' )) ) {
+if( ( $role instanceof eZRole && ($Module->isCurrentAction( 'ExportCode' ) ) || $Module->isCurrentAction( 'ExportAllClassCode' )) ) {
     $mainTmpDir = eZSys::cacheDirectory( ) . '/owmigration/';
     $tmpDir = $mainTmpDir . time( ) . '/';
     OWMigrationRoleCodeGenerator::createDirectory( $tmpDir );
 }
 if( $Module->isCurrentAction( 'ExportCode' ) ) {
-    if( eZFile::download( OWMigrationRoleCodeGenerator::getMigrationClassFile( $role, $tmpDir ) ) ) {
-        OWMigrationRoleCodeGenerator::removeDirectory( $tmpDir );
-    }
+    $filepath = OWMigrationRoleCodeGenerator::getMigrationClassFile( $role, $tmpDir );
+    $file = pathinfo( $filepath, PATHINFO_BASENAME );
+    eZFile::download( $filepath, true, $file );
+    OWMigrationRoleCodeGenerator::removeDirectory( $tmpDir );
 } elseif( $Module->isCurrentAction( 'ExportAllClassCode' ) ) {
     $roleList = eZRole::fetchList( );
-    $archiveFile = 'rolemigration.zip';
+    $archiveFile = 'roles.zip';
     $archiveFilepath = $tmpDir . $archiveFile;
     eZFile::create( $archiveFile, $tmpDir );
     @unlink( $archiveFilepath );
@@ -34,7 +35,7 @@ if( $Module->isCurrentAction( 'ExportCode' ) ) {
     if( $zip->open( $archiveFilepath, ZIPARCHIVE::CREATE ) === TRUE ) {
         foreach( $roleList as $role ) {
             $filepath = OWMigrationRoleCodeGenerator::getMigrationClassFile( $role, $tmpDir );
-            $file = pathinfo( $filepath, PATHINFO_FILENAME );
+            $file = pathinfo( $filepath, PATHINFO_BASENAME );
             $zip->addFile( $filepath, $file );
         }
         $zip->close( );

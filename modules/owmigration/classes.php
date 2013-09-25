@@ -14,35 +14,34 @@ if( $Module->hasActionParameter( 'ContentClassIdentifier' ) ) {
 if( $classIdentifier && is_numeric( $classIdentifier ) ) {
     $classIdentifier = eZContentClass::classIdentifierByID( $classIdentifier );
 }
+$class = eZContentClass::fetchByIdentifier( $classIdentifier );
 
+if( ( $class instanceof eZContentClass && ($Module->isCurrentAction( 'ExportCode' ) ) || $Module->isCurrentAction( 'ExportAllClassCode' )) ) {
+    $mainTmpDir = eZSys::cacheDirectory( ) . '/owmigration/';
+    $tmpDir = $mainTmpDir . time( ) . '/';
+    OWMigrationContentClassCodeGenerator::createDirectory( $tmpDir );
+}
 if( $Module->isCurrentAction( 'ExportCode' ) ) {
-    $dir = eZSys::cacheDirectory( ) . '/';
-    $filepath = $dir . str_replace( '_', '', $classIdentifier ) . 'contentclassmigration.php';
-    @unlink( $filepath );
-    eZFile::create( $filepath, false, OWMigrationContentClassCodeGenerator::getMigrationClass( $classIdentifier ) );
-    if( !eZFile::download( $filepath ) ) {
-        $Module->redirectTo( 'owmigration/classes' );
-    }
+    $filepath = OWMigrationContentClassCodeGenerator::getMigrationClassFile( $classIdentifier, $tmpDir );
+    $file = pathinfo( $filepath, PATHINFO_BASENAME );
+    eZFile::download( $filepath, true, $file );
+    OWMigrationRoleCodeGenerator::removeDirectory( $tmpDir );
 } elseif( $Module->isCurrentAction( 'ExportAllClassCode' ) ) {
     $classList = eZContentClass::fetchAllClasses( );
-    $dir = eZSys::cacheDirectory( ) . '/owmigration/';
-    $archiveFile = 'contentclassmigration.zip';
-    $archiveFilepath = $dir . $archiveFile;
-    eZFile::create( $archiveFile, $dir );
+    $archiveFile = 'contentclasses.zip';
+    $archiveFilepath = $tmpDir . $archiveFile;
+    eZFile::create( $archiveFile, $tmpDir );
     @unlink( $archiveFilepath );
     $zip = new ZipArchive;
     if( $zip->open( $archiveFilepath, ZIPARCHIVE::CREATE ) === TRUE ) {
         foreach( $classList as $class ) {
-            $file = str_replace( '_', '', $class->attribute( 'identifier' ) ) . 'contentclassmigration.php';
-            $filepath = $dir . $file;
-            @unlink( $filepath );
-            eZFile::create( $filepath, false, OWMigrationContentClassCodeGenerator::getMigrationClass( $class->attribute( 'identifier' ) ) );
+            $filepath = OWMigrationContentClassCodeGenerator::getMigrationClassFile( $class->attribute( 'identifier' ), $tmpDir );
+            $file = pathinfo( $filepath, PATHINFO_BASENAME );
             $zip->addFile( $filepath, $file );
         }
         $zip->close( );
-        if( !eZFile::download( $archiveFilepath, true, $archiveFile ) ) {
-            $Module->redirectTo( 'owmigration/classes' );
-        }
+        eZFile::download( $archiveFilepath, true, $archiveFile );
+        OWMigrationContentClassCodeGenerator::removeDirectory( $tmpDir );
     }
 } else {
     $tpl->setVariable( 'class_identifier', $classIdentifier );
