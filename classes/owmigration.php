@@ -60,31 +60,32 @@ class OWMigration {
             eZSys::rootDir( ),
             $directory
         ) );
+        if( file_exists( $directory ) && is_dir( $directory ) ) {
+            $classesToLoad = array( );
+            $classes = get_declared_classes( );
+            $it = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $directory ), RecursiveIteratorIterator::LEAVES_ONLY );
+            foreach( $it as $file ) {
+                $info = pathinfo( $file->getFileName( ) );
+                if( isset( $info['extension'] ) && $info['extension'] == 'php' ) {
+                    require_once ($file->getPathName( ));
 
-        $classesToLoad = array( );
-        $classes = get_declared_classes( );
-        $it = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $directory ), RecursiveIteratorIterator::LEAVES_ONLY );
-        foreach( $it as $file ) {
-            $info = pathinfo( $file->getFileName( ) );
-            if( isset( $info['extension'] ) && $info['extension'] == 'php' ) {
-                require_once ($file->getPathName( ));
+                    $array = array_diff( get_declared_classes( ), $classes );
+                    $className = end( $array );
 
-                $array = array_diff( get_declared_classes( ), $classes );
-                $className = end( $array );
+                    if( $className ) {
+                        $e = explode( '_', $file->getFileName( ) );
+                        $version = (int)$e[0];
 
-                if( $className ) {
-                    $e = explode( '_', $file->getFileName( ) );
-                    $version = (int)$e[0];
-
-                    $classesToLoad[$version] = array(
-                        'className' => $className,
-                        'path' => $file->getPathName( )
-                    );
+                        $classesToLoad[$version] = array(
+                            'className' => $className,
+                            'path' => $file->getPathName( )
+                        );
+                    }
                 }
             }
+            ksort( $classesToLoad, SORT_NUMERIC );
+            $this->_migrationClasses = $classesToLoad;
         }
-        ksort( $classesToLoad, SORT_NUMERIC );
-        $this->_migrationClasses = $classesToLoad;
     }
 
     protected function _doMigrate( $toVersion ) {
@@ -110,7 +111,7 @@ class OWMigration {
     }
 
     protected function _doMigrateStep( $direction, $num ) {
-        OWScriptLogger::logNotice( 'migrate ' . $direction . ' ' . $this->_extension . ' to version ' . sprintf( '%03d', $num ), 'migrate' );
+        OWScriptLogger::logNotice( 'Migrate ' . $direction . ' ' . $this->_extension . ' to version ' . sprintf( '%03d', $num ), 'migrate' );
         $migration = $this->_getMigrationClass( $num );
         if( method_exists( $migration, $direction ) ) {
             $migration->$direction( );
