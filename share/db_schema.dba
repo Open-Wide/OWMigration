@@ -1,8 +1,8 @@
 <?php
 // This array contains the database schema
 $schema = array(
-    'owmigration' => array(
-        'name' => 'owmigration',
+    'owmigration_version' => array(
+        'name' => 'owmigration_version',
         'fields' => array(
             'extension' => array(
                 'length' => 100,
