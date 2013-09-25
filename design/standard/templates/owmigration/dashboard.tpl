@@ -12,6 +12,7 @@
            <div class="context-toolbar"></div>
            <div class="block">
                {if $extension_list|count()}
+                   {def $tmp_version = 0}
                    <div class="yui-dt">
                         <table class="list">
                             <thead>
@@ -24,12 +25,13 @@
                             </thead>
                             <tbody class="yui-dt-data">
                                 {foreach $extension_list as $index => $extension sequence array( 'yui-dt-even', 'yui-dt-odd' ) as $style}
+                                    {set $tmp_version = 0}
                                     <tr class="{if $index|eq(0)}yui-dt-first{/if} {$style}">
                                         <td><div class="yui-dt-liner">{$extension.name}</div></td>
                                         <td><div class="yui-dt-liner">{$extension.current_version}</div></td>
                                         <td><div class="yui-dt-liner">{$extension.latest_version}</div></td>
                                         <td><div class="yui-dt-liner">
-                                            {if $extension.all_versions|count()}
+                                            {if $extension.latest_version|gt(0)}
                                                 <a class="display_log_control" href="#" ref="row_{$index}" show_title="{'View all versions'|i18n('owmigration/dashboard' )}" hide_title="{'Hide all versions'|i18n('owmigration/dashboard' )}">{'View all versions'|i18n('owmigration/dashboard' )}</a>
                                             {else}
                                                 {'No version data'|i18n('owmigration/dashboard' )}
@@ -40,9 +42,10 @@
                                         <td colspan="4"><div class="yui-dt-liner">
                                             {foreach $extension.all_versions as $version}
                                                 <p>{$version.version} : {$version.status|i18n('owmigration/dashboard' )}</p>
+                                                {set $tmp_version = $version.version}
                                             {/foreach}
-                                            {if $version.version|lt($extension.latest_version)}
-                                                {for $version.version|inc() to $extension.latest_version as $next_version}
+                                            {if $tmp_version|lt($extension.latest_version)}
+                                                {for $tmp_version|inc() to $extension.latest_version as $next_version}
                                                     {if $next_version|lt(10)}
                                                         {set $next_version = concat('00', $next_version)}
                                                     {elseif $next_version|lt(100)}
