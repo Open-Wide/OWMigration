@@ -130,6 +130,7 @@ class OWMigration {
     }
 
     public function _getMigrationClass( $num ) {
+        $num = sprintf( '%03d', $num );
         if( isset( $this->_migrationClasses[$num] ) ) {
             $className = $this->_migrationClasses[$num]['className'];
             $path = $this->_migrationClasses[$num]['path'];
