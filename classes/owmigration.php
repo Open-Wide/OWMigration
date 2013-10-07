@@ -74,7 +74,7 @@ class OWMigration {
 
                     if( $className ) {
                         $e = explode( '_', $file->getFileName( ) );
-                        $version = (int)$e[0];
+                        $version = $e[0];
 
                         $classesToLoad[$version] = array(
                             'className' => $className,
