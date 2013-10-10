@@ -75,11 +75,12 @@ class OWMigration {
                     if( $className ) {
                         $e = explode( '_', $file->getFileName( ) );
                         $version = $e[0];
-
-                        $classesToLoad[$version] = array(
-                            'className' => $className,
-                            'path' => $file->getPathName( )
-                        );
+                        if( is_numeric( $version ) ) {
+                            $classesToLoad[$version] = array(
+                                'className' => $className,
+                                'path' => $file->getPathName( )
+                            );
+                        }
                     }
                 }
             }
