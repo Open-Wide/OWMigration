@@ -37,6 +37,23 @@ $ViewList['roles'] = array(
     )
 );
 
+$ViewList['workflows'] = array(
+    'script' => 'workflows.php',
+    'functions' => array( 'read' ),
+    'default_navigation_part' => 'owmigration',
+    'ui_context' => 'view',
+    'params' => array( 'WorkflowID' ),
+    'single_post_actions' => array(
+        'ActionGenerateCode' => 'GenerateCode',
+        'ActionExportCode' => 'ExportCode',
+        'ActionExportAllClassCode' => 'ExportAllClassCode'
+    ),
+    'post_action_parameters' => array(
+        'GenerateCode' => array( 'WorkflowID' => 'WorkflowID' ),
+        'ExportCode' => array( 'WorkflowID' => 'WorkflowID' )
+    )
+);
+
 $ViewList['dashboard'] = array(
     'script' => 'dashboard.php',
     'functions' => array( 'read' ),

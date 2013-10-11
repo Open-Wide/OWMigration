@@ -21,6 +21,10 @@
         <translation>Rôle et droits</translation>
     </message>
     <message>
+        <source>Workflows</source>
+        <translation>Workflows</translation>
+    </message>
+    <message>
         <source>Dashboard</source>
         <translation>Tableau de bord</translation>
     </message>
@@ -64,6 +68,21 @@
     <message>
         <source>Roles list</source>
         <translation>Liste des rôles</translation>
+    </message>
+</context>
+<context>
+    <name>owmigration/workflows</name>
+    <message>
+        <source>Migrate user workflows</source>
+        <translation>Migration de workflows</translation>
+    </message>
+    <message>
+        <source>Migrate workflows</source>
+        <translation>Migration de workflows</translation>
+    </message>
+    <message>
+        <source>Workflows list</source>
+        <translation>Liste des workflows</translation>
     </message>
 </context>
 <context>
