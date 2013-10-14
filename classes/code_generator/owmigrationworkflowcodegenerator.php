@@ -38,26 +38,76 @@ class OWMigrationWorkflowCodeGenerator extends OWMigrationCodeGenerator {
         $code .= "\t\t\$migration = new OWMigrationWorkflow( );" . PHP_EOL;
         $code .= sprintf( "\t\t\$migration->startMigrationOn( '%s' );" . PHP_EOL, self::escapeString( $workflow->attribute( 'name' ) ) );
         $code .= "\t\t\$migration->createIfNotExists( );" . PHP_EOL . PHP_EOL;
+        $eventCount = 1;
+        foreach( $workflow->fetchEvents() as $event ) {
+            $description = $event->attribute( 'description' );
+            if( empty( $description ) ) {
+                $description = "Event #$eventCount";
+                $code .= "\t\t/* The description of events is used to identify when running migration scripts. Please fill to ensure the proper functioning of the script. */" . PHP_EOL;
+            }
+            $code .= sprintf( "\t\t\$migration->addEvent( '%s'", self::escapeString( $description ) );
+            $workflowTypeClass = get_class( $event->attribute( 'workflow_type' ) );
+            var_dump( $workflowTypeClass );
+            $eventAttributes = $event->attributes( );
+            $notEmptyEventAttributes = array( );
+            unset( $eventAttributes['id'], $eventAttributes['version'], $eventAttributes['workflow_id'], $eventAttributes['placement'] );
+            foreach( $eventAttributes as $attribute ) {
+                $attributeValue = $event->attribute( $attribute );
+                switch ($attribute) {
+                    case 'id' :
+                    case 'version' :
+                    case 'workflow_id' :
+                    case 'placement' :
+                    case 'content' :
+                    case 'workflow_type' :
+                        break;
+                    case 'data_int1' :
+                    case 'data_int2' :
+                    case 'data_int3' :
+                    case 'data_int4' :
+                        if( $attributeValue !== "0" ) {
+                            $notEmptyEventAttributes[$attribute] = $attributeValue;
+                        }
+                        break;
+                    case 'data_text1' :
+                    case 'data_text2' :
+                    case 'data_text3' :
+                    case 'data_text4' :
+                    case 'data_text5' :
+                        if( $attributeValue !== "" ) {
+                            $notEmptyEventAttributes[$attribute] = $attributeValue;
+                        }
+                        break;
+                    default :
+                        if( !empty( $attributeValue ) ) {
+                            $notEmptyEventAttributes[$attribute] = $attributeValue;
+                        }
+                        break;
+                }
+            }
+            if( count( $notEmptyEventAttributes ) > 0 ) {
+                $code .= ", array(" . PHP_EOL;
+                foreach( $notEmptyEventAttributes as $attribute => $value ) {
+                    /*
+                     if( is_array( $value ) ) {
+                     $limitationValue = array_map( "self::escapeString", $limitationValue );
+                     $arrayString = "array(\n\t\t\t\t'" . implode( "',\n\t\t\t\t'", $limitationValue ) . "'\n\t\t\t )";
+                     $code .= sprintf( "\t\t\t'%s' => %s," . PHP_EOL, self::escapeString( $limitationKey ), $arrayString );
+                     } else {
+                     $code .= sprintf( "\t\t\t'%s' => '%s'," . PHP_EOL, self::escapeString( $limitationKey ), $limitationValue );
+                     }
+                     */
+                    if( is_string( $value ) ) {
+                        $code .= sprintf( "\t\t\t'%s' => '%s'," . PHP_EOL, self::escapeString( $attribute ), $value );
+                    }
+                }
+                $code .= "\t\t) );" . PHP_EOL;
+            } else {
+                $code .= " );" . PHP_EOL;
+            }
+            $eventCount++;
+        }
         /*
-         foreach( $workflow->policyList() as $policy ) {
-         $code .= sprintf( "\t\t\$migration->addPolicy( '%s', '%s'", self::escapeString( $policy->attribute( 'module_name' ) ), self::escapeString( $policy->attribute( 'function_name' ) ) );
-         $policyLimitationArray = OWMigrationTools::getPolicyLimitationArray( $policy );
-         if( count( $policyLimitationArray ) > 0 ) {
-         $code .= ", array(" . PHP_EOL;
-         foreach( $policyLimitationArray as $limitationKey => $limitationValue ) {
-         if( is_array( $limitationValue ) ) {
-         $limitationValue = array_map( "self::escapeString", $limitationValue );
-         $arrayString = "array(\n\t\t\t\t'" . implode( "',\n\t\t\t\t'", $limitationValue ) . "'\n\t\t\t )";
-         $code .= sprintf( "\t\t\t'%s' => %s," . PHP_EOL, self::escapeString( $limitationKey ), $arrayString );
-         } else {
-         $code .= sprintf( "\t\t\t'%s' => '%s'," . PHP_EOL, self::escapeString( $limitationKey ), $limitationValue );
-         }
-         }
-         $code .= "\t\t) );" . PHP_EOL;
-         } else {
-         $code .= " );" . PHP_EOL;
-         }
-         }
          foreach( $workflow->fetchUserByWorkflow() as $workflowAssignationArray ) {
          $workflowAssignation = $workflowAssignationArray['user_object'];
          if( $workflowAssignation->attribute( 'class_identifier' ) == 'user_group' ) {
