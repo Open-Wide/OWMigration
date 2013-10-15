@@ -116,18 +116,20 @@ class OWMigration {
         $migration = $this->_getMigrationClass( $num );
         if( method_exists( $migration, $direction ) ) {
             $migration->$direction( );
-            $version = new OWMigrationVersion( array(
-                'extension' => $this->_extension,
-                'version' => sprintf( '%03d', $num ),
-                'status' => OWMigrationVersion::INSTALLED_STATUS
-            ) );
-            if( $direction == 'up' ) {
-                $version->setAttribute( 'status', OWMigrationVersion::INSTALLED_STATUS );
-            } else {
-                $version->setAttribute( 'status', OWMigrationVersion::UNINSTALLED_STATUS );
-            }
-            $version->store( );
+        } else {
+            OWScriptLogger::logNotice( 'Method ' . $direction . ' does not exist in version ' . sprintf( '%03d', $num ) . '. Nothing to do.', 'migrate' );
         }
+        $version = new OWMigrationVersion( array(
+            'extension' => $this->_extension,
+            'version' => sprintf( '%03d', $num ),
+            'status' => OWMigrationVersion::INSTALLED_STATUS
+        ) );
+        if( $direction == 'up' ) {
+            $version->setAttribute( 'status', OWMigrationVersion::INSTALLED_STATUS );
+        } else {
+            $version->setAttribute( 'status', OWMigrationVersion::UNINSTALLED_STATUS );
+        }
+        $version->store( );
     }
 
     public function _getMigrationClass( $num ) {
