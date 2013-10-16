@@ -45,59 +45,24 @@ class OWMigrationWorkflowCodeGenerator extends OWMigrationCodeGenerator {
                 $description = "Event #$eventCount";
                 $code .= "\t\t/* The description of events is used to identify when running migration scripts. Please fill to ensure the proper functioning of the script. */" . PHP_EOL;
             }
-            $code .= sprintf( "\t\t\$migration->addEvent( '%s'", self::escapeString( $description ) );
-            $workflowTypeClass = get_class( $event->attribute( 'workflow_type' ) );
-            var_dump( $workflowTypeClass );
-            $eventAttributes = $event->attributes( );
-            $notEmptyEventAttributes = array( );
-            unset( $eventAttributes['id'], $eventAttributes['version'], $eventAttributes['workflow_id'], $eventAttributes['placement'] );
-            foreach( $eventAttributes as $attribute ) {
-                $attributeValue = $event->attribute( $attribute );
-                switch ($attribute) {
-                    case 'id' :
-                    case 'version' :
-                    case 'workflow_id' :
-                    case 'placement' :
-                    case 'content' :
-                    case 'workflow_type' :
-                        break;
-                    case 'data_int1' :
-                    case 'data_int2' :
-                    case 'data_int3' :
-                    case 'data_int4' :
-                        if( $attributeValue !== "0" ) {
-                            $notEmptyEventAttributes[$attribute] = $attributeValue;
-                        }
-                        break;
-                    case 'data_text1' :
-                    case 'data_text2' :
-                    case 'data_text3' :
-                    case 'data_text4' :
-                    case 'data_text5' :
-                        if( $attributeValue !== "" ) {
-                            $notEmptyEventAttributes[$attribute] = $attributeValue;
-                        }
-                        break;
-                    default :
-                        if( !empty( $attributeValue ) ) {
-                            $notEmptyEventAttributes[$attribute] = $attributeValue;
-                        }
-                        break;
-                }
+            $code .= sprintf( "\t\t\$migration->addEvent( '%s', '%s'", self::escapeString( $description ), self::escapeString( $event->attribute( 'workflow_type_string' ) ) );
+            $workflowTypeHandlerClass = get_class( $event->attribute( 'workflow_type' ) ) . 'MigrationHandler';
+            if( !class_exists( $workflowTypeHandlerClass ) || !is_callable( $workflowTypeHandlerClass . '::toArray' ) ) {
+                $workflowTypeHandlerClass = "DefaultEventTypeMigrationHandler";
             }
-            if( count( $notEmptyEventAttributes ) > 0 ) {
+            $eventAttributes = $workflowTypeHandlerClass::toArray( $event );
+            if( count( $eventAttributes ) > 0 ) {
                 $code .= ", array(" . PHP_EOL;
-                foreach( $notEmptyEventAttributes as $attribute => $value ) {
-                    /*
-                     if( is_array( $value ) ) {
-                     $limitationValue = array_map( "self::escapeString", $limitationValue );
-                     $arrayString = "array(\n\t\t\t\t'" . implode( "',\n\t\t\t\t'", $limitationValue ) . "'\n\t\t\t )";
-                     $code .= sprintf( "\t\t\t'%s' => %s," . PHP_EOL, self::escapeString( $limitationKey ), $arrayString );
-                     } else {
-                     $code .= sprintf( "\t\t\t'%s' => '%s'," . PHP_EOL, self::escapeString( $limitationKey ), $limitationValue );
-                     }
-                     */
-                    if( is_string( $value ) ) {
+                foreach( $eventAttributes as $attribute => $value ) {
+                    if( is_array( $value ) ) {
+                        $value = array_map( "self::escapeString", $value );
+                        if( empty( $value ) ) {
+                            $arrayString = "array( )";
+                        } else {
+                            $arrayString = "array(\n\t\t\t\t'" . implode( "',\n\t\t\t\t'", $value ) . "'\n\t\t\t )";
+                        }
+                        $code .= sprintf( "\t\t\t'%s' => %s," . PHP_EOL, self::escapeString( $attribute ), $arrayString );
+                    } else {
                         $code .= sprintf( "\t\t\t'%s' => '%s'," . PHP_EOL, self::escapeString( $attribute ), $value );
                     }
                 }
@@ -105,7 +70,9 @@ class OWMigrationWorkflowCodeGenerator extends OWMigrationCodeGenerator {
             } else {
                 $code .= " );" . PHP_EOL;
             }
+
             $eventCount++;
+
         }
         /*
          foreach( $workflow->fetchUserByWorkflow() as $workflowAssignationArray ) {
