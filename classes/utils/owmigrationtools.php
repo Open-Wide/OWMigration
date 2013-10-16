@@ -144,5 +144,50 @@ class OWMigrationTools {
         return FALSE;
     }
 
+    static function findNode( $nodeIdentifier, $classIdentifier = false ) {
+        if( is_numeric( $nodeIdentifier ) ) {
+            $node = eZContentObjectTreeNode::fetch( $nodeIdentifier );
+        } else {
+            $matches = array( );
+            if( preg_match( "/([0-9]+\/?)+/", $nodeIdentifier, $matches ) > 0 ) {
+                $node = eZContentObjectTreeNode::fetchNodesByPathString( $nodeIdentifier );
+                if( is_array( $node ) ) {
+                    $node = current( $node );
+                }
+                if( !$node instanceof eZContentObjectTreeNode ) {
+                    $node = eZContentObjectTreeNode::fetchByPath( $nodeIdentifier );
+                    if( is_array( $node ) ) {
+                        $node = current( $node );
+                    }
+                }
+            } else {
+                $node = eZContentObjectTreeNode::fetchByURLPath( $nodeIdentifier );
+                if( is_array( $node ) ) {
+                    $node = current( $node );
+                }
+                if( !$node instanceof eZContentObjectTreeNode ) {
+                    $matches = array();
+                    $nodeID = eZURLAliasML::fetchNodeIDByPath($nodeIdentifier);
+                    if( $nodeID !== FALSE ) {
+                        $node = eZContentObjectTreeNode::fetch( $nodeID );
+                    }
+                }
+            }
+            if( !$node instanceof eZContentObjectTreeNode ) {
+                $cond = array( 'name' => $nodeIdentifier, );
+                if( $classIdentifier ) {
+                    $contentClass = eZContentClass::fetchByIdentifier( $classIdentifier );
+                    $cond['contentclass_id'] = $contentClass->attribute( 'id' );
+                }
+                var_dump($cond);
+                $contentObject = current( eZContentObject::fetchFilteredList( $cond ) );
+                if( $contentObject instanceof eZContentObject ) {
+                    return $contentObject->attribute( 'main_node' );
+                }
+            }
+        }
+        return isset( $node ) && !empty( $node ) ? $node : FALSE;
+    }
+
 }
 ?>
