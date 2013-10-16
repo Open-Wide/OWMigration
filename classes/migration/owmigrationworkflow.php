@@ -150,22 +150,17 @@ class OWMigrationWorkflow extends OWMigrationBase {
         $this->workflow->store( $this->eventList );
         $eventType->initializeEvent( $event );
         $this->db->commit( );
+        $workflowTypeHandlerClass = get_class( $event->attribute( 'workflow_type' ) ) . 'MigrationHandler';
+        if( !class_exists( $workflowTypeHandlerClass ) || !is_callable( $workflowTypeHandlerClass . '::toArray' ) ) {
+            $workflowTypeHandlerClass = "DefaultEventTypeMigrationHandler";
+        }
+        $eventAttributes = $workflowTypeHandlerClass::fromArray( $event, $params );
         if( isset( $params['placement'] ) && is_numeric( $params['placement'] ) ) {
             $eventType->setAttribute( 'placement', (int)$params['placement'] );
         } else {
             $eventType->setAttribute( 'placement', $this->getNewEventPlacement( ) );
         }
 
-        foreach( $params as $attributeName => $attributeValue ) {
-            if( $attributeName != 'placement' ) {
-                if( $event->hasAttribute( $attributeName ) ) {
-                    $data = $this->parseAndReplaceStringReferences( $attributeValue );
-                    $event->setAttribute( $attributeName, $data );
-                } else {
-                    OWScriptLogger::logWarning( "Event '$description' ($workflowTypeString) has no attribute '$attributeName'.", __FUNCTION__ );
-                }
-            }
-        }
         $this->db->begin( );
         $event->store( );
         $this->eventList[] = $event;
@@ -184,15 +179,15 @@ class OWMigrationWorkflow extends OWMigrationBase {
             OWScriptLogger::logWarning( "Event '$description' ($workflowTypeString) not found.", __FUNCTION__ );
             return FALSE;
         }
-        foreach( $params as $attributeName => $attributeValue ) {
-            if( $attributeName != 'placement' ) {
-                if( $event->hasAttribute( $attributeName ) ) {
-                    $data = $this->parseAndReplaceStringReferences( $attributeValue );
-                    $event->setAttribute( $attributeName, $data );
-                } else {
-                    OWScriptLogger::logWarning( "Event '$description' ($workflowTypeString) has no attribute '$attributeName'.", __FUNCTION__ );
-                }
-            }
+        $workflowTypeHandlerClass = get_class( $event->attribute( 'workflow_type' ) ) . 'MigrationHandler';
+        if( !class_exists( $workflowTypeHandlerClass ) || !is_callable( $workflowTypeHandlerClass . '::toArray' ) ) {
+            $workflowTypeHandlerClass = "DefaultEventTypeMigrationHandler";
+        }
+        $eventAttributes = $workflowTypeHandlerClass::fromArray( $event, $params );
+        if( isset( $params['placement'] ) && is_numeric( $params['placement'] ) ) {
+            $eventType->setAttribute( 'placement', (int)$params['placement'] );
+        } else {
+            $eventType->setAttribute( 'placement', $this->getNewEventPlacement( ) );
         }
         $this->db->begin( );
         $event->store( );
@@ -294,7 +289,7 @@ class OWMigrationWorkflow extends OWMigrationBase {
         $workflowID = $this->workflow->attribute( 'id' );
         $this->db->begin( );
         eZTrigger::removeTriggerForWorkflow( $workflowID );
-        eZWorkflow::setIsEnabled( false, $workflowID );
+        $this->workflow->removeThis( );
         $this->db->commit( );
         OWScriptLogger::logNotice( "Workflow '$this->workflowName' removed.", __FUNCTION__ );
     }
@@ -314,18 +309,19 @@ class OWMigrationWorkflow extends OWMigrationBase {
         return $maxPlacement;
     }
 
-    protected function parseAndReplaceStringReferences( $string ) {
-        $result = array( );
-        $count = preg_match_all( '|\[([^\]\[]*)\]|', $string, $result );
-        if( count( $result ) > 1 ) {
-            foreach( $result[1] as $i => $refInfo ) {
-                $id = $this->getReferenceID( $refInfo );
-                $string = str_replace( $result[0][$i], $id, $string );
-            }
-        }
-        $string = str_replace( '&#93;', ']', $string );
-        $string = str_replace( '&#91;', '[', $string );
-        return $string;
-    }
-
+    /*
+     protected function parseAndReplaceStringReferences( $string ) {
+     $result = array( );
+     $count = preg_match_all( '|\[([^\]\[]*)\]|', $string, $result );
+     if( count( $result ) > 1 ) {
+     foreach( $result[1] as $i => $refInfo ) {
+     $id = $this->getReferenceID( $refInfo );
+     $string = str_replace( $result[0][$i], $id, $string );
+     }
+     }
+     $string = str_replace( '&#93;', ']', $string );
+     $string = str_replace( '&#91;', '[', $string );
+     return $string;
+     }
+     */
 }
