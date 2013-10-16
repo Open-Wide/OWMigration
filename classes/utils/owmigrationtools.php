@@ -103,5 +103,46 @@ class OWMigrationTools {
         return TRUE;
     }
 
+    static function findSection( $section ) {
+        $object = FALSE;
+        if( self::sectionsHasIdentifier( ) ) {
+            $object = eZSection::fetchByIdentifier( $section );
+        }
+        if( !$object ) {
+            $object = eZPersistentObject::fetchObject( eZSection::definition( ), null, array( "name" => $section ) );
+        }
+        return $object instanceof eZSection ? $object : FALSE;
+
+    }
+
+    static function findOrCreateSection( $section ) {
+        $object = self::findSection( $section );
+        if( $object instanceof eZSection ) {
+            return $object;
+        }
+        if( self::sectionsHasIdentifier( ) ) {
+            $trans = eZCharTransform::instance( );
+            $sectionIdentifier = $trans->transformByGroup( $section, 'identifier' );
+            $sectionName = $sectionIdentifier == $section ? $trans->transformByGroup( $section, 'humanize' ) : $section;
+            $sectionRow = array(
+                'name' => $sectionName,
+                'identifier' => $sectionIdentifier
+            );
+        } else {
+            $sectionRow = array( 'name' => $section );
+        }
+        $object = new eZSection( $sectionRow );
+        $object->store( );
+        return $object;
+    }
+
+    static function sectionsHasIdentifier( ) {
+        $sectionDefinition = eZSection::definition( );
+        if( isset( $sectionDefinition['fields']['identifier'] ) ) {
+            return TRUE;
+        }
+        return FALSE;
+    }
+
 }
 ?>
