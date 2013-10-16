@@ -166,8 +166,8 @@ class OWMigrationTools {
                     $node = current( $node );
                 }
                 if( !$node instanceof eZContentObjectTreeNode ) {
-                    $matches = array();
-                    $nodeID = eZURLAliasML::fetchNodeIDByPath($nodeIdentifier);
+                    $matches = array( );
+                    $nodeID = eZURLAliasML::fetchNodeIDByPath( $nodeIdentifier );
                     if( $nodeID !== FALSE ) {
                         $node = eZContentObjectTreeNode::fetch( $nodeID );
                     }
@@ -179,7 +179,7 @@ class OWMigrationTools {
                     $contentClass = eZContentClass::fetchByIdentifier( $classIdentifier );
                     $cond['contentclass_id'] = $contentClass->attribute( 'id' );
                 }
-                var_dump($cond);
+                var_dump( $cond );
                 $contentObject = current( eZContentObject::fetchFilteredList( $cond ) );
                 if( $contentObject instanceof eZContentObject ) {
                     return $contentObject->attribute( 'main_node' );
@@ -187,6 +187,34 @@ class OWMigrationTools {
             }
         }
         return isset( $node ) && !empty( $node ) ? $node : FALSE;
+    }
+
+    static function findWorkflow( $workflow ) {
+        $object = FALSE;
+        if( !$object ) {
+            $object = eZPersistentObject::fetchObject( eZWorkflow::definition( ), null, array( "name" => $workflow ) );
+        }
+        return $object instanceof eZWorkflow ? $object : FALSE;
+
+    }
+
+    static function findOrCreateWorkflow( $workflow ) {
+        $object = self::findWorkflow( $workflow );
+        if( $object instanceof eZWorkflow ) {
+            return $object;
+        }
+        $currentUser = eZUser::currentUser( );
+        $object = eZWorkflow::create( $currentUser->attribute( 'contentobject_id' ) );
+        $object->setAttribute( 'name', $workflow );
+        $object->setAttribute( 'version', 0 );
+        $object->store( );
+        $workflowGroupList = eZWorkflowGroup::fetchList( );
+        $workflowGroup = current( $workflowGroupList );
+        if( $workflowGroup instanceof eZWorkflowGroup ) {
+            $ingroup = eZWorkflowGroupLink::create( $object->attribute( 'id' ), $object->attribute( "version" ), $workflowGroup->attribute( 'id' ), $workflowGroup->attribute( 'name' ) );
+            $ingroup->store( );
+        }
+        return $object;
     }
 
 }
