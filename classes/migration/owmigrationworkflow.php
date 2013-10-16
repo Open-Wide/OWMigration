@@ -182,6 +182,7 @@ class OWMigrationWorkflow extends OWMigrationBase {
         $event = $this->getEvent( $description, $workflowTypeString );
         if( !$event ) {
             OWScriptLogger::logWarning( "Event '$description' ($workflowTypeString) not found.", __FUNCTION__ );
+            return FALSE;
         }
         foreach( $params as $attributeName => $attributeValue ) {
             if( $attributeName != 'placement' ) {
