@@ -1,17 +1,17 @@
 <?php
 
-class eZMultiplexerTypeMigrationHandler implements MigrationHandlerInterface {
+class eZApproveTypeMigrationHandler implements MigrationHandlerInterface {
 
     const SELECTED_SECTIONS = "data_text1";
     const SELECTED_USERGROUPS = "data_text2";
-    const SELECTED_CLASSES = "data_text5";
-    const SELECTED_WORKFLOW = "data_int1";
+    const APPROVE_USERS = "data_text3";
+    const APPROVE_GROUPS = "data_text4";
     const LANGUAGE_LIST = "data_int2";
     const VERSION_OPTION = "data_int3";
-    
+
     static public function toArray( eZWorkflowEvent $event ) {
         $eventType = $event->attribute( 'workflow_type' );
-        if( !$eventType instanceof eZMultiplexerType ) {
+        if( !$eventType instanceof eZApproveType ) {
             throw new InvalidArgumentException( );
         }
         $attributesArray = array( );
@@ -33,16 +33,8 @@ class eZMultiplexerTypeMigrationHandler implements MigrationHandlerInterface {
                         }
                     }
                     break;
-                case 'selected_classes' :
-                    foreach( $attribute as $ID ) {
-                        if( $ID != '-1' ) {
-                            $object = eZContentClass::fetch( $ID );
-                            if( $object instanceof eZContentClass ) {
-                                $IDList[] = $object->attribute( 'identifier' );
-                            }
-                        }
-                    }
-                    break;
+                case 'approve_users' :
+                case 'approve_groups' :
                 case 'selected_usergroups' :
                     foreach( $attribute as $ID ) {
                         if( $ID != '-1' ) {
@@ -56,12 +48,6 @@ class eZMultiplexerTypeMigrationHandler implements MigrationHandlerInterface {
                         }
                     }
                     break;
-                case 'selected_workflow' :
-                    $object = eZWorkflow::fetch( $attribute );
-                    if( $object instanceof eZWorkflow ) {
-                        $IDList = $object->attribute( 'name' );
-                    }
-                    break;
                 case 'language_list' :
                     $attributeValue = $event->attribute( self::LANGUAGE_LIST );
                     if( $attributeValue != 0 ) {
@@ -73,13 +59,13 @@ class eZMultiplexerTypeMigrationHandler implements MigrationHandlerInterface {
                     break;
                 case 'version_option' :
                     switch ($attribute) {
-                        case eZMultiplexerType::VERSION_OPTION_FIRST_ONLY :
+                        case eZApproveType::VERSION_OPTION_FIRST_ONLY :
                             $IDList = "first_only";
                             break;
-                        case eZMultiplexerType::VERSION_OPTION_EXCEPT_FIRST :
+                        case eZApproveType::VERSION_OPTION_EXCEPT_FIRST :
                             $IDList = "first_only";
                             break;
-                        case eZMultiplexerType::VERSION_OPTION_ALL :
+                        case eZApproveType::VERSION_OPTION_ALL :
                             $IDList = "all";
                             break;
                         default :
@@ -98,7 +84,7 @@ class eZMultiplexerTypeMigrationHandler implements MigrationHandlerInterface {
 
     static public function fromArray( eZWorkflowEvent $event, array $options ) {
         $eventType = $event->attribute( 'workflow_type' );
-        if( !$eventType instanceof eZMultiplexerType ) {
+        if( !$eventType instanceof eZApproveType ) {
             throw new InvalidArgumentException( );
         }
         foreach( $options as $optionsIdentifier => $optionsValue ) {
@@ -118,19 +104,33 @@ class eZMultiplexerTypeMigrationHandler implements MigrationHandlerInterface {
                         }
                         $event->setAttribute( self::SELECTED_SECTIONS, $optionsValue );
                         break;
-                    case 'selected_classes' :
+                    case 'approve_users' :
                         if( is_array( $optionsValue ) ) {
                             foreach( $optionsValue as $index => $option ) {
-                                $object = eZContentClass::fetchByIdentifier( $option );
-                                if( $object instanceof eZContentClass ) {
-                                    $optionsValue[$index] = $object->attribute( 'id' );
+                                $object = OWMigrationTools::findNode( $option );
+                                if( $object instanceof eZContentObjectTreeNode ) {
+                                    $optionsValue[$index] = $object->attribute( 'contentobject_id' );
                                 }
                             }
                             $optionsValue = implode( ',', $optionsValue );
                         } else {
                             $optionsValue = '';
                         }
-                        $event->setAttribute( self::SELECTED_CLASSES, $optionsValue );
+                        $event->setAttribute( self::APPROVE_USERS, $optionsValue );
+                        break;
+                    case 'approve_groups' :
+                        if( is_array( $optionsValue ) ) {
+                            foreach( $optionsValue as $index => $option ) {
+                                $object = OWMigrationTools::findNode( $option );
+                                if( $object instanceof eZContentObjectTreeNode ) {
+                                    $optionsValue[$index] = $object->attribute( 'contentobject_id' );
+                                }
+                            }
+                            $optionsValue = implode( ',', $optionsValue );
+                        } else {
+                            $optionsValue = '';
+                        }
+                        $event->setAttribute( self::APPROVE_GROUPS, $optionsValue );
                         break;
                     case 'selected_usergroups' :
                         if( is_array( $optionsValue ) ) {
@@ -146,13 +146,6 @@ class eZMultiplexerTypeMigrationHandler implements MigrationHandlerInterface {
                         }
                         $event->setAttribute( self::SELECTED_USERGROUPS, $optionsValue );
                         break;
-                    case 'selected_workflow' :
-                        $object = OWMigrationTools::findOrCreateWorkflow( $optionsValue );
-                        if( $object instanceof eZWorkflow ) {
-                            $optionsValue = $object->attribute( 'id' );
-                        }
-                        $event->setAttribute( self::SELECTED_WORKFLOW, $optionsValue );
-                        break;
                     case 'language_list' :
                         if( is_array( $optionsValue ) ) {
                             $optionsValue = eZContentLanguage::maskByLocale( $optionsValue );
@@ -164,16 +157,16 @@ class eZMultiplexerTypeMigrationHandler implements MigrationHandlerInterface {
                     case 'version_option' :
                         switch ($optionsValue) {
                             case "first_only" :
-                                $optionsValue = eZMultiplexerType::VERSION_OPTION_FIRST_ONLY;
+                                $optionsValue = eZApproveType::VERSION_OPTION_FIRST_ONLY;
                                 break;
                             case "first_only" :
-                                $optionsValue = eZMultiplexerType::VERSION_OPTION_EXCEPT_FIRST;
+                                $optionsValue = eZApproveType::VERSION_OPTION_EXCEPT_FIRST;
                                 break;
                             case "all" :
-                                $optionsValue = eZMultiplexerType::VERSION_OPTION_ALL;
+                                $optionsValue = eZApproveType::VERSION_OPTION_ALL;
                                 break;
                             default :
-                                $optionsValue = eZMultiplexerType::VERSION_OPTION_ALL;
+                                $optionsValue = eZApproveType::VERSION_OPTION_ALL;
                                 break;
                         }
                         $event->setAttribute( self::VERSION_OPTION, $optionsValue );
