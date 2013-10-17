@@ -74,6 +74,11 @@ class OWMigrationWorkflowCodeGenerator extends OWMigrationCodeGenerator {
             $eventCount++;
 
         }
+        $triggerList = eZPersistentObject::fetchObjectList( eZTrigger::definition( ), null, array( 'workflow_id' => $workflow->attribute( 'id' ) ) );
+        foreach( $triggerList as $trigger ) {
+            $connectType = $trigger->attribute( 'connect_type' ) == 'a' ? 'after' : 'before';
+            $code .= sprintf( "\t\t\$migration->assignToTrigger( '%s', '%s', '%s' );" . PHP_EOL, self::escapeString( $trigger->attribute( 'module_name' ) ), self::escapeString( $trigger->attribute( 'function_name' ) ), self::escapeString( $connectType ) );
+        }
         $code .= "\t\t\$migration->end( );" . PHP_EOL;
         $code .= "\t}" . PHP_EOL . PHP_EOL;
         return $code;
@@ -87,5 +92,6 @@ class OWMigrationWorkflowCodeGenerator extends OWMigrationCodeGenerator {
         $code .= "\t}" . PHP_EOL;
         return $code;
     }
+
 }
 ?>
