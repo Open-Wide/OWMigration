@@ -74,20 +74,6 @@ class OWMigrationWorkflowCodeGenerator extends OWMigrationCodeGenerator {
             $eventCount++;
 
         }
-        /*
-         foreach( $workflow->fetchUserByWorkflow() as $workflowAssignationArray ) {
-         $workflowAssignation = $workflowAssignationArray['user_object'];
-         if( $workflowAssignation->attribute( 'class_identifier' ) == 'user_group' ) {
-         $code .= sprintf( "\t\t\$migration->assignToUserGroup( '%s'", self::escapeString( $workflowAssignation->attribute( 'name' ) ) );
-         } else {
-         $code .= sprintf( "\t\t\$migration->assignToUser( '%s'", self::escapeString( $workflowAssignation->attribute( 'name' ) ) );
-         }
-         if( !empty( $workflowAssignationArray['limit_ident'] ) ) {
-         $code .= sprintf( ", '%s', '%s'", self::escapeString( $workflowAssignationArray['limit_ident'] ), self::escapeString( $workflowAssignationArray['limit_value'] ) );
-         }
-         $code .= " );" . PHP_EOL;
-         }
-         */
         $code .= "\t\t\$migration->end( );" . PHP_EOL;
         $code .= "\t}" . PHP_EOL . PHP_EOL;
         return $code;
@@ -101,6 +87,5 @@ class OWMigrationWorkflowCodeGenerator extends OWMigrationCodeGenerator {
         $code .= "\t}" . PHP_EOL;
         return $code;
     }
-
 }
 ?>
