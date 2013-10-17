@@ -5,7 +5,7 @@ class DefaultEventTypeMigrationHandler implements MigrationHandlerInterface {
     static public function toArray( eZWorkflowEvent $event ) {
         $attributesArray = array( );
         foreach( $event->attributes() as $attributeIdentifier ) {
-            if( strpos( $attributeIdentifier, "data_" ) === 0 ) {
+            if( (strpos( $attributeIdentifier, "data_int" ) === 0 && $event->attribute( $attributeIdentifier ) !== '0') || (strpos( $attributeIdentifier, "data_text" ) === 0 && $event->attribute( $attributeIdentifier ) !== '') ) {
                 $attributesArray[$attributeIdentifier] = $event->attribute( $attributeIdentifier );
             }
         }

@@ -17,11 +17,12 @@ class eZApproveTypeMigrationHandler implements MigrationHandlerInterface {
         $attributesArray = array( );
         foreach( $eventType->typeFunctionalAttributes( ) as $attributeIdentifier ) {
             $attribute = $eventType->attributeDecoder( $event, $attributeIdentifier );
-            $IDList = array( );
+            unset( $IDList );
             switch ($attributeIdentifier) {
                 case 'selected_sections' :
                     foreach( $attribute as $ID ) {
                         if( $ID != '-1' ) {
+                            $IDList = array( );
                             $object = eZSection::fetch( $ID );
                             if( $object instanceof eZSection ) {
                                 if( $object->hasAttribute( 'identifier' ) ) {
@@ -38,6 +39,7 @@ class eZApproveTypeMigrationHandler implements MigrationHandlerInterface {
                 case 'selected_usergroups' :
                     foreach( $attribute as $ID ) {
                         if( $ID != '-1' ) {
+                            $IDList = array( );
                             $object = eZContentObject::fetch( $ID );
                             if( $object instanceof eZContentObject ) {
                                 $object = $object->attribute( 'main_node' );
@@ -51,6 +53,7 @@ class eZApproveTypeMigrationHandler implements MigrationHandlerInterface {
                 case 'language_list' :
                     $attributeValue = $event->attribute( self::LANGUAGE_LIST );
                     if( $attributeValue != 0 ) {
+                        $IDList = array( );
                         $languages = eZContentLanguage::languagesByMask( $attributeValue );
                         foreach( $languages as $language ) {
                             $IDList[$language->attribute( 'id' )] = $language->attribute( 'locale' );
@@ -74,10 +77,14 @@ class eZApproveTypeMigrationHandler implements MigrationHandlerInterface {
                     break;
 
                 default :
-                    $IDList = $attribute;
+                    if( !empty( $attribute ) ) {
+                        $IDList = $attribute;
+                    }
                     break;
             }
-            $attributesArray[$attributeIdentifier] = $IDList;
+            if( isset( $IDList ) ) {
+                $attributesArray[$attributeIdentifier] = $IDList;
+            }
         }
         return $attributesArray;
     }
