@@ -79,6 +79,9 @@ class OWMigrationWorkflowCodeGenerator extends OWMigrationCodeGenerator {
             $connectType = $trigger->attribute( 'connect_type' ) == 'a' ? 'after' : 'before';
             $code .= sprintf( "\t\t\$migration->assignToTrigger( '%s', '%s', '%s' );" . PHP_EOL, self::escapeString( $trigger->attribute( 'module_name' ) ), self::escapeString( $trigger->attribute( 'function_name' ) ), self::escapeString( $connectType ) );
         }
+        foreach( $workflow->ingroupList() as $group ) {
+            $code .= sprintf( "\t\t\$migration->addToGroup( '%s' );" . PHP_EOL, self::escapeString( $group->attribute( 'group_name' ) ) );
+        }
         $code .= "\t\t\$migration->end( );" . PHP_EOL;
         $code .= "\t}" . PHP_EOL . PHP_EOL;
         return $code;
