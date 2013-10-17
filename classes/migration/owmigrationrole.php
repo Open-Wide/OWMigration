@@ -129,7 +129,7 @@ class OWMigrationRole extends OWMigrationBase {
             if( is_array( $contentObject ) && count( $contentObject ) > 0 ) {
                 $objectID = $contentObject[0]->attribute( 'id' );
             } else {
-                OWScriptLogger::logError( "$messageType '$object' not found." , __FUNCTION__ );
+                OWScriptLogger::logError( "$messageType '$object' not found.", __FUNCTION__ );
                 return;
             }
         } elseif( is_array( $object ) ) {
@@ -137,7 +137,7 @@ class OWMigrationRole extends OWMigrationBase {
                 $this->assignTo( $type, $item, $limitIdent, $limitValue );
             }
         } else {
-            OWScriptLogger::logError( "Object parameter must be an object ID, a object name or an array or object ID and object name." , __FUNCTION__ );
+            OWScriptLogger::logError( "Object parameter must be an object ID, a object name or an array or object ID and object name.", __FUNCTION__ );
         }
 
         if( !is_null( $limitIdent ) ) {
@@ -148,26 +148,17 @@ class OWMigrationRole extends OWMigrationBase {
                         if( $node ) {
                             $limitValue = $node['path_string'];
                         } else {
-                            OWScriptLogger::logNotice( "Node $limitValue not found." , __FUNCTION__ );
+                            OWScriptLogger::logNotice( "Node $limitValue not found.", __FUNCTION__ );
                             return;
                         }
                     }
                     break;
                 case 'Section' :
                     if( is_string( $limitValue ) ) {
-                        $section = eZPersistentObject::fetchObject( eZSection::definition( ), null, array( "identifier" => $limitValue ) );
-                        if( !$section ) {
-                            $section = new eZSection( array(
-                                'name' => $limitValue,
-                                'identifier' => $limitValue
-                            ) );
-                            $section->store( );
-                            $limitValue = $section->attribute( 'id' );
-                            OWScriptLogger::logNotice( "Section '$limitValue' not found => create new section." , __FUNCTION__ );
-                        }
+                        $section = OWMigrationTools::findOrCreateSection( $limitValue );
                         $limitValue = $section->attribute( 'id' );
                     } elseif( !is_numeric( $limitValue ) ) {
-                        OWScriptLogger::logError( "Limit value must be a section ID or a section identifer." , __FUNCTION__ );
+                        OWScriptLogger::logError( "Limit value must be a section ID or a section identifer.", __FUNCTION__ );
                         return;
                     }
                     break;
@@ -187,7 +178,7 @@ class OWMigrationRole extends OWMigrationBase {
             // Clear all content cache.
             eZContentCacheManager::clearAllContentCache( );
             $this->db->commit( );
-            OWScriptLogger::logNotice( "Role assigned to $messageType $object ($objectID)." , __FUNCTION__ );
+            OWScriptLogger::logNotice( "Role assigned to $messageType $object ($objectID).", __FUNCTION__ );
         }
     }
 
@@ -203,7 +194,7 @@ class OWMigrationRole extends OWMigrationBase {
         $trans = eZCharTransform::instance( );
         $messageType = strtolower( $trans->transformByGroup( $type, 'humanize' ) );
         if( !$this->role instanceof eZRole ) {
-            OWScriptLogger::logError( "Role object not found." , __FUNCTION__ );
+            OWScriptLogger::logError( "Role object not found.", __FUNCTION__ );
             return;
         }
         if( is_numeric( $object ) ) {
@@ -217,7 +208,7 @@ class OWMigrationRole extends OWMigrationBase {
             if( is_array( $contentObject ) && count( $contentObject ) > 0 ) {
                 $objectID = $contentObject[0]->attribute( 'id' );
             } else {
-                OWScriptLogger::logError( "$messageType '$object' not found." , __FUNCTION__ );
+                OWScriptLogger::logError( "$messageType '$object' not found.", __FUNCTION__ );
                 return;
             }
         } elseif( is_array( $object ) ) {
@@ -225,7 +216,7 @@ class OWMigrationRole extends OWMigrationBase {
                 $this->unassignTo( $type, $item, $limitIdent, $limitValue );
             }
         } else {
-            OWScriptLogger::logError( "Object parameter must be an object ID, a object name or an array or object ID and object name." , __FUNCTION__ );
+            OWScriptLogger::logError( "Object parameter must be an object ID, a object name or an array or object ID and object name.", __FUNCTION__ );
         }
 
         if( !is_null( $limitIdent ) ) {
@@ -236,28 +227,28 @@ class OWMigrationRole extends OWMigrationBase {
                         if( $node ) {
                             $limitValue = $node['path_string'];
                         } else {
-                            OWScriptLogger::logNotice( "Node $limitValue not found." , __FUNCTION__ );
+                            OWScriptLogger::logNotice( "Node $limitValue not found.", __FUNCTION__ );
                             return;
                         }
                     }
                     break;
                 case 'Section' :
                     if( is_string( $limitValue ) ) {
-                        $section = eZSection::fetchByIdentifier( $limitValue );
+                        $section = OWMigrationTools::findSection( $limitValue );
                         if( $section ) {
                             $limitValue = $section->attribute( 'id' );
                         } else {
-                            OWScriptLogger::logNotice( "Section $limitValue not found." , __FUNCTION__ );
+                            OWScriptLogger::logNotice( "Section $limitValue not found.", __FUNCTION__ );
                             return;
                         }
 
                     } elseif( !is_numeric( $limitValue ) ) {
-                        OWScriptLogger::logError( "Limit value must be a section ID or a section identifer." , __FUNCTION__ );
+                        OWScriptLogger::logError( "Limit value must be a section ID or a section identifer.", __FUNCTION__ );
                         return;
                     }
                     break;
                 default :
-                    OWScriptLogger::logError( "Limit identifier must be equal to 'subtree' or 'section'." , __FUNCTION__ );
+                    OWScriptLogger::logError( "Limit identifier must be equal to 'subtree' or 'section'.", __FUNCTION__ );
                     return;
             }
         } else {
@@ -275,7 +266,7 @@ class OWMigrationRole extends OWMigrationBase {
                     // Clear all content cache.
                     eZContentCacheManager::clearAllContentCache( );
                     $this->db->commit( );
-                    OWScriptLogger::logNotice( "Role unassigned to $messageType $object ($objectID)." , __FUNCTION__ );
+                    OWScriptLogger::logNotice( "Role unassigned to $messageType $object ($objectID).", __FUNCTION__ );
                 }
             }
         }
@@ -308,17 +299,8 @@ class OWMigrationRole extends OWMigrationBase {
                     $newLimitation = array( );
                     foreach( $limitation as $limitationItem ) {
                         if( !is_numeric( $limitationItem ) ) {
-                            $sectionList = eZSection::fetchFilteredList( array( 'name' => $limitationItem ) );
-                            if( count( $sectionList ) > 0 ) {
-                                $newLimitation[] = $sectionList[0]->attribute( 'id' );
-                            } else {
-                                $section = new eZSection( array(
-                                    'name' => $limitationItem,
-                                    'identifier' => $trans->transformByGroup( $limitationItem, 'identifier' )
-                                ) );
-                                $section->store( );
-                                $limitValue = $section->attribute( 'id' );
-                            }
+                            $section = OWMigrationTools::findOrCreateSection( $limitationItem );
+                            $newLimitation[] = $section->attribute( 'id' );
                         } else {
                             $newLimitation[] = $limitationItem;
                         }

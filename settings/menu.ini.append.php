@@ -28,6 +28,7 @@ Name=OW Migration
 Links[dashboard]=owmigration/dashboard
 Links[content_class]=owmigration/classes
 Links[role]=owmigration/roles
+Links[workflows]=owmigration/workflows
 LinkNames[]
 
 */ ?>

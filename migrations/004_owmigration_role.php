@@ -45,7 +45,7 @@ class OWMigration_v004 {
         $migration->assignToUser( array(
             'Tu Tu',
             'To To'
-        ), 'subtree', 2 );
+        ), 'Subtree', 2 );
     }
 
     public function down( ) {
@@ -67,10 +67,10 @@ class OWMigration_v004 {
         $migration->removePolicies( 'content', 'read' );
         $migration->removePolicies( 'ezoe' );
 
-        $migration->unassignToUser( 'To To', 'section', 'toto' );
-        $migration->unassignToUser( 'Ti Ti', 'section', 1 );
+        $migration->unassignToUser( 'To To', 'Section', 'toto' );
+        $migration->unassignToUser( 'Ti Ti', 'Section', 1 );
         $migration->unassignToUser( 'Ti Ti' );
-        $migration->unassignToUser( 'Tu Tu', 'subtree', 2 );
+        $migration->unassignToUser( 'Tu Tu', 'Subtree', 2 );
     }
 
     protected function getContentClassId( $classIdentifer ) {

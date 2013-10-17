@@ -103,5 +103,119 @@ class OWMigrationTools {
         return TRUE;
     }
 
+    static function findSection( $section ) {
+        $object = FALSE;
+        if( self::sectionsHasIdentifier( ) ) {
+            $object = eZSection::fetchByIdentifier( $section );
+        }
+        if( !$object ) {
+            $object = eZPersistentObject::fetchObject( eZSection::definition( ), null, array( "name" => $section ) );
+        }
+        return $object instanceof eZSection ? $object : FALSE;
+
+    }
+
+    static function findOrCreateSection( $section ) {
+        $object = self::findSection( $section );
+        if( $object instanceof eZSection ) {
+            return $object;
+        }
+        if( self::sectionsHasIdentifier( ) ) {
+            $trans = eZCharTransform::instance( );
+            $sectionIdentifier = $trans->transformByGroup( $section, 'identifier' );
+            $sectionName = $sectionIdentifier == $section ? $trans->transformByGroup( $section, 'humanize' ) : $section;
+            $sectionRow = array(
+                'name' => $sectionName,
+                'identifier' => $sectionIdentifier
+            );
+        } else {
+            $sectionRow = array( 'name' => $section );
+        }
+        $object = new eZSection( $sectionRow );
+        $object->store( );
+        return $object;
+    }
+
+    static function sectionsHasIdentifier( ) {
+        $sectionDefinition = eZSection::definition( );
+        if( isset( $sectionDefinition['fields']['identifier'] ) ) {
+            return TRUE;
+        }
+        return FALSE;
+    }
+
+    static function findNode( $nodeIdentifier, $classIdentifier = false ) {
+        if( is_numeric( $nodeIdentifier ) ) {
+            $node = eZContentObjectTreeNode::fetch( $nodeIdentifier );
+        } else {
+            $matches = array( );
+            if( preg_match( "/([0-9]+\/?)+/", $nodeIdentifier, $matches ) > 0 ) {
+                $node = eZContentObjectTreeNode::fetchNodesByPathString( $nodeIdentifier );
+                if( is_array( $node ) ) {
+                    $node = current( $node );
+                }
+                if( !$node instanceof eZContentObjectTreeNode ) {
+                    $node = eZContentObjectTreeNode::fetchByPath( $nodeIdentifier );
+                    if( is_array( $node ) ) {
+                        $node = current( $node );
+                    }
+                }
+            } else {
+                $node = eZContentObjectTreeNode::fetchByURLPath( $nodeIdentifier );
+                if( is_array( $node ) ) {
+                    $node = current( $node );
+                }
+                if( !$node instanceof eZContentObjectTreeNode ) {
+                    $matches = array( );
+                    $nodeID = eZURLAliasML::fetchNodeIDByPath( $nodeIdentifier );
+                    if( $nodeID !== FALSE ) {
+                        $node = eZContentObjectTreeNode::fetch( $nodeID );
+                    }
+                }
+            }
+            if( !$node instanceof eZContentObjectTreeNode ) {
+                $cond = array( 'name' => $nodeIdentifier, );
+                if( $classIdentifier ) {
+                    $contentClass = eZContentClass::fetchByIdentifier( $classIdentifier );
+                    $cond['contentclass_id'] = $contentClass->attribute( 'id' );
+                }
+                var_dump( $cond );
+                $contentObject = current( eZContentObject::fetchFilteredList( $cond ) );
+                if( $contentObject instanceof eZContentObject ) {
+                    return $contentObject->attribute( 'main_node' );
+                }
+            }
+        }
+        return isset( $node ) && !empty( $node ) ? $node : FALSE;
+    }
+
+    static function findWorkflow( $workflow ) {
+        $object = FALSE;
+        if( !$object ) {
+            $object = eZPersistentObject::fetchObject( eZWorkflow::definition( ), null, array( "name" => $workflow ) );
+        }
+        return $object instanceof eZWorkflow ? $object : FALSE;
+
+    }
+
+    static function findOrCreateWorkflow( $workflow ) {
+        $object = self::findWorkflow( $workflow );
+        if( $object instanceof eZWorkflow ) {
+            return $object;
+        }
+        $currentUser = eZUser::currentUser( );
+        $object = eZWorkflow::create( $currentUser->attribute( 'contentobject_id' ) );
+        $object->setAttribute( 'name', $workflow );
+        $object->setAttribute( 'version', 0 );
+        $object->store( );
+        $workflowGroupList = eZWorkflowGroup::fetchList( );
+        $workflowGroup = current( $workflowGroupList );
+        if( $workflowGroup instanceof eZWorkflowGroup ) {
+            $ingroup = eZWorkflowGroupLink::create( $object->attribute( 'id' ), $object->attribute( "version" ), $workflowGroup->attribute( 'id' ), $workflowGroup->attribute( 'name' ) );
+            $ingroup->store( );
+        }
+        return $object;
+    }
+
 }
 ?>
