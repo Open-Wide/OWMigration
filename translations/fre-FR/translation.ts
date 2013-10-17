@@ -10,7 +10,11 @@
     <name>design/admin/parts/owmigration/menu</name>
     <message>
         <source>OW Migration</source>
-        <translation>OW Migration</translation>
+        <translation>Migrations</translation>
+    </message>
+    <message>
+        <source>Code generator</source>
+        <translation>Générateur de code</translation>
     </message>
     <message>
         <source>Content class</source>

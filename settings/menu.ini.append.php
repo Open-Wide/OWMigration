@@ -26,6 +26,10 @@ PolicyList[]=owmigration/read
 [Leftmenu_owmigration]
 Name=OW Migration
 Links[dashboard]=owmigration/dashboard
+LinkNames[]
+
+[Leftmenu_owmigration_codegenerator]
+Name=Code generator
 Links[content_class]=owmigration/classes
 Links[role]=owmigration/roles
 Links[workflows]=owmigration/workflows
