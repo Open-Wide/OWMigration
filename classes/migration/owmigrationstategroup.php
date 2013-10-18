@@ -30,6 +30,8 @@ class OWMigrationStateGroup extends OWMigrationBase {
         $this->stateGroup = new eZContentObjectStateGroup( );
         $this->stateGroup->setAttribute( 'identifier', $this->stateGroupIdentifier );
         $this->stateGroup->setCurrentLanguage( $this->topPriorityLanguage->attribute( 'locale' ) );
+        var_dump($translations);
+        die();
         $translations = $this->stateGroup->allTranslations( );
         foreach( $translations as $translation ) {
             $translation->setAttribute( 'name', $trans->transformByGroup( $this->stateGroupIdentifier, 'humanize' ) );

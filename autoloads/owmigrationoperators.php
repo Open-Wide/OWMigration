@@ -9,7 +9,8 @@ class OWMigrationOperators {
             'camelize',
             'display_content_migration_class',
             'display_role_migration_class',
-            'display_workflow_migration_class'
+            'display_workflow_migration_class',
+            'display_state_group_migration_class'
         );
     }
 
@@ -39,7 +40,8 @@ class OWMigrationOperators {
             'camelize' => array( ),
             'display_content_migration_class' => array( ),
             'display_role_migration_class' => array( ),
-            'display_workflow_migration_class' => array( )
+            'display_workflow_migration_class' => array( ),
+            'display_state_group_migration_class' => array( )
         );
     }
 
@@ -60,6 +62,9 @@ class OWMigrationOperators {
                 break;
             case 'display_workflow_migration_class' :
                 $operatorValue = $this->displayWorkflowMigrationClass( $operatorValue );
+                break;
+            case 'display_state_group_migration_class' :
+                $operatorValue = $this->displayStateGroupMigrationClass( $operatorValue );
                 break;
         }
     }
@@ -89,9 +94,18 @@ class OWMigrationOperators {
         return $output;
     }
 
-
     function displayWorkflowMigrationClass( $operatorValue ) {
         $geshi = new GeSHi(OWMigrationWorkflowCodeGenerator::getMigrationClass( $operatorValue ), 'php');
+        $geshi->set_tab_width(4);
+        $geshi->set_line_ending( "\n" );
+        $geshi->enable_keyword_links( FALSE );
+        $output = $geshi->parse_code();
+        $geshi->indent($output);
+        return $output;
+    }
+
+    function displayStateGroupMigrationClass( $operatorValue ) {
+        $geshi = new GeSHi(OWMigrationStateGroupCodeGenerator::getMigrationClass( $operatorValue ), 'php');
         $geshi->set_tab_width(4);
         $geshi->set_line_ending( "\n" );
         $geshi->enable_keyword_links( FALSE );

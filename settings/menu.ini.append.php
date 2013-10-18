@@ -32,7 +32,8 @@ LinkNames[]
 Name=Code generator
 Links[content_class]=owmigration/classes
 Links[role]=owmigration/roles
-Links[workflows]=owmigration/workflows
+Links[workflow]=owmigration/workflows
+Links[state_group]=owmigration/state_groups
 LinkNames[]
 
 */ ?>

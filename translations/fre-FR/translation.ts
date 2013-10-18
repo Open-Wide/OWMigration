@@ -25,8 +25,12 @@
         <translation>Rôle et droits</translation>
     </message>
     <message>
-        <source>Workflows</source>
-        <translation>Workflows</translation>
+        <source>Workflow</source>
+        <translation>Workflow</translation>
+    </message>
+    <message>
+        <source>State group</source>
+        <translation>État d'objet</translation>
     </message>
     <message>
         <source>Dashboard</source>
@@ -62,10 +66,6 @@
 <context>
     <name>owmigration/roles</name>
     <message>
-        <source>Migrate user roles</source>
-        <translation>Migration de rôles et droits</translation>
-    </message>
-    <message>
         <source>Migrate role</source>
         <translation>Migration de rôle et droits</translation>
     </message>
@@ -77,16 +77,23 @@
 <context>
     <name>owmigration/workflows</name>
     <message>
-        <source>Migrate user workflows</source>
-        <translation>Migration de workflows</translation>
-    </message>
-    <message>
         <source>Migrate workflows</source>
         <translation>Migration de workflows</translation>
     </message>
     <message>
         <source>Workflows list</source>
         <translation>Liste des workflows</translation>
+    </message>
+</context>
+<context>
+    <name>owmigration/state_groups</name>
+    <message>
+        <source>Migrate state groups</source>
+        <translation>Migration des états d'objet</translation>
+    </message>
+    <message>
+        <source>Object state groups list</source>
+        <translation>Liste des états d'objet</translation>
     </message>
 </context>
 <context>
