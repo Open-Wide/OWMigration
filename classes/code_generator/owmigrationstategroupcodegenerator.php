@@ -87,9 +87,9 @@ class OWMigrationStateGroupCodeGenerator extends OWMigrationCodeGenerator {
 
     static function getDownMethod( $objectStateGroup ) {
         $code = "\tpublic function down( ) {" . PHP_EOL;
-        $code .= "\t\t\$migration = new OWMigrationObjectState( );" . PHP_EOL;
+        $code .= "\t\t\$migration = new OWMigrationStateGroup( );" . PHP_EOL;
         $code .= sprintf( "\t\t\$migration->startMigrationOn( '%s' );" . PHP_EOL, self::escapeString( $objectStateGroup->attribute( 'identifier' ) ) );
-        $code .= "\t\t\$migration->removeObjectState( );" . PHP_EOL;
+        $code .= "\t\t\$migration->removeStateGroup( );" . PHP_EOL;
         $code .= "\t}" . PHP_EOL;
         return $code;
     }
