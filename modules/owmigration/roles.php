@@ -49,17 +49,30 @@ if( $Module->isCurrentAction( 'ExportCode' ) ) {
     $Result['content'] = $tpl->fetch( 'design:owmigration/roles.tpl' );
     $Result['left_menu'] = 'design:owmigration/menu.tpl';
     if( function_exists( 'ezi18n' ) ) {
-        $Result['path'] = array( array(
+        $Result['path'] = array(
+            array(
+                'url' => 'owmigration/dashboard',
+                'text' => ezi18n( 'design/admin/parts/owmigration/menu', 'OW Migration' )
+            ),
+            array( 'text' => ezi18n( 'design/admin/parts/owmigration/menu', 'Code generator' ) ),
+            array(
                 'url' => 'owmigration/roles',
-                'text' => ezi18n( 'owmigration/roles', 'Migrate user roles' )
-            ) );
+                'text' => ezi18n( 'design/admin/parts/owmigration/menu', 'Role' )
+            )
+        );
 
     } else {
-        $Result['path'] = array( array(
+        $Result['path'] = array(
+            array(
+                'url' => 'owmigration/dashboard',
+                'text' => ezpI18n::tr( 'design/admin/parts/owmigration/menu', 'OW Migration' )
+            ),
+            array( 'text' => ezpI18n::tr( 'design/admin/parts/owmigration/menu', 'Code generator' ) ),
+            array(
                 'url' => 'owmigration/roles',
-                'text' => ezpI18n::tr( 'owmigration/roles', 'Migrate user roles' )
-            ) );
-
+                'text' => ezpI18n::tr( 'design/admin/parts/owmigration/menu', 'Role' )
+            )
+        );
     }
 }
 ?>

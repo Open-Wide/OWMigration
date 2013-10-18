@@ -48,17 +48,30 @@ if( $Module->isCurrentAction( 'ExportCode' ) ) {
     $Result['content'] = $tpl->fetch( 'design:owmigration/workflows.tpl' );
     $Result['left_menu'] = 'design:owmigration/menu.tpl';
     if( function_exists( 'ezi18n' ) ) {
-        $Result['path'] = array( array(
+        $Result['path'] = array(
+            array(
+                'url' => 'owmigration/dashboard',
+                'text' => ezi18n( 'design/admin/parts/owmigration/menu', 'OW Migration' )
+            ),
+            array( 'text' => ezi18n( 'design/admin/parts/owmigration/menu', 'Code generator' ) ),
+            array(
                 'url' => 'owmigration/workflows',
-                'text' => ezi18n( 'owmigration/workflows', 'Migrate user workflows' )
-            ) );
+                'text' => ezi18n( 'design/admin/parts/owmigration/menu', 'Workflow' )
+            )
+        );
 
     } else {
-        $Result['path'] = array( array(
+        $Result['path'] = array(
+            array(
+                'url' => 'owmigration/dashboard',
+                'text' => ezpI18n::tr( 'design/admin/parts/owmigration/menu', 'OW Migration' )
+            ),
+            array( 'text' => ezpI18n::tr( 'design/admin/parts/owmigration/menu', 'Code generator' ) ),
+            array(
                 'url' => 'owmigration/workflows',
-                'text' => ezpI18n::tr( 'owmigration/workflows', 'Migrate user workflows' )
-            ) );
-
+                'text' => ezpI18n::tr( 'design/admin/parts/owmigration/menu', 'Workflow' )
+            )
+        );
     }
 }
 ?>
