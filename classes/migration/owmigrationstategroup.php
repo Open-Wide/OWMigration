@@ -26,18 +26,13 @@ class OWMigrationStateGroup extends OWMigrationBase {
             OWScriptLogger::logNotice( "State group '$this->stateGroupIdentifier' exists, nothing to do.", __FUNCTION__ );
             return;
         }
-        $this->db->begin( );
         $this->stateGroup = new eZContentObjectStateGroup( );
         $this->stateGroup->setAttribute( 'identifier', $this->stateGroupIdentifier );
-        $this->stateGroup->setCurrentLanguage( $this->topPriorityLanguage->attribute( 'locale' ) );
-        var_dump($translations);
-        die();
-        $translations = $this->stateGroup->allTranslations( );
-        foreach( $translations as $translation ) {
-            $translation->setAttribute( 'name', $trans->transformByGroup( $this->stateGroupIdentifier, 'humanize' ) );
-        }
+        $this->stateGroup->setAttribute( 'default_language_id', $this->topPriorityLanguage->attribute( 'id' ) );
+        $translation = $this->stateGroup->translationByLocale( $this->topPriorityLanguage->attribute( 'locale' ) );
+        $translation->setAttribute( 'name', $trans->transformByGroup( $this->stateGroupIdentifier, 'humanize' ) );
         $this->stateGroup->store( );
-        $this->db->commit( );
+        $translation->store( );
         OWScriptLogger::logNotice( "State group '$this->stateGroupIdentifier' created.", __FUNCTION__ );
     }
 
@@ -48,6 +43,10 @@ class OWMigrationStateGroup extends OWMigrationBase {
         }
         foreach( $params as $key => $value ) {
             if( $this->stateGroup->hasAttribute( $key ) ) {
+                if( $key == 'default_language_id' && !is_numeric( $value ) ) {
+                    $language = eZContentLanguage::fetchByLocale( $value );
+                    $value = $language->attribute( 'id' );
+                }
                 $this->stateGroup->setAttribute( $key, $value );
             } else {
                 $translation = $this->stateGroup->translationByLocale( $key );
@@ -62,6 +61,7 @@ class OWMigrationStateGroup extends OWMigrationBase {
                     } else {
                         $translation->setAttribute( 'name', $value );
                     }
+                    $translation->store( );
                 } else {
                     OWScriptLogger::logError( "Attribute or translation '$key' not found.", __FUNCTION__ );
                 }
@@ -84,15 +84,13 @@ class OWMigrationStateGroup extends OWMigrationBase {
         } else {
             $state = $this->stateGroup->newState( );
             $state->setAttribute( 'identifier', $identifier );
-            $state->setCurrentLanguage( $this->topPriorityLanguage->attribute( 'locale' ) );
-            $translations = $state->allTranslations( );
-            foreach( $translations as $translation ) {
-                $locale = $translation->language( )->attribute( 'locale' );
-                $translation->setAttribute( 'name', $trans->transformByGroup( $identifier, 'humanize' ) );
-            }
+            $state->setAttribute( 'default_language_id', $this->topPriorityLanguage->attribute( 'id' ) );
+            $translation = $state->translationByLocale( $this->topPriorityLanguage->attribute( 'locale' ) );
+            $translation->setAttribute( 'name', $trans->transformByGroup( $identifier, 'humanize' ) );
             $state->store( );
+            $translation->store( );
             if( !empty( $params ) ) {
-                $state = $this->fillStateWithParams( $state, $params );
+                $this->fillStateWithParams( $state, $params );
             }
             $state->store( );
             OWScriptLogger::logNotice( "State $identifier added.", __FUNCTION__ );
@@ -106,7 +104,7 @@ class OWMigrationStateGroup extends OWMigrationBase {
         }
         $state = $this->stateGroup->stateByIdentifier( $identifier );
         if( $state instanceof eZContentObjectState ) {
-            $state = $this->fillStateWithParams( $state, $params );
+            $this->fillStateWithParams( $state, $params );
             $state->store( );
             OWScriptLogger::logNotice( "State '$identifier' upadted.", __FUNCTION__ );
         } else {
@@ -134,6 +132,15 @@ class OWMigrationStateGroup extends OWMigrationBase {
             OWScriptLogger::logError( "State group '$this->stateGroupIdentifier' not found.", __FUNCTION__ );
             return;
         }
+        foreach( $this->stateGroup->states() as $objectState ) {
+            foreach( $objectState->allTranslations() as $translation ) {
+                $translation->remove( );
+            }
+            $objectState->remove( );
+        }
+        foreach( $this->stateGroup->allTranslations() as $translation ) {
+            $translation->remove( );
+        }
         $this->stateGroup->remove( );
         OWScriptLogger::logNotice( "State group '$this->stateGroupIdentifier' removed.", __FUNCTION__ );
     }
@@ -160,7 +167,6 @@ class OWMigrationStateGroup extends OWMigrationBase {
                 }
             }
         }
-        return $state;
     }
 
 }
