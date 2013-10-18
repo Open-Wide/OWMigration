@@ -230,14 +230,18 @@ class OWMigrationContentClass extends OWMigrationBase {
         $newAttribute->store( );
         $this->db->commit( );
 
-        if( $attrContent )
+        if( $attrContent ) {
             $newAttribute->setContent( $attrContent );
+        }
 
+        $attributes[] = $newAttribute;
         if( isset( $params['placement'] ) ) {
             $newAttribute->setAttribute( 'placement', $params['placement'] );
-            $attributes[] = $newAttribute;
-            $this->adjustPlacementsAndStoreAttributes( $attributes );
+        } else {
+            $newAttribute->setAttribute( 'placement', count( $attributes ) );
         }
+        $this->adjustPlacementsAndStoreAttributes( $attributes );
+        
         // remove temporary version
         if( $newAttribute->attribute( 'id' ) !== null ) {
             $this->db->begin( );
