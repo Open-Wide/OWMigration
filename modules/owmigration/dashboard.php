@@ -2,7 +2,12 @@
 
 $Module = $Params["Module"];
 include_once ('kernel/common/template.php');
-$tpl = templateInit( );
+if( is_callable( 'eZTemplate::factory' ) ) {
+    $tpl = eZTemplate::factory( );
+} else {
+    $tpl = templateInit( );
+}
+
 $tpl->setVariable( 'extension_list', OWMigration::extensionList( ) );
 $Result['content'] = $tpl->fetch( 'design:owmigration/dashboard.tpl' );
 $Result['left_menu'] = 'design:owmigration/menu.tpl';

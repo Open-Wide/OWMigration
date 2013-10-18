@@ -2,7 +2,11 @@
 
 $Module = $Params["Module"];
 include_once ('kernel/common/template.php');
-$tpl = templateInit( );
+if( is_callable( 'eZTemplate::factory' ) ) {
+    $tpl = eZTemplate::factory( );
+} else {
+    $tpl = templateInit( );
+}
 
 $classIdentifier = FALSE;
 if( $Module->hasActionParameter( 'ContentClassIdentifier' ) ) {
@@ -16,7 +20,7 @@ if( $classIdentifier && is_numeric( $classIdentifier ) ) {
 }
 $class = eZContentClass::fetchByIdentifier( $classIdentifier );
 
-if( ( $class instanceof eZContentClass && ($Module->isCurrentAction( 'ExportCode' ) ) || $Module->isCurrentAction( 'ExportAllClassCode' )) ) {
+if( ($class instanceof eZContentClass && ($Module->isCurrentAction( 'ExportCode' )) || $Module->isCurrentAction( 'ExportAllClassCode' )) ) {
     $mainTmpDir = eZSys::cacheDirectory( ) . '/owmigration/';
     $tmpDir = $mainTmpDir . time( ) . '/';
     OWMigrationContentClassCodeGenerator::createDirectory( $tmpDir );

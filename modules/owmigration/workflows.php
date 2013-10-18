@@ -2,7 +2,11 @@
 
 $Module = $Params["Module"];
 include_once ('kernel/common/template.php');
-$tpl = templateInit( );
+if( is_callable( 'eZTemplate::factory' ) ) {
+    $tpl = eZTemplate::factory( );
+} else {
+    $tpl = templateInit( );
+}
 
 $workflowID = FALSE;
 $workflow = FALSE;
