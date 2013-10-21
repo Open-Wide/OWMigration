@@ -1,6 +1,6 @@
 <?php
 
-class DefaultEventTypeMigrationHandler implements MigrationHandlerInterface {
+class DefaultEventTypeMigrationHandler {
 
     static public function toArray( eZWorkflowEvent $event ) {
         $attributesArray = array( );

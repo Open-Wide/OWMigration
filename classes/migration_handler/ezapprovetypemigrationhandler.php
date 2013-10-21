@@ -1,6 +1,6 @@
 <?php
 
-class eZApproveTypeMigrationHandler implements MigrationHandlerInterface {
+class eZApproveTypeMigrationHandler {
 
     const SELECTED_SECTIONS = "data_text1";
     const SELECTED_USERGROUPS = "data_text2";
@@ -9,7 +9,7 @@ class eZApproveTypeMigrationHandler implements MigrationHandlerInterface {
     const LANGUAGE_LIST = "data_int2";
     const VERSION_OPTION = "data_int3";
 
-    static public function toArray( eZWorkflowEvent $event ) {
+    static public function toArray( $object ) {
         $eventType = $event->attribute( 'workflow_type' );
         if( !$eventType instanceof eZApproveType ) {
             throw new InvalidArgumentException( );
