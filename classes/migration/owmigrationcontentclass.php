@@ -215,17 +215,6 @@ class OWMigrationContentClass extends OWMigrationBase {
             $newAttribute->DescriptionList = $classAttributeDescriptionNameList;
         }
 
-        $datatypeHandlerClass = get_class( $newAttribute->dataType( ) ) . 'MigrationHandler';
-        if( !class_exists( $datatypeHandlerClass ) || !is_callable( $datatypeHandlerClass . '::toArray' ) ) {
-            $datatypeHandlerClass = "DefaultDatatypeMigrationHandler";
-        }
-        $datatypeHandlerClass::fromArray( $event, $params );
-        /*
-         foreach( $params as $field => $value ) {
-         if( !in_array( $field, array_keys( $attrCreateInfo ) ) && $field != 'name' && $field != 'description' ) {
-         $newAttribute->setAttribute( $field, $value );
-         }
-         }*/
         $dataType = $newAttribute->dataType( );
         if( !$dataType ) {
             OWScriptLogger::logError( "Unknown datatype: '$datatype'", __FUNCTION__ );
@@ -235,6 +224,12 @@ class OWMigrationContentClass extends OWMigrationBase {
         $dataType->initializeClassAttribute( $newAttribute );
         $newAttribute->store( );
         $this->db->commit( );
+
+        $datatypeHandlerClass = get_class( $dataType ) . 'MigrationHandler';
+        if( !class_exists( $datatypeHandlerClass ) || !is_callable( $datatypeHandlerClass . '::toArray' ) ) {
+            $datatypeHandlerClass = "DefaultDatatypeMigrationHandler";
+        }
+        $datatypeHandlerClass::fromArray( $newAttribute, $params );
 
         if( $attrContent ) {
             $newAttribute->setContent( $attrContent );
@@ -313,11 +308,20 @@ class OWMigrationContentClass extends OWMigrationBase {
                         $classAttribute->setContent( array_merge( $content, $value ) );
                         break;
                     default :
-                        $classAttribute->setAttribute( $field, $value );
+                        if( $classAttribute->hasAttribute( $field ) ) {
+                            $classAttribute->setAttribute( $field, $value );
+                        }
                         break;
                 }
             }
 
+            $dataType = $classAttribute->dataType();
+            $datatypeHandlerClass = get_class( $dataType ) . 'MigrationHandler';
+            if( !class_exists( $datatypeHandlerClass ) || !is_callable( $datatypeHandlerClass . '::toArray' ) ) {
+                $datatypeHandlerClass = "DefaultDatatypeMigrationHandler";
+            }
+            $datatypeHandlerClass::fromArray( $classAttribute, $params );
+            
             $this->db->begin( );
             $classAttribute->sync( );
             $classAttribute->store( );
