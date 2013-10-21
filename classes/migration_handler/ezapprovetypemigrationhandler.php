@@ -1,6 +1,6 @@
 <?php
 
-class eZApproveTypeMigrationHandler {
+class eZApproveTypeMigrationHandler extends DefaultEventTypeMigrationHandler {
 
     const SELECTED_SECTIONS = "data_text1";
     const SELECTED_USERGROUPS = "data_text2";

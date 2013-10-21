@@ -131,7 +131,7 @@ class OWMigrationWorkflow extends OWMigrationBase {
         if( !class_exists( $workflowTypeHandlerClass ) || !is_callable( $workflowTypeHandlerClass . '::toArray' ) ) {
             $workflowTypeHandlerClass = "DefaultEventTypeMigrationHandler";
         }
-        $eventAttributes = $workflowTypeHandlerClass::fromArray( $event, $params );
+        $workflowTypeHandlerClass::fromArray( $event, $params );
         if( isset( $params['placement'] ) && is_numeric( $params['placement'] ) ) {
             $eventType->setAttribute( 'placement', (int)$params['placement'] );
         } else {

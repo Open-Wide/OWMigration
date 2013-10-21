@@ -215,11 +215,17 @@ class OWMigrationContentClass extends OWMigrationBase {
             $newAttribute->DescriptionList = $classAttributeDescriptionNameList;
         }
 
-        foreach( $params as $field => $value ) {
-            if( !in_array( $field, array_keys( $attrCreateInfo ) ) && $field != 'name' && $field != 'description' ) {
-                $newAttribute->setAttribute( $field, $value );
-            }
+        $datatypeHandlerClass = get_class( $newAttribute->dataType( ) ) . 'MigrationHandler';
+        if( !class_exists( $datatypeHandlerClass ) || !is_callable( $datatypeHandlerClass . '::toArray' ) ) {
+            $datatypeHandlerClass = "DefaultDatatypeMigrationHandler";
         }
+        $datatypeHandlerClass::fromArray( $event, $params );
+        /*
+         foreach( $params as $field => $value ) {
+         if( !in_array( $field, array_keys( $attrCreateInfo ) ) && $field != 'name' && $field != 'description' ) {
+         $newAttribute->setAttribute( $field, $value );
+         }
+         }*/
         $dataType = $newAttribute->dataType( );
         if( !$dataType ) {
             OWScriptLogger::logError( "Unknown datatype: '$datatype'", __FUNCTION__ );
@@ -241,7 +247,7 @@ class OWMigrationContentClass extends OWMigrationBase {
             $newAttribute->setAttribute( 'placement', count( $attributes ) );
         }
         $this->adjustPlacementsAndStoreAttributes( $attributes );
-        
+
         // remove temporary version
         if( $newAttribute->attribute( 'id' ) !== null ) {
             $this->db->begin( );
