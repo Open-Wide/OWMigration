@@ -178,6 +178,8 @@ class eZApproveTypeMigrationHandler implements MigrationHandlerInterface {
                         }
                         $event->setAttribute( self::VERSION_OPTION, $optionsValue );
                         break;
+                    default :
+                        $event->setAttribute( $optionsIdentifier, $optionsValue );
                 }
             }
         }
