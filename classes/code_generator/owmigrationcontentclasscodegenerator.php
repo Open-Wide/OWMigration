@@ -155,57 +155,79 @@ class OWMigrationContentClassCodeGenerator extends OWMigrationCodeGenerator {
             if( $attribute->attribute( 'is_information_collector' ) == TRUE ) {
                 $code .= "\t\t\t'is_information_collector' => TRUE," . PHP_EOL;
             }
-            //'data_int1'
-            if( $attribute->attribute( 'data_int1' ) ) {
-                $code .= sprintf( "\t\t\t'data_int1' => %s," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_int1' ) ) );
+            /*
+             //'data_int1'
+             if( $attribute->attribute( 'data_int1' ) ) {
+             $code .= sprintf( "\t\t\t'data_int1' => %s," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_int1' ) ) );
+             }
+             //'data_int2'
+             if( $attribute->attribute( 'data_int2' ) ) {
+             $code .= sprintf( "\t\t\t'data_int2' => %s," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_int2' ) ) );
+             }
+             //'data_int3'
+             if( $attribute->attribute( 'data_int3' ) ) {
+             $code .= sprintf( "\t\t\t'data_int3' => %s," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_int3' ) ) );
+             }
+             //'data_int4'
+             if( $attribute->attribute( 'data_int4' ) ) {
+             $code .= sprintf( "\t\t\t'data_int4' => %s," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_int4' ) ) );
+             }
+             //'data_float1'
+             if( $attribute->attribute( 'data_float1' ) ) {
+             $code .= sprintf( "\t\t\t'data_float1' => %s," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_float1' ) ) );
+             }
+             //'data_float2'
+             if( $attribute->attribute( 'data_float2' ) ) {
+             $code .= sprintf( "\t\t\t'data_float2' => %s," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_float2' ) ) );
+             }
+             //'data_float3'
+             if( $attribute->attribute( 'data_float3' ) ) {
+             $code .= sprintf( "\t\t\t'data_float3' => %s," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_float3' ) ) );
+             }
+             //'data_float4'
+             if( $attribute->attribute( 'data_float4' ) ) {
+             $code .= sprintf( "\t\t\t'data_float4' => %s," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_float4' ) ) );
+             }
+             //'data_text1'
+             if( $attribute->attribute( 'data_text1' ) ) {
+             $code .= sprintf( "\t\t\t'data_text1' => '%s'," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_text1' ) ) );
+             }
+             //'data_text2'
+             if( $attribute->attribute( 'data_text2' ) ) {
+             $code .= sprintf( "\t\t\t'data_text2' => '%s'," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_text2' ) ) );
+             }
+             //'data_text3'
+             if( $attribute->attribute( 'data_text3' ) ) {
+             $code .= sprintf( "\t\t\t'data_text3' => '%s'," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_text3' ) ) );
+             }
+             //'data_text4'
+             if( $attribute->attribute( 'data_text4' ) ) {
+             $code .= sprintf( "\t\t\t'data_text4' => '%s'," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_text4' ) ) );
+             }
+             //'data_text5'
+             if( $attribute->attribute( 'data_text5' ) ) {
+             $code .= sprintf( "\t\t\t'data_text5' => '%s'," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_text5' ) ) );
+             }
+             */
+            $datatypeHandlerClass = get_class( $attribute->dataType( ) ) . 'MigrationHandler';
+            if( !class_exists( $datatypeHandlerClass ) || !is_callable( $datatypeHandlerClass . '::toArray' ) ) {
+                $datatypeHandlerClass = "DefaultDatatypeMigrationHandler";
             }
-            //'data_int2'
-            if( $attribute->attribute( 'data_int2' ) ) {
-                $code .= sprintf( "\t\t\t'data_int2' => %s," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_int2' ) ) );
-            }
-            //'data_int3'
-            if( $attribute->attribute( 'data_int3' ) ) {
-                $code .= sprintf( "\t\t\t'data_int3' => %s," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_int3' ) ) );
-            }
-            //'data_int4'
-            if( $attribute->attribute( 'data_int4' ) ) {
-                $code .= sprintf( "\t\t\t'data_int4' => %s," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_int4' ) ) );
-            }
-            //'data_float1'
-            if( $attribute->attribute( 'data_float1' ) ) {
-                $code .= sprintf( "\t\t\t'data_float1' => %s," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_float1' ) ) );
-            }
-            //'data_float2'
-            if( $attribute->attribute( 'data_float2' ) ) {
-                $code .= sprintf( "\t\t\t'data_float2' => %s," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_float2' ) ) );
-            }
-            //'data_float3'
-            if( $attribute->attribute( 'data_float3' ) ) {
-                $code .= sprintf( "\t\t\t'data_float3' => %s," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_float3' ) ) );
-            }
-            //'data_float4'
-            if( $attribute->attribute( 'data_float4' ) ) {
-                $code .= sprintf( "\t\t\t'data_float4' => %s," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_float4' ) ) );
-            }
-            //'data_text1'
-            if( $attribute->attribute( 'data_text1' ) ) {
-                $code .= sprintf( "\t\t\t'data_text1' => '%s'," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_text1' ) ) );
-            }
-            //'data_text2'
-            if( $attribute->attribute( 'data_text2' ) ) {
-                $code .= sprintf( "\t\t\t'data_text2' => '%s'," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_text2' ) ) );
-            }
-            //'data_text3'
-            if( $attribute->attribute( 'data_text3' ) ) {
-                $code .= sprintf( "\t\t\t'data_text3' => '%s'," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_text3' ) ) );
-            }
-            //'data_text4'
-            if( $attribute->attribute( 'data_text4' ) ) {
-                $code .= sprintf( "\t\t\t'data_text4' => '%s'," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_text4' ) ) );
-            }
-            //'data_text5'
-            if( $attribute->attribute( 'data_text5' ) ) {
-                $code .= sprintf( "\t\t\t'data_text5' => '%s'," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_text5' ) ) );
+            $attributeAttributes = $datatypeHandlerClass::toArray( $attribute );
+            if( count( $attributeAttributes ) > 0 ) {
+                foreach( $attributeAttributes as $attributeIdentifier => $attributeValue ) {
+                    if( is_array( $attributeValue ) ) {
+                        $attributeValue = array_map( "self::escapeString", $attributeValue );
+                        if( empty( $attributeValue ) ) {
+                            $arrayString = "array( )";
+                        } else {
+                            $arrayString = "array(\n\t\t\t\t'" . implode( "',\n\t\t\t\t'", $attributeValue ) . "'\n\t\t\t )";
+                        }
+                        $code .= sprintf( "\t\t\t'%s' => %s," . PHP_EOL, self::escapeString( $attributeIdentifier ), $arrayString );
+                    } else {
+                        $code .= sprintf( "\t\t\t'%s' => '%s'," . PHP_EOL, self::escapeString( $attributeIdentifier ), $attributeValue );
+                    }
+                }
             }
             //'category'
             if( $attribute->attribute( 'category' ) ) {
