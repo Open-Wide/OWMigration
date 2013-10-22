@@ -217,5 +217,31 @@ class OWMigrationTools {
         return $object;
     }
 
+    static function cleanupNameList( $nameList ) {
+        $nameListValue = FALSE;
+        $topLanguage = eZContentLanguage::topPriorityLanguage( );
+        $topLocal = $topLanguage->attribute( 'locale' );
+        if( isset( $nameList['always-available'] ) ) {
+            $nameListAlwaysAvailable = $nameList['always-available'];
+            unset( $nameList['always-available'] );
+        } else {
+            $nameListAlwaysAvailable = $topLocal;
+        }
+        if( implode( '', array_keys( $nameList ) ) == $topLocal && $nameList[$topLocal] != '' ) {
+            $nameListValue = $nameList[$topLocal]; ;
+        } else {
+            $nameListValue = array( );
+            foreach( $nameList as $key => $value ) {
+                if( $value != '' ) {
+                    $nameListValue[$key] = $value;
+                }
+            }
+            if( !empty( $nameListValue ) ) {
+                $nameListValue['always-available'] = $nameListAlwaysAvailable;
+            }
+        }
+        return $nameListValue;
+    }
+
 }
 ?>

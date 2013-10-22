@@ -29,22 +29,11 @@ class OWMigrationContentClassCodeGenerator extends OWMigrationCodeGenerator {
         $code .= "\t\t\$migration->createIfNotExists( );" . PHP_EOL . PHP_EOL;
         //'name'
         $nameList = $contentClass->attribute( 'nameList' );
-        if( isset( $nameList['always-available'] ) ) {
-            $nameListAlwaysAvailable = $nameList['always-available'];
-            unset( $nameList['always-available'] );
+        $nameListCode = self::formatNameList( $nameList );
+        if( !empty( $nameListCode ) ) {
+            $code .= sprintf( "\t\t\$migration->name = %s;" . PHP_EOL, self::formatNameList( $nameList ) );
         } else {
-            $nameListAlwaysAvailable = FALSE;
-        }
-        if( implode( '', array_values( $nameList ) ) != '' ) {
-            $code .= "\t\t\$migration->name = array(" . PHP_EOL;
-            foreach( $nameList as $key => $value ) {
-                $code .= sprintf( "\t\t\t'%s' => '%s'," . PHP_EOL, self::escapeString( $key ), self::escapeString( $value ) );
-            }
-            if( $nameListAlwaysAvailable === FALSE ) {
-                $nameListAlwaysAvailable = $key;
-            }
-            $code .= sprintf( "\t\t\t'%s' => '%s'," . PHP_EOL, self::escapeString( 'always-available' ), self::escapeString( $nameListAlwaysAvailable ) );
-            $code .= "\t\t);" . PHP_EOL;
+            $code .= sprintf( "\t\t\$migration->name = '%s';" . PHP_EOL, self::escapeString( self::generateContentClassName( $contentClass->attribute( 'identifier' ) ) ) );
         }
         //'description'
         if( $contentClass->hasAttribute( 'descriptionList' ) ) {
@@ -94,146 +83,19 @@ class OWMigrationContentClassCodeGenerator extends OWMigrationCodeGenerator {
         $code .= PHP_EOL;
         $attributesList = $contentClass->fetchAttributes( );
         foreach( $attributesList as $attribute ) {
-            $code .= sprintf( "\t\t\$migration->addAttribute( '%s', array( " . PHP_EOL, self::escapeString( $attribute->attribute( 'identifier' ) ) );
-            //'sort_field'
-            if( $attribute->attribute( 'data_type_string' ) != 'ezstring' ) {
-                $code .= sprintf( "\t\t\t'data_type_string' => '%s'," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_type_string' ) ) );
-            }
-            //'name'
-            $nameList = $attribute->attribute( 'nameList' );
-            if( isset( $nameList['always-available'] ) ) {
-                $nameListAlwaysAvailable = $nameList['always-available'];
-                unset( $nameList['always-available'] );
-            } else {
-                $nameListAlwaysAvailable = FALSE;
-            }
-            if( implode( '', array_values( $nameList ) ) != '' ) {
-                $code .= "\t\t\t'name' => array(" . PHP_EOL;
-                foreach( $nameList as $key => $value ) {
-                    $code .= sprintf( "\t\t\t\t'%s' => '%s'," . PHP_EOL, self::escapeString( $key ), self::escapeString( $value ) );
-                }
-                if( $nameListAlwaysAvailable === FALSE ) {
-                    $nameListAlwaysAvailable = $key;
-                }
-                $code .= sprintf( "\t\t\t\t'%s' => '%s'," . PHP_EOL, self::escapeString( 'always-available' ), self::escapeString( $nameListAlwaysAvailable ) );
-                $code .= "\t\t\t)," . PHP_EOL;
-            }
-            //'description'
-            if( $attribute->hasAttribute( 'descriptionList' ) ) {
-                $descriptionList = $attribute->attribute( 'descriptionList' );
-                if( isset( $descriptionList['always-available'] ) ) {
-                    $descriptionListAlwaysAvailable = $descriptionList['always-available'];
-                    unset( $descriptionList['always-available'] );
-                } else {
-                    $descriptionListAlwaysAvailable = FALSE;
-                }
-                if( implode( '', array_values( $descriptionList ) ) != '' ) {
-                    $code .= "\t\t\t'description' => array(" . PHP_EOL;
-                    foreach( $descriptionList as $key => $value ) {
-                        $code .= sprintf( "\t\t\t\t'%s' => '%s'," . PHP_EOL, self::escapeString( $key ), self::escapeString( $value ) );
-                    }
-                    if( $descriptionListAlwaysAvailable === FALSE ) {
-                        $descriptionListAlwaysAvailable = $key;
-                    }
-                    $code .= sprintf( "\t\t\t\t'%s' => '%s'," . PHP_EOL, self::escapeString( 'always-available' ), self::escapeString( $descriptionListAlwaysAvailable ) );
-                    $code .= "\t\t\t)," . PHP_EOL;
-                }
-            }
-            //'is_searchable'
-            if( $attribute->attribute( 'is_searchable' ) == FALSE ) {
-                $code .= "\t\t\t'is_searchable' => FALSE," . PHP_EOL;
-            }
-            //'is_required'
-            if( $attribute->attribute( 'is_required' ) == TRUE ) {
-                $code .= "\t\t\t'is_required' => TRUE," . PHP_EOL;
-            }
-            //'can_translate'
-            if( $attribute->attribute( 'can_translate' ) == FALSE ) {
-                $code .= "\t\t\t'can_translate' => FALSE," . PHP_EOL;
-            }
-            //'is_information_collector'
-            if( $attribute->attribute( 'is_information_collector' ) == TRUE ) {
-                $code .= "\t\t\t'is_information_collector' => TRUE," . PHP_EOL;
-            }
-            /*
-             //'data_int1'
-             if( $attribute->attribute( 'data_int1' ) ) {
-             $code .= sprintf( "\t\t\t'data_int1' => %s," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_int1' ) ) );
-             }
-             //'data_int2'
-             if( $attribute->attribute( 'data_int2' ) ) {
-             $code .= sprintf( "\t\t\t'data_int2' => %s," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_int2' ) ) );
-             }
-             //'data_int3'
-             if( $attribute->attribute( 'data_int3' ) ) {
-             $code .= sprintf( "\t\t\t'data_int3' => %s," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_int3' ) ) );
-             }
-             //'data_int4'
-             if( $attribute->attribute( 'data_int4' ) ) {
-             $code .= sprintf( "\t\t\t'data_int4' => %s," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_int4' ) ) );
-             }
-             //'data_float1'
-             if( $attribute->attribute( 'data_float1' ) ) {
-             $code .= sprintf( "\t\t\t'data_float1' => %s," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_float1' ) ) );
-             }
-             //'data_float2'
-             if( $attribute->attribute( 'data_float2' ) ) {
-             $code .= sprintf( "\t\t\t'data_float2' => %s," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_float2' ) ) );
-             }
-             //'data_float3'
-             if( $attribute->attribute( 'data_float3' ) ) {
-             $code .= sprintf( "\t\t\t'data_float3' => %s," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_float3' ) ) );
-             }
-             //'data_float4'
-             if( $attribute->attribute( 'data_float4' ) ) {
-             $code .= sprintf( "\t\t\t'data_float4' => %s," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_float4' ) ) );
-             }
-             //'data_text1'
-             if( $attribute->attribute( 'data_text1' ) ) {
-             $code .= sprintf( "\t\t\t'data_text1' => '%s'," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_text1' ) ) );
-             }
-             //'data_text2'
-             if( $attribute->attribute( 'data_text2' ) ) {
-             $code .= sprintf( "\t\t\t'data_text2' => '%s'," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_text2' ) ) );
-             }
-             //'data_text3'
-             if( $attribute->attribute( 'data_text3' ) ) {
-             $code .= sprintf( "\t\t\t'data_text3' => '%s'," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_text3' ) ) );
-             }
-             //'data_text4'
-             if( $attribute->attribute( 'data_text4' ) ) {
-             $code .= sprintf( "\t\t\t'data_text4' => '%s'," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_text4' ) ) );
-             }
-             //'data_text5'
-             if( $attribute->attribute( 'data_text5' ) ) {
-             $code .= sprintf( "\t\t\t'data_text5' => '%s'," . PHP_EOL, self::escapeString( $attribute->attribute( 'data_text5' ) ) );
-             }
-             */
+            $code .= sprintf( "\t\t\$migration->addAttribute( '%s'", self::escapeString( $attribute->attribute( 'identifier' ) ) );
+            $contentClassAttributeHandlerClass = get_class( $attribute ) . 'MigrationHandler';
+            $contentClassAttributeArray = $contentClassAttributeHandlerClass::toArray( $attribute );
             $datatypeHandlerClass = get_class( $attribute->dataType( ) ) . 'MigrationHandler';
             if( !class_exists( $datatypeHandlerClass ) || !is_callable( $datatypeHandlerClass . '::toArray' ) ) {
                 $datatypeHandlerClass = "DefaultDatatypeMigrationHandler";
             }
-            $attributeAttributes = $datatypeHandlerClass::toArray( $attribute );
-            if( count( $attributeAttributes ) > 0 ) {
-                foreach( $attributeAttributes as $attributeIdentifier => $attributeValue ) {
-                    if( is_array( $attributeValue ) ) {
-                        $attributeValue = array_map( "self::escapeString", $attributeValue );
-                        if( empty( $attributeValue ) ) {
-                            $arrayString = "array( )";
-                        } else {
-                            $arrayString = "array(\n\t\t\t\t'" . implode( "',\n\t\t\t\t'", $attributeValue ) . "'\n\t\t\t )";
-                        }
-                        $code .= sprintf( "\t\t\t'%s' => %s," . PHP_EOL, self::escapeString( $attributeIdentifier ), $arrayString );
-                    } else {
-                        $code .= sprintf( "\t\t\t'%s' => '%s'," . PHP_EOL, self::escapeString( $attributeIdentifier ), $attributeValue );
-                    }
-                }
+            $attributeDatatypeArray = $datatypeHandlerClass::toArray( $attribute );
+            $attributeArray = array_merge( $contentClassAttributeArray, $attributeDatatypeArray );
+            if( count( $attributeArray ) > 0 ) {
+                $code .= ", ".self::formatValue( $attributeArray );
             }
-            //'category'
-            if( $attribute->attribute( 'category' ) ) {
-                $code .= sprintf( "\t\t\t'category' => '%s'" . PHP_EOL, self::escapeString( $attribute->attribute( 'category' ) ) );
-            }
-            $code .= "\t\t) );" . PHP_EOL;
+            $code .= " );" . PHP_EOL;
         }
         $code .= PHP_EOL;
         foreach( $contentClass->attribute( 'ingroup_list' ) as $classGroup ) {

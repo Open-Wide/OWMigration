@@ -5,10 +5,34 @@ class eZContentClassAttributeMigrationHandler {
     static public function toArray( eZContentClassAttribute $attribute ) {
         $attributesArray = array( );
         foreach( $attribute->attributes() as $attributeIdentifier ) {
-            if( preg_match( '/^data_(int|text){1}[0-9]{1}/', $attributeIdentifier ) == 0 ) {
+            if( preg_match( '/^data_(int|text){1}[a-z0-9]+/', $attributeIdentifier ) == 0 ) {
                 $attributeValue = $attribute->attribute( $attributeIdentifier );
-                if( !empty( $attributeValue ) ) {
-                    $attributesArray[$attributeIdentifier] = $attribute->attribute( $attributeIdentifier );
+                switch( $attributeIdentifier ) {
+                    case 'name' :
+                    case 'description' :
+                        $nameList = $attribute->attribute( $attributeIdentifier . 'List' );
+                        $nameListValue = OWMigrationTools::cleanupNameList( $nameList );
+                        if( !empty( $nameListValue ) ) {
+                            $attributesArray[$attributeIdentifier] = $nameListValue;
+                        }
+                        break;
+                    case 'is_searchable' :
+                    case 'can_translate' :
+                        if( $attributeValue == FALSE ) {
+                            $attributesArray[$attributeIdentifier] = FALSE;
+                        }
+                        break;
+                    case 'is_required' :
+                    case 'is_information_collector' :
+                        if( $attributeValue == TRUE ) {
+                            $attributesArray[$attributeIdentifier] = TRUE;
+                        }
+                        break;
+                    case 'data_type_string' :
+                        if( $attributeValue != 'ezstring' ) {
+                            $attributesArray[$attributeIdentifier] = $attributeValue;
+                        }
+                        break;
                 }
             }
         }
@@ -22,7 +46,7 @@ class eZContentClassAttributeMigrationHandler {
             $attribute->setName( $trans->transformByGroup( $classAttributeIdentifier, 'humanize' ) );
         }
         foreach( $options as $optionsIdentifier => $optionsValue ) {
-            if( $attribute->hasAttribute( $optionsIdentifier ) && preg_match( '/^data_(int|text){1}[0-9]{1}/', $optionsIdentifier ) == 0 ) {
+            if( $attribute->hasAttribute( $optionsIdentifier ) && preg_match( '/^data_(int|text){1}[a-z0-9]+/', $optionsIdentifier ) == 0 ) {
                 switch($optionsIdentifier ) {
                     case 'content' :
                         $content = $attribute->content( );
