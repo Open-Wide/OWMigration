@@ -161,7 +161,6 @@ class OWMigrationContentClass extends OWMigrationBase {
     }
 
     public function addAttribute( $classAttributeIdentifier, $params = array() ) {
-        $trans = eZCharTransform::instance( );
         if( !$this->contentClassObject instanceof eZContentClass ) {
             OWScriptLogger::logError( "Content class object not found.", __FUNCTION__ );
             return false;
@@ -174,51 +173,13 @@ class OWMigrationContentClass extends OWMigrationBase {
         $classID = $this->contentClassObject->attribute( 'id' );
 
         $datatype = isset( $params['data_type_string'] ) ? $params['data_type_string'] : 'ezstring';
-        $defaultValue = isset( $params['default_value'] ) ? $params['default_value'] : FALSE;
-        $canTranslate = isset( $params['can_translate'] ) ? $params['can_translate'] : TRUE;
-        $isRequired = isset( $params['is_required'] ) ? $params['is_required'] : FALSE;
-        $isSearchable = isset( $params['is_searchable'] ) ? $params['is_searchable'] : TRUE;
-        $isCollector = isset( $params['is_information_collector'] ) ? $params['is_information_collector'] : FALSE;
-        $attrContent = isset( $params['content'] ) ? $params['content'] : FALSE;
-        $attrNode = isset( $params['attribute-node'] ) ? $params['attribute-node'] : array( );
-        $datatypeParameter = isset( $params['datatype-parameter'] ) ? $params['datatype-parameter'] : array( );
-
-        $attrCreateInfo = array(
-            'identifier' => $classAttributeIdentifier,
-            'can_translate' => $canTranslate,
-            'is_required' => $isRequired,
-            'is_searchable' => $isSearchable,
-            'is_information_collector' => $isCollector
-        );
-        if( !isset( $params['name'] ) ) {
-            $attrCreateInfo['name'] = $trans->transformByGroup( $classAttributeIdentifier, 'humanize' );
-        } elseif( is_string( $params['name'] ) ) {
-            $attrCreateInfo['name'] = $params['name'];
-        } elseif( is_array( $params['name'] ) ) {
-            $classAttributeNameNameList = new eZContentClassAttributeNameList( serialize( $params['name'] ) );
-            $classAttributeNameNameList->validate( );
-        }
-
-        if( isset( $params['description'] ) ) {
-            if( is_string( $params['description'] ) ) {
-                $attrCreateInfo['description'] = $params['description'];
-            } elseif( is_array( $params['description'] ) ) {
-                $classAttributeDescriptionNameList = new eZContentClassAttributeNameList( serialize( $params['description'] ) );
-                $classAttributeDescriptionNameList->validate( );
-            }
-        }
         $this->db->begin( );
-        $newAttribute = eZContentClassAttribute::create( $classID, $datatype, $attrCreateInfo );
+        $newAttribute = eZContentClassAttribute::create( $classID, $datatype, array(
+            'identifier' => $classAttributeIdentifier,
+            'version' => eZContentClass::VERSION_STATUS_DEFINED,
+            'placement' => count( $this->contentClassAttributes ) + 1
+        ) );
         $this->db->commit( );
-
-        if( isset( $classAttributeNameNameList ) ) {
-            $newAttribute->NameList = $classAttributeNameNameList;
-        }
-
-        if( isset( $classAttributeDescriptionNameList ) ) {
-            $newAttribute->DescriptionList = $classAttributeDescriptionNameList;
-        }
-
         $dataType = $newAttribute->dataType( );
         if( !$dataType ) {
             OWScriptLogger::logError( "Unknown datatype: '$datatype'", __FUNCTION__ );
@@ -229,32 +190,17 @@ class OWMigrationContentClass extends OWMigrationBase {
         $newAttribute->store( );
         $this->db->commit( );
 
+        $contentClassAttributeHandlerClass = get_class( $newAttribute ) . 'MigrationHandler';
+        $contentClassAttributeHandlerClass::fromArray( $newAttribute, $params );
+
         $datatypeHandlerClass = get_class( $dataType ) . 'MigrationHandler';
-        if( !class_exists( $datatypeHandlerClass ) || !is_callable( $datatypeHandlerClass . '::toArray' ) ) {
+        if( !class_exists( $datatypeHandlerClass ) || !is_callable( $datatypeHandlerClass . '::fromArray' ) ) {
             $datatypeHandlerClass = "DefaultDatatypeMigrationHandler";
         }
         $datatypeHandlerClass::fromArray( $newAttribute, $params );
-
-        if( $attrContent ) {
-            $newAttribute->setContent( $attrContent );
-        }
-
         $this->contentClassAttributes[] = $newAttribute;
-        if( isset( $params['placement'] ) ) {
-            $newAttribute->setAttribute( 'placement', $params['placement'] );
-        } else {
-            $newAttribute->setAttribute( 'placement', count( $this->contentClassAttributes ) );
-        }
         $this->adjustPlacementsAndStoreAttributes( );
 
-        // remove temporary version
-        if( $newAttribute->attribute( 'id' ) !== null ) {
-            $this->db->begin( );
-            $newAttribute->remove( );
-            $this->db->commit( );
-        }
-
-        $newAttribute->setAttribute( 'version', $this->version );
         $this->db->begin( );
         $newAttribute->storeDefined( );
         $this->db->commit( );
@@ -270,49 +216,10 @@ class OWMigrationContentClass extends OWMigrationBase {
             return;
         }
         $classAttribute = $this->getAttribute( $classAttributeIdentifier );
-        if( isset( $classAttribute ) ) {
-            foreach( $params as $field => $value ) {
-                switch( $field ) {
-                    case 'data_type_string' :
-                        if( $classAttribute->attribute( 'data_type_string' ) != $params['data_type_string'] ) {
-                            OWScriptLogger::logError( "Datatype conversion not possible: '" . $params['data_type_string'] . "'", __FUNCTION__ );
-                            return;
-                        }
-                        break;
-                    case 'name' :
-                        if( is_string( $value ) ) {
-                            $classAttribute->setName( $value );
-                        } elseif( is_array( $value ) ) {
-                            $nameList = new eZContentClassAttributeNameList( serialize( $value ) );
-                            $nameList->validate( );
-                            $classAttribute->NameList = $nameList;
-                        }
-                        break;
-                    case 'description' :
-                        if( is_string( $value ) ) {
-                            $classAttribute->setDescription( $value );
-                        } elseif( is_array( $value ) ) {
-                            $nameList = new eZContentClassAttributeNameList( serialize( $value ) );
-                            $nameList->validate( );
-                            $classAttribute->DescriptionList = $nameList;
-                        }
-                        break;
-                    case 'placement' :
-                        $classAttribute->setAttribute( 'placement', $value );
-                        $this->adjustPlacementsAndStoreAttributes( );
-                        break;
-                    case 'content' :
-                        $content = $classAttribute->content( );
-                        $classAttribute->setContent( array_merge( $content, $value ) );
-                        break;
-                    default :
-                        if( $classAttribute->hasAttribute( $field ) ) {
-                            $classAttribute->setAttribute( $field, $value );
-                        }
-                        break;
-                }
-            }
 
+        if( isset( $classAttribute ) ) {
+            $contentClassAttributeHandlerClass = get_class( $classAttribute ) . 'MigrationHandler';
+            $contentClassAttributeHandlerClass::fromArray( $classAttribute, $params );
             $dataType = $classAttribute->dataType( );
             $datatypeHandlerClass = get_class( $dataType ) . 'MigrationHandler';
             if( !class_exists( $datatypeHandlerClass ) || !is_callable( $datatypeHandlerClass . '::toArray' ) ) {
@@ -346,6 +253,7 @@ class OWMigrationContentClass extends OWMigrationBase {
             $this->contentClassObject->removeAttributes( $classAttribute );
             $this->db->commit( );
             $this->contentClassAttributes = $this->contentClassObject->fetchAttributes( );
+            $this->adjustPlacementsAndStoreAttributes( );
             OWScriptLogger::logNotice( "Attribute '$classAttributeIdentifier' removed.", __FUNCTION__ );
         } else {
             OWScriptLogger::logWarning( "Attribute '$classAttributeIdentifier' not found.", __FUNCTION__ );
