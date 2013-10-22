@@ -228,7 +228,7 @@ class OWMigrationTools {
             $nameListAlwaysAvailable = $topLocal;
         }
         if( implode( '', array_keys( $nameList ) ) == $topLocal && $nameList[$topLocal] != '' ) {
-            $nameListValue = $nameList[$topLocal]; ;
+            $nameListValue = $nameList[$topLocal];
         } else {
             $nameListValue = array( );
             foreach( $nameList as $key => $value ) {
