@@ -33,9 +33,15 @@ class eZContentClassAttributeMigrationHandler {
                             $attributesArray[$attributeIdentifier] = $attributeValue;
                         }
                         break;
+                    case 'category' :
+                        if( $attributeValue != '' ) {
+                            $attributesArray[$attributeIdentifier] = $attributeValue;
+                        }
+                        break;
                 }
             }
         }
+        ksort( $attributesArray );
         return $attributesArray;
     }
 
