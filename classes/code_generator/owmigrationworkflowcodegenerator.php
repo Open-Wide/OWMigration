@@ -52,25 +52,9 @@ class OWMigrationWorkflowCodeGenerator extends OWMigrationCodeGenerator {
             }
             $eventAttributes = $workflowTypeHandlerClass::toArray( $event );
             if( count( $eventAttributes ) > 0 ) {
-                $code .= ", array(" . PHP_EOL;
-                foreach( $eventAttributes as $attribute => $value ) {
-                    if( is_array( $value ) ) {
-                        $value = array_map( "self::escapeString", $value );
-                        if( empty( $value ) ) {
-                            $arrayString = "array( )";
-                        } else {
-                            $arrayString = "array(\n\t\t\t\t'" . implode( "',\n\t\t\t\t'", $value ) . "'\n\t\t\t )";
-                        }
-                        $code .= sprintf( "\t\t\t'%s' => %s," . PHP_EOL, self::escapeString( $attribute ), $arrayString );
-                    } else {
-                        $code .= sprintf( "\t\t\t'%s' => '%s'," . PHP_EOL, self::escapeString( $attribute ), $value );
-                    }
-                }
-                $code .= "\t\t) );" . PHP_EOL;
-            } else {
-                $code .= " );" . PHP_EOL;
+                $code .= sprintf( ", %s", self::formatValue( $eventAttributes ) );
             }
-
+            $code .= " );" . PHP_EOL;
             $eventCount++;
 
         }
