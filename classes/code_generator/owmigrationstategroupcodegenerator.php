@@ -38,43 +38,43 @@ class OWMigrationStateGroupCodeGenerator extends OWMigrationCodeGenerator {
         $code .= "\t\t\$migration = new OWMigrationStateGroup( );" . PHP_EOL;
         $code .= sprintf( "\t\t\$migration->startMigrationOn( '%s' );" . PHP_EOL, self::escapeString( $objectStateGroup->attribute( 'identifier' ) ) );
         $code .= "\t\t\$migration->createIfNotExists( );" . PHP_EOL;
-        $languageCode = '';
+        $languageArray = array( );
         foreach( $objectStateGroup->availableLanguages( ) as $local ) {
             $translation = $objectStateGroup->translationByLocale( $local );
             $language = $translation->attribute( 'language' );
             if( $language instanceof eZContentLanguage ) {
                 if( $translation->attribute( 'name' ) != '' ) {
-                    $languageCode .= sprintf( "\t\t\t'%s' => array( 'name' => '%s' )," . PHP_EOL, self::escapeString( $language->attribute( 'locale' ) ), self::escapeString( $translation->attribute( 'name' ) ) );
+                    $languageArray[$language->attribute( 'locale' )]['name'] = $translation->attribute( 'name' );
                 }
                 if( $translation->attribute( 'description' ) != '' ) {
-                    $languageCode .= sprintf( "\t\t\t'%s' => array( 'description' => '%s' )," . PHP_EOL, self::escapeString( $language->attribute( 'locale' ) ), self::escapeString( $translation->attribute( 'description' ) ) );
+                    $languageArray[$language->attribute( 'locale' )]['description'] = $translation->attribute( 'description' );
                 }
             }
         }
         if( $objectStateGroup->attribute( 'default_language' ) instanceof eZContentLanguage ) {
-            $languageCode .= sprintf( "\t\t\t'default_language_id' => '%s'," . PHP_EOL, self::escapeString( $objectStateGroup->attribute( 'default_language' )->attribute( 'locale' ) ) );
+            $languageArray['default_language'] = $objectStateGroup->attribute( 'default_language' )->attribute( 'locale' );
         }
-        if( !empty( $languageCode ) ) {
-            $code .= "\t\t\$migration->update( array(" . PHP_EOL . $languageCode . "\t\t) );" . PHP_EOL . PHP_EOL;
+        if( !empty( $languageArray ) ) {
+            $code .= sprintf( "\t\t\$migration->update( %s );" . PHP_EOL . PHP_EOL, self::formatValue( $languageArray ) );
         }
         foreach( $objectStateGroup->states() as $objectState ) {
             $code .= sprintf( "\t\t\$migration->addState( '%s'", self::escapeString( $objectState->attribute( 'identifier' ) ) );
             if( count( $objectState->translations( ) ) > 0 ) {
-                $languageCode = '';
+                $languageArray = array( );
                 foreach( $objectState->availableLanguages( ) as $local ) {
                     $translation = $objectState->translationByLocale( $local );
                     $language = $translation->attribute( 'language' );
                     if( $language instanceof eZContentLanguage ) {
                         if( $translation->attribute( 'name' ) != '' ) {
-                            $languageCode .= sprintf( "\t\t\t'%s' => array( 'name' => '%s' )," . PHP_EOL, self::escapeString( $language->attribute( 'locale' ) ), self::escapeString( $translation->attribute( 'name' ) ) );
+                            $languageArray[$language->attribute( 'locale' )]['name'] = $translation->attribute( 'name' );
                         }
                         if( $translation->attribute( 'description' ) != '' ) {
-                            $languageCode .= sprintf( "\t\t\t'%s' => array( 'description' => '%s' )," . PHP_EOL, self::escapeString( $language->attribute( 'locale' ) ), self::escapeString( $translation->attribute( 'description' ) ) );
+                            $languageArray[$language->attribute( 'locale' )]['description'] = $translation->attribute( 'name' );
                         }
                     }
                 }
-                if( !empty( $languageCode ) ) {
-                    $code .= ", array(" . PHP_EOL . $languageCode . "\t\t)";
+                if( !empty( $languageArray ) ) {
+                    $code .= sprintf( ", %s", self::formatValue( $languageArray ) );
                 }
             }
             $code .= " );" . PHP_EOL;

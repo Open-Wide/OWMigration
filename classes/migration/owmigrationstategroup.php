@@ -147,7 +147,10 @@ class OWMigrationStateGroup extends OWMigrationBase {
 
     protected function fillStateWithParams( $state, $params ) {
         foreach( $params as $key => $value ) {
-            if( $state->hasAttribute( $key ) ) {
+            if( $key == 'default_language' ) {
+                $language = eZContentLanguage::fetchByLocale( $value );
+                $state->setAttribute( 'default_language_id', $language->attribute( 'id' ) );
+            } elseif( $state->hasAttribute( $key ) ) {
                 $state->setAttribute( $key, $value );
             } else {
                 $translation = $state->translationByLocale( $key );
