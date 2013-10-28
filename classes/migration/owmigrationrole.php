@@ -15,6 +15,9 @@ class OWMigrationRole extends OWMigrationBase {
     }
 
     public function end( ) {
+        if( $this->role instanceof eZRole ) {
+            $this->role->store( );
+        }
         $this->roleName = NULL;
         $this->role = NULL;
     }
@@ -365,6 +368,36 @@ class OWMigrationRole extends OWMigrationBase {
         OWScriptLogger::logNotice( "Role '$this->roleName' removed.", __FUNCTION__ );
         $this->roleName = NULL;
         $this->role = NULL;
+    }
+
+    public function __set( $name, $value ) {
+        if( $this->role instanceof eZRole ) {
+            if( $this->role->hasAttribute( $name ) ) {
+                $this->role->setAttribute( $name, $value );
+            } else {
+                throw new OWMigrationRoleException( "Attribute $name not found" );
+            }
+        }
+    }
+
+    public function __get( $name ) {
+        if( $this->role instanceof eZRole ) {
+            if( $this->role->hasAttribute( $name ) ) {
+                return $this->role->attribute( $name );
+            } else {
+                throw new OWMigrationRoleException( "Attribute $name not found." );
+            }
+        }
+    }
+
+    public function __isset( $name ) {
+        if( $this->role instanceof eZRole ) {
+            if( $this->role->hasAttribute( $name ) ) {
+                TRUE;
+            } else {
+                FALSE;
+            }
+        }
     }
 
 }
