@@ -45,6 +45,10 @@ if( isset( $options['list'] ) && $options['list'] === TRUE ) {
 
 $validOptions = TRUE;
 $migration = new OWMigration( );
+
+$ini = eZINI::instance( );
+$migrationExtensions = $ini->variable( 'MigrationSettings', 'MigrationExtensions' );
+
 $passedOptions = array( );
 if( isset( $options['force'] ) ) {
     $force = $options['force'];
@@ -61,7 +65,12 @@ if( isset( $options['version'] ) ) {
 if( isset( $options['extension'] ) ) {
     $extension = $options['extension'];
     $passedOptions[] = '--extension=' . $extension;
-    $migration->startMigrationOnExtension( $extension );
+    if( !in_array( $extension, $migrationExtensions ) ) {
+        $cli->error( 'Migration is not enabled for this extension' );
+        $validOptions = FALSE;
+    } else {
+        $migration->startMigrationOnExtension( $extension );
+    }
 }
 
 if( isset( $force ) && !isset( $version ) ) {
@@ -92,8 +101,6 @@ if( isset( $force ) ) {
 } elseif( isset( $extension ) ) {
     $migration->migrate( );
 } else {
-    $ini = eZINI::instance( );
-    $migrationExtensions = $ini->variable( 'MigrationSettings', 'MigrationExtensions' );
     if( $migrationExtensions ) {
         foreach( $migrationExtensions as $extension ) {
             $migration->startMigrationOnExtension( $extension );
