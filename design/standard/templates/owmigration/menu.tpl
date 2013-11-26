@@ -6,16 +6,8 @@
   template or let translations use LinkNames as described in menu.ini. 
 *}
 
-{include uri='design:parts/ini_menu.tpl' ini_section='Leftmenu_owmigration' i18n_hash=hash(
-    'dashboard',                  'Dashboard'|i18n( 'design/admin/parts/owmigration/menu' ),
-)}
-
-{include uri='design:parts/ini_menu.tpl' ini_section='Leftmenu_owmigration_codegenerator' i18n_hash=hash(
-    'content_class',              'Content class'|i18n( 'design/admin/parts/owmigration/menu' ),
-    'role',                       'Role'|i18n( 'design/admin/parts/owmigration/menu' ),
-    'workflow',                   'Workflow'|i18n( 'design/admin/parts/owmigration/menu' ),
-    'state_group',                'State group'|i18n( 'design/admin/parts/owmigration/menu' ),
-)}
+{include uri='design:parts/ini_menu.tpl' ini_section='Leftmenu_owmigration'}
+{include uri='design:parts/ini_menu.tpl' ini_section='Leftmenu_owmigration_codegenerator'}
 
 {* Left menu width control. *}
 <div id="widthcontrol-links" class="widthcontrol">

@@ -15,7 +15,7 @@ if( function_exists( 'ezi18n' ) ) {
         $Result['path'] = array(
             array(
                 'url' => 'owmigration/dashboard',
-                'text' => ezi18n( 'design/admin/parts/owmigration/menu', 'OW Migration' )
+                'text' => ezi18n( 'design/admin/parts/owmigration/menu', 'Migrations' )
             ),
             array(
                 'url' => 'owmigration/dashboard',
@@ -27,7 +27,7 @@ if( function_exists( 'ezi18n' ) ) {
         $Result['path'] = array(
             array(
                 'url' => 'owmigration/dashboard',
-                'text' => ezpI18n::tr( 'design/admin/parts/owmigration/menu', 'OW Migration' )
+                'text' => ezpI18n::tr( 'design/admin/parts/owmigration/menu', 'Migrations' )
             ),
             array(
                 'url' => 'owmigration/dashboard',

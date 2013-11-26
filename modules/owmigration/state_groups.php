@@ -56,7 +56,7 @@ if( $Module->isCurrentAction( 'ExportCode' ) ) {
         $Result['path'] = array(
             array(
                 'url' => 'owmigration/dashboard',
-                'text' => ezi18n( 'design/admin/parts/owmigration/menu', 'OW Migration' )
+                'text' => ezi18n( 'design/admin/parts/owmigration/menu', 'Migrations' )
             ),
             array( 'text' => ezi18n( 'design/admin/parts/owmigration/menu', 'Code generator' ) ),
             array(
@@ -69,7 +69,7 @@ if( $Module->isCurrentAction( 'ExportCode' ) ) {
         $Result['path'] = array(
             array(
                 'url' => 'owmigration/dashboard',
-                'text' => ezpI18n::tr( 'design/admin/parts/owmigration/menu', 'OW Migration' )
+                'text' => ezpI18n::tr( 'design/admin/parts/owmigration/menu', 'Migrations' )
             ),
             array( 'text' => ezpI18n::tr( 'design/admin/parts/owmigration/menu', 'Code generator' ) ),
             array(

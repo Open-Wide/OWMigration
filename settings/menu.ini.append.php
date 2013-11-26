@@ -8,7 +8,7 @@ Tabs[]=owmigration
 
 [Topmenu_owmigration]
 NavigationPartIdentifier=owmigration
-Name=Migration
+Name=Migrations
 Tooltip=Génération migration code
 URL[]
 URL[default]=owmigration/dashboard
@@ -24,9 +24,9 @@ PolicyList[]
 PolicyList[]=owmigration/read
 
 [Leftmenu_owmigration]
-Name=OW Migration
+Name=Migrations
 Links[dashboard]=owmigration/dashboard
-LinkNames[]
+LinkNames[dashboard]=Dashboard
 
 [Leftmenu_owmigration_codegenerator]
 Name=Code generator
@@ -34,6 +34,9 @@ Links[content_class]=owmigration/classes
 Links[role]=owmigration/roles
 Links[workflow]=owmigration/workflows
 Links[state_group]=owmigration/state_groups
-LinkNames[]
+LinkNames[content_class]=Content class
+LinkNames[role]=Role
+LinkNames[workflow]=Workflow
+LinkNames[state_group]=State group
 
 */ ?>

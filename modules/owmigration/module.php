@@ -1,6 +1,6 @@
 <?php
 
-$Module = array( 'name' => 'OW Migration' );
+$Module = array( 'name' => 'Migrations' );
 
 $ViewList = array( );
 
