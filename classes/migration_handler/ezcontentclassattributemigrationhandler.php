@@ -65,7 +65,7 @@ class eZContentClassAttributeMigrationHandler {
                         if( is_string( $optionsValue ) ) {
                             $attribute->setName( $optionsValue );
                         } elseif( is_array( $optionsValue ) ) {
-                            $nameList = new eZContentClassAttributeNameList( serialize( $optionsValue ) );
+                            $nameList = new eZSerializedObjectNameList( serialize( $optionsValue ) );
                             $nameList->validate( );
                             $attribute->NameList = $nameList;
                         }
@@ -74,7 +74,7 @@ class eZContentClassAttributeMigrationHandler {
                         if( is_string( $optionsValue ) ) {
                             $attribute->setDescription( $optionsValue );
                         } elseif( is_array( $optionsValue ) ) {
-                            $nameList = new eZContentClassAttributeNameList( serialize( $optionsValue ) );
+                            $nameList = new eZSerializedObjectNameList( serialize( $optionsValue ) );
                             $nameList->validate( );
                             $attribute->DescriptionList = $nameList;
                         }
