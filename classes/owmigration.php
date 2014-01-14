@@ -64,7 +64,8 @@ class OWMigration {
 			$classes = get_declared_classes();
 			$it = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $directory ), RecursiveIteratorIterator::LEAVES_ONLY );
 			foreach ( $it as $file ) {
-				if ( $file->getPath() == $directory && $file->getExtension() == 'php' ) {
+				$info = pathinfo( $file->getFileName() );
+				if ( $file->getPath() == $directory && isset( $info['extension'] ) && $info['extension'] == 'php' ) {
 					require_once ($file->getPathName());
 
 					$array = array_diff( get_declared_classes(), $classes );
