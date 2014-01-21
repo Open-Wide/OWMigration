@@ -18,15 +18,15 @@ abstract class OWMigrationBase {
 		$fp = fopen( "php://stdin", "r" );
 		$result = trim( fgets( $fp ) );
 		if ( empty( $result ) ) {
-			OWScriptLogger::logNotice( $action, 'manual_step' );
+			OWScriptLogger::logNotice( "'$action' done", 'manual_step' );
 		} elseif ( strpos( strtolower( $result ), 'warn:' ) === 0 ) {
 			$result = trim( substr( $result, 5 ) );
-			OWScriptLogger::logWarning( $action . PHP_EOL . "Comment: $result", 'manual_step' );
+			OWScriptLogger::logWarning( "'$action' done" . PHP_EOL . "Warning: $result", 'manual_step' );
 		} elseif ( strpos( strtolower( $result ), 'error:' ) === 0 ) {
 			$result = trim( substr( $result, 6 ) );
-			OWScriptLogger::logError( $action . PHP_EOL . "Comment: $result", 'manual_step' );
+			OWScriptLogger::logError( "'$action' done" . PHP_EOL . "Error: $result", 'manual_step' );
 		} else {
-			OWScriptLogger::logNotice( $action . PHP_EOL . "Comment: $result", 'manual_step' );
+			OWScriptLogger::logNotice( "'$action' done" . PHP_EOL . "Comment: $result", 'manual_step' );
 		}
 	}
 
