@@ -25,9 +25,11 @@ abstract class OWMigrationBase {
 		} elseif ( strpos( strtolower( $result ), 'error:' ) === 0 ) {
 			$result = trim( substr( $result, 6 ) );
 			OWScriptLogger::logError( "'$action' done" . PHP_EOL . "Error: $result", 'manual_step' );
+			return false;
 		} else {
 			OWScriptLogger::logNotice( "'$action' done" . PHP_EOL . "Comment: $result", 'manual_step' );
 		}
+		return true;
 	}
 
 }
