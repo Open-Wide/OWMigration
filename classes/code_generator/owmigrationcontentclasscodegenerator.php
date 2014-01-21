@@ -75,12 +75,12 @@ class OWMigrationContentClassCodeGenerator extends OWMigrationCodeGenerator {
         foreach( $attributesList as $attribute ) {
             $code .= sprintf( "\t\t\$migration->addAttribute( '%s'", self::escapeString( $attribute->attribute( 'identifier' ) ) );
             $contentClassAttributeHandlerClass = get_class( $attribute ) . 'MigrationHandler';
-            $contentClassAttributeArray = $contentClassAttributeHandlerClass::toArray( $attribute );
+            $contentClassAttributeArray = call_user_func( "$contentClassAttributeHandlerClass::toArray", $attribute );
             $datatypeHandlerClass = get_class( $attribute->dataType( ) ) . 'MigrationHandler';
             if( !class_exists( $datatypeHandlerClass ) || !is_callable( $datatypeHandlerClass . '::toArray' ) ) {
                 $datatypeHandlerClass = "DefaultDatatypeMigrationHandler";
             }
-            $attributeDatatypeArray = $datatypeHandlerClass::toArray( $attribute );
+			$attributeDatatypeArray = call_user_func( "$datatypeHandlerClass::toArray", $attribute );
             $attributeArray = array_merge( $contentClassAttributeArray, $attributeDatatypeArray );
             if( count( $attributeArray ) > 0 ) {
                 $code .= ", " . self::formatValue( $attributeArray );

@@ -50,7 +50,7 @@ class OWMigrationWorkflowCodeGenerator extends OWMigrationCodeGenerator {
             if( !class_exists( $workflowTypeHandlerClass ) || !is_callable( $workflowTypeHandlerClass . '::toArray' ) ) {
                 $workflowTypeHandlerClass = "DefaultEventTypeMigrationHandler";
             }
-            $eventAttributes = $workflowTypeHandlerClass::toArray( $event );
+			$eventAttributes = call_user_func( "$workflowTypeHandlerClass::toArray", $event );
             if( count( $eventAttributes ) > 0 ) {
                 $code .= sprintf( ", %s", self::formatValue( $eventAttributes ) );
             }
