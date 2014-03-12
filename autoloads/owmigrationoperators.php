@@ -49,7 +49,7 @@ class OWMigrationOperators {
      \Executes the needed operator(s).
      \Checks operator names, and calls the appropriate functions.
      */
-    function modify( &$tpl, &$operatorName, &$operatorParameters, &$rootNamespace, &$currentNamespace, &$operatorValue, &$namedParameters ) {
+    function modify( $tpl, &$operatorName, &$operatorParameters, &$rootNamespace, &$currentNamespace, &$operatorValue, &$namedParameters ) {
         switch ( $operatorName ) {
             case 'camelize' :
                 $operatorValue = $this->camelize( $operatorValue );
