@@ -40,12 +40,13 @@ class OWMigrationContentClass extends OWMigrationBase {
 		$user = eZUser::currentUser();
 		$userID = $user->attribute( 'contentobject_id' );
 		$this->isNew = FALSE;
+		$languageLocale = eZContentLanguage::topPriorityLanguage() !== false ? eZContentLanguage::topPriorityLanguage()->attribute('locale') : false;
 		$this->contentClassObject = eZContentClass::create( $userID, array(
 					'version' => eZContentClass::VERSION_STATUS_DEFINED,
 					'create_lang_if_not_exist' => TRUE,
-					'identifier' => $this->classIdentifier
-				) );
-		$this->contentClassObject->setName( $trans->transformByGroup( $this->classIdentifier, 'humanize' ) );
+					'identifier' => $this->classIdentifier,
+					'name' => $trans->transformByGroup( $this->classIdentifier, 'humanize' )
+				), $languageLocale );
 		$this->db->begin();
 		$this->contentClassObject->store();
 		$this->db->commit();
