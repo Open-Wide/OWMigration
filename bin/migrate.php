@@ -94,6 +94,8 @@ if( empty( $passedOptions ) ) {
 OWScriptLogger::startLog( 'owmigration_migrate' );
 OWScriptLogger::logNotice( $optionString, 'migrate' );
 
+$migration->checkDatabase();
+
 if( isset( $force ) ) {
     $migration->migrate( $version, $force );
 } elseif( isset( $version ) ) {
