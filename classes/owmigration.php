@@ -54,7 +54,9 @@ class OWMigration {
 
     public function checkDatabase() {
         $db = eZDB::instance();
-        $db->setErrorHandling( eZDB::ERROR_HANDLING_EXCEPTIONS );
+        if ( method_exists( $db, 'setErrorHandling' ) ) {
+            $db->setErrorHandling( eZDB::ERROR_HANDLING_EXCEPTIONS );
+        }
         $dbSchema = eZDbSchema::instance();
         try {
             // read original schema from dba file
@@ -91,8 +93,8 @@ class OWMigration {
                     $queries[] = $dbSchema->generateUpgradeFile( array( 'removed_tables' => array( $table => $table_def ) ) );
                 }
             }
-            
-            $sqlDiff = implode(PHP_EOL, $queries);
+
+            $sqlDiff = implode( PHP_EOL, $queries );
 
             if ( strlen( $sqlDiff ) == 0 ) {
                 OWScriptLogger::logNotice( "The database schema is up to date.", 'migrate' );
@@ -103,7 +105,7 @@ class OWMigration {
                 while ( $badAnswer ) {
                     $result = trim( fgets( $fp ) );
                     if ( strtolower( $result ) == 'y' ) {
-                        foreach( $queries as $query ) {
+                        foreach ( $queries as $query ) {
                             $db->query( $query );
                         }
                         OWScriptLogger::logNotice( "The database schema has been updated.", 'migrate' );
