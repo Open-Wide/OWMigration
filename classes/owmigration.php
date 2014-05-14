@@ -79,10 +79,11 @@ class OWMigration {
             $differences = eZDbSchemaChecker::diff( $dbSchema->schema( array( 'format' => 'local', 'force_autoincrement_rebuild' => true ) ), $originalSchema );
             $sqlDiff = trim( $dbSchema->generateUpgradeFile( $differences ) );
             $sqlDiff = trim( $sqlDiff, ';' );
-            $sqlDiffArray = explode( ';', $sqlDiff );
-            if ( count( $sqlDiffArray ) == 0 ) {
+            var_dump( $sqlDiff );
+            if ( empty( $sqlDiff ) ) {
                 OWScriptLogger::logNotice( "The database schema is up to date.", 'migrate' );
             } else {
+                $sqlDiffArray = explode( ';', $sqlDiff );
                 OWScriptLogger::logWarning( "The database schema not is up to date. Do you want to run the following query to update ? (Y/n)" . PHP_EOL . $sqlDiff, 'migrate' );
                 $fp = fopen( "php://stdin", "r" );
                 $badAnswer = true;
