@@ -77,26 +77,10 @@ class OWMigration {
             // but eZDbSchemaChecker::diff does not know how to re-localize the generated sql
             $dbSchema->transformSchema( $originalSchema, true );
             $differences = eZDbSchemaChecker::diff( $dbSchema->schema( array( 'format' => 'local', 'force_autoincrement_rebuild' => true ) ), $originalSchema );
-            $queries = array();
-            if ( isset( $differences['table_changes'] ) ) {
-                foreach ( $differences['table_changes'] as $table => $table_diff ) {
-                    $queries[] = $dbSchema->generateUpgradeFile( array( 'table_changes' => array( $table => $table_diff ) ) );
-                }
-            }
-            if ( isset( $differences['new_tables'] ) ) {
-                foreach ( $differences['new_tables'] as $table => $table_def ) {
-                    $queries[] = $dbSchema->generateUpgradeFile( array( 'new_tables' => array( $table => $table_def ) ) );
-                }
-            }
-            if ( isset( $differences['removed_tables'] ) ) {
-                foreach ( $differences['removed_tables'] as $table => $table_def ) {
-                    $queries[] = $dbSchema->generateUpgradeFile( array( 'removed_tables' => array( $table => $table_def ) ) );
-                }
-            }
-
-            $sqlDiff = implode( PHP_EOL, $queries );
-
-            if ( strlen( $sqlDiff ) == 0 ) {
+            $sqlDiff = trim( $dbSchema->generateUpgradeFile( $differences ) );
+            $sqlDiff = trim( $sqlDiff, ';' );
+            $sqlDiffArray = explode( ';', $sqlDiff );
+            if ( count( $sqlDiffArray ) == 0 ) {
                 OWScriptLogger::logNotice( "The database schema is up to date.", 'migrate' );
             } else {
                 OWScriptLogger::logWarning( "The database schema not is up to date. Do you want to run the following query to update ? (Y/n)" . PHP_EOL . $sqlDiff, 'migrate' );
@@ -105,7 +89,7 @@ class OWMigration {
                 while ( $badAnswer ) {
                     $result = trim( fgets( $fp ) );
                     if ( strtolower( $result ) == 'y' ) {
-                        foreach ( $queries as $query ) {
+                        foreach ( $sqlDiffArray as $query ) {
                             $db->query( $query );
                         }
                         OWScriptLogger::logNotice( "The database schema has been updated.", 'migrate' );
