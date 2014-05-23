@@ -9,6 +9,8 @@ class OWMigration {
 
     public function startMigrationOnExtension( $extension ) {
         $this->_extension = $extension;
+        $this->_currentVersion = 0;
+        $this->_migrationClasses = array();
         $this->_loadMigrationClassesFromDirectory();
     }
 
@@ -79,7 +81,6 @@ class OWMigration {
             $differences = eZDbSchemaChecker::diff( $dbSchema->schema( array( 'format' => 'local', 'force_autoincrement_rebuild' => true ) ), $originalSchema );
             $sqlDiff = trim( $dbSchema->generateUpgradeFile( $differences ) );
             $sqlDiff = trim( $sqlDiff, ';' );
-            var_dump( $sqlDiff );
             if ( empty( $sqlDiff ) ) {
                 OWScriptLogger::logNotice( "The database schema is up to date.", 'migrate' );
             } else {
