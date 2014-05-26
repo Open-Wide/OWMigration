@@ -84,7 +84,7 @@ class OWMigration {
                 OWScriptLogger::logNotice( "The database schema is up to date.", 'migrate' );
             } else {
                 $sqlDiffArray = explode( ';', $sqlDiff );
-                OWScriptLogger::logWarning( "The database schema not is up to date. Do you want to run the following query to update ? (Y/n)" . PHP_EOL . $sqlDiff, 'migrate' );
+                OWScriptLogger::logWarning( "The database schema not is up to date:" . PHP_EOL . $sqlDiff . PHP_EOL . "> Do you want to execute these queries? (y/n)", 'migrate' );
                 $fp = fopen( "php://stdin", "r" );
                 $badAnswer = true;
                 while ( $badAnswer ) {
