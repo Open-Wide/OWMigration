@@ -22,7 +22,6 @@ class eZMultiplexerTypeMigrationHandler extends DefaultEventTypeMigrationHandler
                 case 'selected_sections' :
                     foreach( $attribute as $ID ) {
                         if( $ID != '-1' ) {
-                            $IDList = array( );
                             $object = eZSection::fetch( $ID );
                             if( $object instanceof eZSection ) {
                                 if( $object->hasAttribute( 'identifier' ) ) {
@@ -37,7 +36,6 @@ class eZMultiplexerTypeMigrationHandler extends DefaultEventTypeMigrationHandler
                 case 'selected_classes' :
                     foreach( $attribute as $ID ) {
                         if( $ID != '-1' ) {
-                            $IDList = array( );
                             $object = eZContentClass::fetch( $ID );
                             if( $object instanceof eZContentClass ) {
                                 $IDList[] = $object->attribute( 'identifier' );
@@ -48,7 +46,6 @@ class eZMultiplexerTypeMigrationHandler extends DefaultEventTypeMigrationHandler
                 case 'selected_usergroups' :
                     foreach( $attribute as $ID ) {
                         if( $ID != '-1' ) {
-                            $IDList = array( );
                             $object = eZContentObject::fetch( $ID );
                             if( $object instanceof eZContentObject ) {
                                 $object = $object->attribute( 'main_node' );
