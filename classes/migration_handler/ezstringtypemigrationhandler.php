@@ -7,7 +7,7 @@ class eZStringTypeMigrationHandler extends DefaultDatatypeMigrationHandler {
         if( $attribute->attribute( eZStringType::MAX_LEN_FIELD ) > 0 ) {
             $result['max_length'] = $attribute->attribute( eZStringType::MAX_LEN_FIELD );
         }
-        if( $attribute->attribute( eZDateType::DEFAULT_FIELD )  != '' ) {
+        if( $attribute->attribute( eZStringType::DEFAULT_STRING_FIELD )  != '' ) {
             $result['default_value'] = $attribute->attribute( eZStringType::DEFAULT_STRING_FIELD );
         }
         return $result;
