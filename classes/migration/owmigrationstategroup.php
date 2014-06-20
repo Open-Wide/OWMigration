@@ -48,6 +48,7 @@ class OWMigrationStateGroup extends OWMigrationBase {
                     $value = $language->attribute( 'id' );
                 }
                 $this->stateGroup->setAttribute( $key, $value );
+                $this->stateGroup->store( );
             } else {
                 $translation = $this->stateGroup->translationByLocale( $key );
                 if( $translation instanceof eZContentObjectStateGroupLanguage ) {
@@ -61,13 +62,13 @@ class OWMigrationStateGroup extends OWMigrationBase {
                     } else {
                         $translation->setAttribute( 'name', $value );
                     }
+                    $this->stateGroup->store( );
                     $translation->store( );
                 } else {
                     OWScriptLogger::logError( "Attribute or translation '$key' not found.", __FUNCTION__ );
                 }
             }
         }
-        $this->stateGroup->store( );
         OWScriptLogger::logNotice( "State group '$this->stateGroupIdentifier' updated.", __FUNCTION__ );
     }
 
