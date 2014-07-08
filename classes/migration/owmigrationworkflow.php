@@ -73,7 +73,7 @@ class OWMigrationWorkflow extends OWMigrationBase {
 				break;
 			}
 		}
-		if ( !$workflowGroup ) {
+		if ( !isset( $workflowGroup ) && !$workflowGroup ) {
 			OWScriptLogger::logNotice( "Workflow group '$groupName' created.", __FUNCTION__ );
 			$user = eZUser::currentUser();
 			$workflowGroup = eZWorkflowGroup::create( $user->attribute( 'contentobject_id' ) );
