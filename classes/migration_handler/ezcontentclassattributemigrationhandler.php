@@ -81,7 +81,7 @@ class eZContentClassAttributeMigrationHandler {
                         break;
                     case 'data_type_string' :
                         if( $attribute->attribute( 'data_type_string' ) != $optionsValue ) {
-                            OWScriptLogger::logError( "Datatype conversion not possible: '" . $params['data_type_string'] . "'", __FUNCTION__ );
+                            OWScriptLogger::logError( "Datatype conversion not possible: '" . $optionsValue . "'", __FUNCTION__ );
                         }
                         break;
                     default :
