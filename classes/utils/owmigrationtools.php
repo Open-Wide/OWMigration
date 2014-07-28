@@ -179,7 +179,6 @@ class OWMigrationTools {
                     $contentClass = eZContentClass::fetchByIdentifier( $classIdentifier );
                     $cond['contentclass_id'] = $contentClass->attribute( 'id' );
                 }
-                var_dump( $cond );
                 $contentObject = current( eZContentObject::fetchFilteredList( $cond ) );
                 if( $contentObject instanceof eZContentObject ) {
                     return $contentObject->attribute( 'main_node' );

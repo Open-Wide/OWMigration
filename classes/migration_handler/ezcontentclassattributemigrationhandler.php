@@ -5,7 +5,7 @@ class eZContentClassAttributeMigrationHandler {
     static public function toArray( eZContentClassAttribute $attribute ) {
         $attributesArray = array( );
         foreach( $attribute->attributes() as $attributeIdentifier ) {
-            if( preg_match( '/^data_(int|text){1}[a-z0-9]+/', $attributeIdentifier ) == 0 ) {
+            if( $attributeIdentifier != 'content' && preg_match( '/^data_(int|text){1}[a-z0-9]+/', $attributeIdentifier ) == 0 ) {
                 $attributeValue = $attribute->attribute( $attributeIdentifier );
                 switch( $attributeIdentifier ) {
                     case 'name' :
