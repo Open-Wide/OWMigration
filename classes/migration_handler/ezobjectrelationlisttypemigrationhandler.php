@@ -3,27 +3,27 @@
 class eZObjectRelationListTypeMigrationHandler extends DefaultDatatypeMigrationHandler {
 
     static public function toArray( eZContentClassAttribute $attribute ) {
-        $attributesArray = array( );
+        $attributesArray = array();
         $advancedObjectRelationList = TRUE;
-        $ini = eZINI::instance( );
-        if( $ini->hasVariable( 'BackwardCompatibilitySettings', 'AdvancedObjectRelationList' ) && $ini->variable( 'BackwardCompatibilitySettings', 'AdvancedObjectRelationList' ) != 'enabled' ) {
+        $ini = eZINI::instance();
+        if ( $ini->hasVariable( 'BackwardCompatibilitySettings', 'AdvancedObjectRelationList' ) && $ini->variable( 'BackwardCompatibilitySettings', 'AdvancedObjectRelationList' ) != 'enabled' ) {
             $advancedObjectRelationList = FALSE;
         }
-        foreach( $attribute->content() as $attributeIdentifier => $attributeValue ) {
-            switch ($attributeIdentifier) {
+        foreach ( $attribute->content() as $attributeIdentifier => $attributeValue ) {
+            switch ( $attributeIdentifier ) {
                 case 'object_class' :
-                    if( $advancedObjectRelationList && !empty( $attributeValue ) ) {
+                    if ( $advancedObjectRelationList && !empty( $attributeValue ) ) {
                         $class = eZContentClass::fetch( $attributeValue );
                         $attributesArray['new_object_class'] = $class->attribute( 'identifier' );
                     }
                     break;
                 case 'selection_type' :
-                    $selectionMethods = self::getSelectionMethods( );
+                    $selectionMethods = self::getSelectionMethods();
                     $attributesArray['selection_method'] = $selectionMethods[$attributeValue];
                     break;
                 case 'type' :
-                    if( $advancedObjectRelationList ) {
-                        $selectionTypes = self::getSelectionTypes( );
+                    if ( $advancedObjectRelationList ) {
+                        $selectionTypes = self::getSelectionTypes();
                         $attributesArray['selection_type'] = $selectionTypes[$attributeValue];
                     }
                     break;
@@ -31,7 +31,7 @@ class eZObjectRelationListTypeMigrationHandler extends DefaultDatatypeMigrationH
                     $attributesArray[$attributeIdentifier] = implode( ',', $attributeValue );
                     break;
                 case 'default_placement' :
-                    if( is_array( $attributeValue ) ) {
+                    if ( is_array( $attributeValue ) ) {
                         $attributesArray[$attributeIdentifier] = current( $attributeValue );
                     }
                     break;
@@ -44,28 +44,28 @@ class eZObjectRelationListTypeMigrationHandler extends DefaultDatatypeMigrationH
 
     static public function fromArray( eZContentClassAttribute $attribute, array $options ) {
         parent::fromArray( $attribute, $options );
-        $content = $attribute->content( );
-        foreach( $options as $optionIdentifier => $optionValue ) {
-            switch ($optionIdentifier) {
+        $content = $attribute->content();
+        foreach ( $options as $optionIdentifier => $optionValue ) {
+            switch ( $optionIdentifier ) {
                 case 'new_object_class' :
-                    if( !empty( $optionValue ) ) {
+                    if ( !empty( $optionValue ) ) {
                         $class = eZContentClass::fetchByIdentifier( $optionValue );
                         $content['object_class'] = $class->attribute( 'id' );
                     }
                     break;
                 case 'selection_method' :
-                    $reverseSelectionMethods = self::getReverseSelectionMethods( );
+                    $reverseSelectionMethods = self::getReverseSelectionMethods();
                     $content['selection_type'] = $reverseSelectionMethods[$optionValue];
                     break;
                 case 'selection_type' :
-                    $reverseSelectionTypes = self::getReverseSelectionTypes( );
+                    $reverseSelectionTypes = self::getReverseSelectionTypes();
                     $content['type'] = $reverseSelectionTypes[$optionValue];
                     break;
                 case 'class_constraint_list' :
                     $content[$optionIdentifier] = explode( ',', $optionValue );
                     break;
                 case 'default_placement' :
-                    if( is_numeric( $optionValue ) ) {
+                    if ( is_numeric( $optionValue ) ) {
                         $content[$optionIdentifier] = array( 'node_id' => $optionValue );
                     } else {
                         $content[$optionIdentifier] = FALSE;
@@ -75,13 +75,13 @@ class eZObjectRelationListTypeMigrationHandler extends DefaultDatatypeMigrationH
                     break;
             }
         }
-        if( !isset( $content['type'] ) ) {
+        if ( !isset( $content['type'] ) ) {
             $content['type'] = 2;
         }
         $attribute->setContent( $content );
     }
 
-    protected static function getSelectionMethods( ) {
+    protected static function getSelectionMethods() {
         return array(
             0 => 'Browse',
             1 => 'Drop-down list',
@@ -89,15 +89,16 @@ class eZObjectRelationListTypeMigrationHandler extends DefaultDatatypeMigrationH
             3 => 'List with checkboxes',
             4 => 'Multiple selection list',
             5 => 'Template based, multi',
-            6 => 'Template based, single'
+            6 => 'Template based, single',
+            7 => 'Drop-down list display the parent folder'
         );
     }
 
-    protected static function getReverseSelectionMethods( ) {
-        return array_flip( self::getSelectionMethods( ) );
+    protected static function getReverseSelectionMethods() {
+        return array_flip( self::getSelectionMethods() );
     }
 
-    protected static function getSelectionTypes( ) {
+    protected static function getSelectionTypes() {
         return array(
             0 => 'New and existing objects',
             1 => 'Only new objects',
@@ -105,8 +106,8 @@ class eZObjectRelationListTypeMigrationHandler extends DefaultDatatypeMigrationH
         );
     }
 
-    protected static function getReverseSelectionTypes( ) {
-        return array_flip( self::getSelectionTypes( ) );
+    protected static function getReverseSelectionTypes() {
+        return array_flip( self::getSelectionTypes() );
     }
 
 }
