@@ -32,7 +32,9 @@ class eZObjectRelationListTypeMigrationHandler extends DefaultDatatypeMigrationH
                     break;
                 case 'default_placement' :
                     if ( is_array( $attributeValue ) ) {
-                        $attributesArray[$attributeIdentifier] = current( $attributeValue );
+                        $nodeID = current( $attributeValue );
+                        $node = eZContentObjectTreeNode::fetch( $nodeID );
+                        $attributesArray[$attributeIdentifier] = $node->attribute( 'path_identification_string' );
                     }
                     break;
                 default :
@@ -67,6 +69,13 @@ class eZObjectRelationListTypeMigrationHandler extends DefaultDatatypeMigrationH
                 case 'default_placement' :
                     if ( is_numeric( $optionValue ) ) {
                         $content[$optionIdentifier] = array( 'node_id' => $optionValue );
+                    } elseif ( is_string( $optionValue ) ) {
+                        $node = eZContentObjectTreeNode::fetchByURLPath( $optionValue );
+                        if ( $node instanceof eZContentObjectTreeNode ) {
+                            $content[$optionIdentifier] = array( 'node_id' => $node->attribute( 'node_id' ) );
+                        } else {
+                            $content[$optionIdentifier] = FALSE;
+                        }
                     } else {
                         $content[$optionIdentifier] = FALSE;
                     }
