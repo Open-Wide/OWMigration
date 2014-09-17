@@ -8,49 +8,48 @@ if( is_callable( 'eZTemplate::factory' ) ) {
     $tpl = templateInit( );
 }
 
-$roleID = FALSE;
-$role = FALSE;
-if( $Module->hasActionParameter( 'RoleID' ) ) {
-    $roleID = $Module->actionParameter( 'RoleID' );
-} elseif( isset( $Params['RoleID'] ) ) {
-    $roleID = $Params['RoleID'];
+$classIdentifier = FALSE;
+if( $Module->hasActionParameter( 'ContentClassIdentifier' ) ) {
+    $classIdentifier = $Module->actionParameter( 'ContentClassIdentifier' );
+} elseif( isset( $Params['ContentClassIdentifier'] ) ) {
+    $classIdentifier = $Params['ContentClassIdentifier'];
 }
 
-if( $roleID && is_numeric( $roleID ) ) {
-    $role = eZRole::fetch( $roleID );
+if( $classIdentifier && is_numeric( $classIdentifier ) ) {
+    $classIdentifier = eZContentClass::classIdentifierByID( $classIdentifier );
 }
-if( ( $role instanceof eZRole && ($Module->isCurrentAction( 'ExportCode' ) ) || $Module->isCurrentAction( 'ExportAllClassCode' )) ) {
+$class = eZContentClass::fetchByIdentifier( $classIdentifier );
+
+if( ($class instanceof eZContentClass && ($Module->isCurrentAction( 'ExportCode' )) || $Module->isCurrentAction( 'ExportAllClassCode' )) ) {
     $mainTmpDir = eZSys::cacheDirectory( ) . '/owmigration/';
     $tmpDir = $mainTmpDir . time( ) . '/';
-    OWMigrationRoleCodeGenerator::createDirectory( $tmpDir );
+    OWMigrationContentClassCodeGenerator::createDirectory( $tmpDir );
 }
 if( $Module->isCurrentAction( 'ExportCode' ) ) {
-    $filepath = OWMigrationRoleCodeGenerator::getMigrationClassFile( $role, $tmpDir );
+    $filepath = OWMigrationContentClassCodeGenerator::getMigrationClassFile( $classIdentifier, $tmpDir );
     $file = pathinfo( $filepath, PATHINFO_BASENAME );
     eZFile::download( $filepath, true, $file );
     OWMigrationRoleCodeGenerator::removeDirectory( $tmpDir );
 } elseif( $Module->isCurrentAction( 'ExportAllClassCode' ) ) {
-    $roleList = eZRole::fetchList( );
-    $archiveFile = 'roles.zip';
+    $classList = eZContentClass::fetchAllClasses( );
+    $archiveFile = 'contentclasses.zip';
     $archiveFilepath = $tmpDir . $archiveFile;
     eZFile::create( $archiveFile, $tmpDir );
     @unlink( $archiveFilepath );
     $zip = new ZipArchive;
     if( $zip->open( $archiveFilepath, ZIPARCHIVE::CREATE ) === TRUE ) {
-        foreach( $roleList as $role ) {
-            $filepath = OWMigrationRoleCodeGenerator::getMigrationClassFile( $role, $tmpDir );
+        foreach( $classList as $class ) {
+            $filepath = OWMigrationContentClassCodeGenerator::getMigrationClassFile( $class->attribute( 'identifier' ), $tmpDir );
             $file = pathinfo( $filepath, PATHINFO_BASENAME );
             $zip->addFile( $filepath, $file );
         }
         $zip->close( );
         eZFile::download( $archiveFilepath, true, $archiveFile );
-        OWMigrationRoleCodeGenerator::removeDirectory( $tmpDir );
+        OWMigrationContentClassCodeGenerator::removeDirectory( $tmpDir );
     }
 } else {
-    $roleCount = eZRole::roleCount( );
-    $tpl->setVariable( 'rolelist', eZRole::fetchByOffset( 0, $roleCount ) );
-    $tpl->setVariable( 'role_id', $roleID );
-    $Result['content'] = $tpl->fetch( 'design:owmigration/roles.tpl' );
+    $tpl->setVariable( 'class_identifier', $classIdentifier );
+    $Result['content'] = $tpl->fetch( 'design:owmigration/codegenerator/classes.tpl' );
     $Result['left_menu'] = 'design:owmigration/menu.tpl';
     if( function_exists( 'ezi18n' ) ) {
         $Result['path'] = array(
@@ -60,8 +59,8 @@ if( $Module->isCurrentAction( 'ExportCode' ) ) {
             ),
             array( 'text' => ezi18n( 'design/admin/parts/owmigration/menu', 'Code generator' ) ),
             array(
-                'url' => 'owmigration/roles',
-                'text' => ezi18n( 'design/admin/parts/owmigration/menu', 'Role' )
+                'url' => 'owmigration/classes',
+                'text' => ezi18n( 'design/admin/parts/owmigration/menu', 'Content class' )
             )
         );
 
@@ -73,8 +72,8 @@ if( $Module->isCurrentAction( 'ExportCode' ) ) {
             ),
             array( 'text' => ezpI18n::tr( 'design/admin/parts/owmigration/menu', 'Code generator' ) ),
             array(
-                'url' => 'owmigration/roles',
-                'text' => ezpI18n::tr( 'design/admin/parts/owmigration/menu', 'Role' )
+                'url' => 'owmigration/classes',
+                'text' => ezpI18n::tr( 'design/admin/parts/owmigration/menu', 'Content class' )
             )
         );
     }

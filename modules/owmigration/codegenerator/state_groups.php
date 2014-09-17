@@ -50,7 +50,7 @@ if( $Module->isCurrentAction( 'ExportCode' ) ) {
     $objectStateGroupCount = eZPersistentObject::count( eZContentObjectStateGroup::definition( ) );
     $tpl->setVariable( 'object_state_group_list', eZContentObjectStateGroup::fetchByOffset( $objectStateGroupCount, 0 ) );
     $tpl->setVariable( 'object_state_group_id', $objectStateGroupID );
-    $Result['content'] = $tpl->fetch( 'design:owmigration/state_groups.tpl' );
+    $Result['content'] = $tpl->fetch( 'design:owmigration/codegenerator/state_groups.tpl' );
     $Result['left_menu'] = 'design:owmigration/menu.tpl';
     if( function_exists( 'ezi18n' ) ) {
         $Result['path'] = array(

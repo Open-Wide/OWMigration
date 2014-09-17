@@ -49,7 +49,7 @@ if( $Module->isCurrentAction( 'ExportCode' ) ) {
 } else {
     $tpl->setVariable( 'workflowlist', eZWorkflow::fetchList( ) );
     $tpl->setVariable( 'workflow_id', $workflowID );
-    $Result['content'] = $tpl->fetch( 'design:owmigration/workflows.tpl' );
+    $Result['content'] = $tpl->fetch( 'design:owmigration/codegenerator/workflows.tpl' );
     $Result['left_menu'] = 'design:owmigration/menu.tpl';
     if( function_exists( 'ezi18n' ) ) {
         $Result['path'] = array(
