@@ -1,4 +1,4 @@
-<form method="post" action={'owmigration/roles'|ezurl()}>
+<form method="post" action={'owmigration/codegenerator_roles'|ezurl()}>
     <div class="context-block">
         <div class="box-header">
             <div class="box-tc"><div class="box-ml"><div class="box-mr"><div class="box-tl"><div class="box-tr">

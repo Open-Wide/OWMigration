@@ -1,7 +1,7 @@
 {def $classlist = fetch( 'class', 'list', hash(
             'sort_by', array( 'name', true() ) 
 ) )}
-<form method="post" action={'owmigration/classes'|ezurl()}>
+<form method="post" action={'owmigration/codegenerator_classes'|ezurl()}>
     <div class="context-block">
         <div class="box-header">
             <div class="box-tc"><div class="box-ml"><div class="box-mr"><div class="box-tl"><div class="box-tr">
