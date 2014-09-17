@@ -63,6 +63,10 @@
         <translation>Migration de classe de contenu</translation>
     </message>
     <message>
+        <source>Describe content class</source>
+        <translation>Description des classes de contenu</translation>
+    </message>
+    <message>
         <source>Classes list</source>
         <translation>Liste des classes</translation>
     </message>

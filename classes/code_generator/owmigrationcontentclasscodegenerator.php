@@ -11,7 +11,7 @@ class OWMigrationContentClassCodeGenerator extends OWMigrationCodeGenerator {
     }
 
     static function getMigrationClass( $classIdentifier ) {
-        $trans = eZCharTransform::instance( );
+        $trans = eZCharTransform::instance();
         $contentClass = eZContentClass::fetchByIdentifier( $classIdentifier );
         $code = "<?php" . PHP_EOL . PHP_EOL;
         $code .= sprintf( "class myExtension_xxx_%s {" . PHP_EOL . PHP_EOL, $trans->transformByGroup( $contentClass->attribute( 'identifier' ), 'camelize' ) );
@@ -28,67 +28,30 @@ class OWMigrationContentClassCodeGenerator extends OWMigrationCodeGenerator {
         $code .= sprintf( "\t\t\$migration->startMigrationOn( '%s' );" . PHP_EOL, self::escapeString( $contentClass->attribute( 'identifier' ) ) );
         $code .= "\t\t\$migration->createIfNotExists( );" . PHP_EOL . PHP_EOL;
 
-        $contentClassArray = array( );
-        foreach( $contentClass->attributes() as $attributeIdentifier ) {
-            $attributeValue = $contentClass->attribute( $attributeIdentifier );
-            switch ($attributeIdentifier) {
-                case 'name' :
-                case 'description' :
-                    $nameList = $contentClass->attribute( $attributeIdentifier . 'List' );
-                    $nameListValue = OWMigrationTools::cleanupNameList( $nameList );
-                    if( !empty( $nameListValue ) ) {
-                        $contentClassArray[$attributeIdentifier] = $nameListValue;
-                    }
-                    break;
-                case 'contentobject_name' :
-                case 'url_alias_name' :
-                    if( $attributeValue != '' ) {
-                        $contentClassArray[$attributeIdentifier] = $attributeValue;
-                    }
-                    break;
-                case 'is_container' :
-                case 'always_available' :
-                    if( $attributeValue == TRUE ) {
-                        $contentClassArray[$attributeIdentifier] = TRUE;
-                    }
-                    break;
-                case 'sort_field' :
-                    if( $attributeValue != 1 ) {
-                        $contentClassArray[$attributeIdentifier] = $attributeValue;
-                    }
-                    break;
-                case 'sort_order' :
-                    if( $attributeValue == FALSE ) {
-                        $contentClassArray[$attributeIdentifier] = FALSE;
-                    }
-                    break;
-                default :
-                    break;
-            }
-        }
+        $contentClassArray = call_user_func( 'ContentClassMigrationHandler::toArray', $contentClass );
         ksort( $contentClassArray );
-        foreach( $contentClassArray as $key => $value ) {
+        foreach ( $contentClassArray as $key => $value ) {
             $code .= sprintf( "\t\t\$migration->%s = %s;" . PHP_EOL, $key, self::formatValue( $value ) );
         }
         $code .= PHP_EOL;
-        $attributesList = $contentClass->fetchAttributes( );
-        foreach( $attributesList as $attribute ) {
+        $attributesList = $contentClass->fetchAttributes();
+        foreach ( $attributesList as $attribute ) {
             $code .= sprintf( "\t\t\$migration->addAttribute( '%s'", self::escapeString( $attribute->attribute( 'identifier' ) ) );
             $contentClassAttributeHandlerClass = get_class( $attribute ) . 'MigrationHandler';
             $contentClassAttributeArray = call_user_func( "$contentClassAttributeHandlerClass::toArray", $attribute );
-            $datatypeHandlerClass = get_class( $attribute->dataType( ) ) . 'MigrationHandler';
-            if( !class_exists( $datatypeHandlerClass ) || !is_callable( $datatypeHandlerClass . '::toArray' ) ) {
+            $datatypeHandlerClass = get_class( $attribute->dataType() ) . 'MigrationHandler';
+            if ( !class_exists( $datatypeHandlerClass ) || !is_callable( $datatypeHandlerClass . '::toArray' ) ) {
                 $datatypeHandlerClass = "DefaultDatatypeMigrationHandler";
             }
-			$attributeDatatypeArray = call_user_func( "$datatypeHandlerClass::toArray", $attribute );
+            $attributeDatatypeArray = call_user_func( "$datatypeHandlerClass::toArray", $attribute );
             $attributeArray = array_merge( $contentClassAttributeArray, $attributeDatatypeArray );
-            if( count( $attributeArray ) > 0 ) {
+            if ( count( $attributeArray ) > 0 ) {
                 $code .= ", " . self::formatValue( $attributeArray );
             }
             $code .= " );" . PHP_EOL;
         }
         $code .= PHP_EOL;
-        foreach( $contentClass->attribute( 'ingroup_list' ) as $classGroup ) {
+        foreach ( $contentClass->attribute( 'ingroup_list' ) as $classGroup ) {
             $code .= sprintf( "\t\t\$migration->addToContentClassGroup( '%s' );" . PHP_EOL, self::escapeString( $classGroup->attribute( 'group_name' ) ) );
         }
         $code .= "\t\t\$migration->end( );" . PHP_EOL;
@@ -106,4 +69,5 @@ class OWMigrationContentClassCodeGenerator extends OWMigrationCodeGenerator {
     }
 
 }
+
 ?>

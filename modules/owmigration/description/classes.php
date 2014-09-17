@@ -8,6 +8,25 @@ if ( is_callable( 'eZTemplate::factory' ) ) {
     $tpl = templateInit();
 }
 
+$contentClassList = eZContentClass::fetchList( eZContentClass::VERSION_STATUS_DEFINED, true, false, array( 'identifier' => 'asc' ) );
+$classList = array();
+foreach ( $contentClassList as $contentClass ) {
+    $contentClassInfos = call_user_func( 'ContentClassMigrationHandler::toArray', $contentClass );
+    $attributesList = $contentClass->fetchAttributes();
+    foreach ( $attributesList as $attribute ) {
+        $contentClassAttributeHandlerClass = get_class( $attribute ) . 'MigrationHandler';
+        $contentClassAttributeArray = call_user_func( "$contentClassAttributeHandlerClass::toArray", $attribute );
+        $datatypeHandlerClass = get_class( $attribute->dataType() ) . 'MigrationHandler';
+        if ( !class_exists( $datatypeHandlerClass ) || !is_callable( $datatypeHandlerClass . '::toArray' ) ) {
+            $datatypeHandlerClass = "DefaultDatatypeMigrationHandler";
+        }
+        $attributeDatatypeArray = call_user_func( "$datatypeHandlerClass::toArray", $attribute );
+        $attributesInfos = array_merge( $contentClassAttributeArray, $attributeDatatypeArray );
+        $contentClassInfos['attributes'][$attribute->attribute( 'identifier' )] = $attributesInfos;
+    }
+    $classList[$contentClass->attribute( 'identifier' )] = $contentClassInfos;
+}
+$tpl->setVariable( 'class_list', $classList );
 
 $Result['content'] = $tpl->fetch( 'design:owmigration/description/classes.tpl' );
 $Result['left_menu'] = 'design:owmigration/menu.tpl';

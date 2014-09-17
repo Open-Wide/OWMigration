@@ -34,7 +34,9 @@ class eZObjectRelationListTypeMigrationHandler extends DefaultDatatypeMigrationH
                     if ( is_array( $attributeValue ) ) {
                         $nodeID = current( $attributeValue );
                         $node = eZContentObjectTreeNode::fetch( $nodeID );
-                        $attributesArray[$attributeIdentifier] = $node->attribute( 'path_identification_string' );
+                        if ( $node instanceof eZContentObjectTreeNode ) {
+                            $attributesArray[$attributeIdentifier] = $node->attribute( 'path_identification_string' );
+                        }
                     }
                     break;
                 default :
