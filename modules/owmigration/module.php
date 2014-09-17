@@ -2,7 +2,7 @@
 
 $Module = array( 'name' => 'Migrations' );
 
-$ViewList = array( );
+$ViewList = array();
 
 $ViewList['dashboard'] = array(
     'script' => 'dashboard.php',
@@ -79,5 +79,33 @@ $ViewList['state_groups'] = array(
     )
 );
 
-$FunctionList['read'] = array( );
-?>
+$ViewList['description_classes'] = array(
+    'script' => 'description/classes.php',
+    'functions' => array( 'read' ),
+    'default_navigation_part' => 'owmigration',
+    'ui_context' => 'view',
+);
+
+$ViewList['description_roles'] = array(
+    'script' => 'description/roles.php',
+    'functions' => array( 'read' ),
+    'default_navigation_part' => 'owmigration',
+    'ui_context' => 'view',
+);
+
+$ViewList['description_workflows'] = array(
+    'script' => 'description/workflows.php',
+    'functions' => array( 'read' ),
+    'default_navigation_part' => 'owmigration',
+    'ui_context' => 'view',
+);
+
+$ViewList['description_state'] = array(
+    'script' => 'description/state.php',
+    'functions' => array( 'read' ),
+    'default_navigation_part' => 'owmigration',
+    'ui_context' => 'view',
+);
+
+$FunctionList['read'] = array();
+
