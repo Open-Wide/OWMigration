@@ -17,6 +17,10 @@
         <translation>Générateur de code</translation>
     </message>
     <message>
+        <source>Description</source>
+        <translation>Description</translation>
+    </message>
+    <message>
         <source>Content class</source>
         <translation>Classe de contenu</translation>
     </message>

@@ -39,4 +39,14 @@ LinkNames[role]=Role
 LinkNames[workflow]=Workflow
 LinkNames[state_group]=State group
 
-*/ ?>
+[Leftmenu_owmigration_description]
+Name=Description
+Links[description_content_class]=owmigration/description_classes
+Links[description_role]=owmigration/description_roles
+Links[description_workflow]=owmigration/description_workflows
+Links[description_state_group]=owmigration/description_state_groups
+LinkNames[description_content_class]=Content class
+LinkNames[description_role]=Role
+LinkNames[description_workflow]=Workflow
+LinkNames[description_state_group]=State group
+

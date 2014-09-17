@@ -8,6 +8,7 @@
 
 {include uri='design:parts/ini_menu.tpl' ini_section='Leftmenu_owmigration'}
 {include uri='design:parts/ini_menu.tpl' ini_section='Leftmenu_owmigration_codegenerator'}
+{include uri='design:parts/ini_menu.tpl' ini_section='Leftmenu_owmigration_description'}
 
 {* Left menu width control. *}
 <div id="widthcontrol-links" class="widthcontrol">
