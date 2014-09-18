@@ -23,6 +23,11 @@ foreach ( $contentClassList as $contentClass ) {
         $attributeDatatypeArray = call_user_func( "$datatypeHandlerClass::toArray", $attribute );
         $attributesInfos = array_merge( $contentClassAttributeArray, $attributeDatatypeArray );
         $contentClassInfos['attributes'][$attribute->attribute( 'identifier' )] = $attributesInfos;
+        $classGroupList = array();
+        foreach ( $contentClass->attribute( 'ingroup_list' ) as $classGroup ) {
+            $classGroupList[] = $classGroup->attribute( 'group_name' );
+        }
+        $contentClassInfos['class_groups'] = $classGroupList;
     }
     $classList[$contentClass->attribute( 'identifier' )] = $contentClassInfos;
 }
