@@ -9,11 +9,11 @@ OW Migration provides an API to migrate content classes, roles, workflows and ob
  
 Usage
 ------
-1. Create a "migrations" folder in you extension
+1. Create a "migrations" folder in your extension
 2. Activate migration in the site.ini :
 [MigrationSettings]
 MigrationExtensions[]=myExtension
-2. Place your migration classes in this folder and implement the methods up () and down () inside. Take care to the name of your classes.
+2. Place your migration classes in this folder and implement the methods up () and down () inside. Take care to the name of your classes and file. It must start with the version nimbre on 3 digits (001, 002, 003, etc.)
 3. Regenerate autoloads
 4. Run the script migrate.php :
 php extension/owmigration/bin/migrate.php [--extension=myExtension [--version=2 --force=[up|down]]]
