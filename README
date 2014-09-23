@@ -5,7 +5,7 @@ Author : Open Wide <http://www.openwide.fr>
 What is OWMigration?
 -------------------
 
-OW Migration provides an API to migrate content class, roles, workflows and object states.
+OW Migration provides an API to migrate content classes, roles, workflows and object states.
  
 Usage
 ------
@@ -13,12 +13,12 @@ Usage
 2. Activate migration in the site.ini :
 [MigrationSettings]
 MigrationExtensions[]=myExtension
-2. Place your migration classes in this folder and implement the methods up () and down () inside. Take care to the name of you classes.
-3. Reload autoloads
+2. Place your migration classes in this folder and implement the methods up () and down () inside. Take care to the name of your classes.
+3. Regenerate autoloads
 4. Run the script migrate.php :
-php extension/OWMigration/bin/migrate.php [--extension=myExtension [--version=2 --force=[up|down]]]
+php extension/owmigration/bin/migrate.php [--extension=myExtension [--version=2 --force=[up|down]]]
 
-You can see some exemples of migration class in the exemples directory of this extension, or see and export migration class fron back-end.
+You can see some examples of migration class in the "migrations" directory of this extension, or see and export migration class from back-end.
 
 Enjoy !!
 
