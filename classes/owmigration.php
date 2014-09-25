@@ -78,7 +78,7 @@ class OWMigration {
             // (we might as well convert $dbSchema to generic format and diff in generic format,
             // but eZDbSchemaChecker::diff does not know how to re-localize the generated sql
             $dbSchema->transformSchema( $originalSchema, true );
-            $differences = eZDbSchemaChecker::diff( $dbSchema->schema( array( 'format' => 'local', 'force_autoincrement_rebuild' => true ) ), $originalSchema );
+            @$differences = eZDbSchemaChecker::diff( $dbSchema->schema( array( 'format' => 'local', 'force_autoincrement_rebuild' => true ) ), $originalSchema );
             $sqlDiff = trim( $dbSchema->generateUpgradeFile( $differences ) );
             $sqlDiff = trim( $sqlDiff, ';' );
             if ( empty( $sqlDiff ) ) {
