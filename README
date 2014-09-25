@@ -16,7 +16,7 @@ MigrationExtensions[]=myExtension
 2. Place your migration classes in this folder and implement the methods up () and down () inside. Take care to the name of you classes.
 3. Reload autoloads
 4. Run the script migrate.php :
-php extension/OWMigration/bin/migrate.php [--extension=myExtension [--version=2 --force=[up|down]]]
+php extension/owmigration/bin/migrate.php [--extension=myExtension [--version=2 --force=[up|down]]]
 
 You can see some exemples of migration class in the exemples directory of this extension, or see and export migration class fron back-end.
 
