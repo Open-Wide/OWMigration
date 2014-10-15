@@ -25,6 +25,7 @@ class OWMigrationContentClass extends OWMigrationBase {
             if ( empty( $currentClassGroup ) ) {
                 $this->addToContentClassGroup( 'Content' );
             }
+            $this->adjustPlacementsAndStoreAttributes();
         }
         $this->classIdentifier = NULL;
         $this->contentClassObject = NULL;
@@ -230,6 +231,7 @@ class OWMigrationContentClass extends OWMigrationBase {
             $classAttribute->sync();
             $classAttribute->store();
             $this->db->commit();
+
             OWScriptLogger::logNotice( "Attribute '$classAttributeIdentifier' updated.", __FUNCTION__ );
             return $classAttribute;
         } else {
