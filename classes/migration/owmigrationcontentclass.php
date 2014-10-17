@@ -240,13 +240,17 @@ class OWMigrationContentClass extends OWMigrationBase {
         }
     }
 
-    public function removeAttribute( $classAttributeIdentifier ) {
+    public function removeAttribute( $classAttributeIdentifier, $removableDataTypeString = null ) {
         if ( !$this->contentClassObject instanceof eZContentClass ) {
             OWScriptLogger::logError( "Content class object not found.", __FUNCTION__ );
             return;
         }
         $classAttribute = $this->getAttribute( $classAttributeIdentifier );
         if ( $classAttribute ) {
+            if ( $removableDataTypeString && $classAttribute->attribute( 'data_type_string' ) != $removableDataTypeString ) {
+                OWScriptLogger::logWarning( "Attribute '$classAttributeIdentifier' not a $removableDataTypeString.", __FUNCTION__ );
+                return;
+            }
             foreach ( eZContentObjectAttribute::fetchSameClassAttributeIDList( $classAttribute->attribute( 'id' ) ) as $objectAttribute ) {
                 $objectAttribute->removeThis( $objectAttribute->attribute( 'id' ) );
             }
