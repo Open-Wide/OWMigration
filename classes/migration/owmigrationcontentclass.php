@@ -12,7 +12,7 @@ class OWMigrationContentClass extends OWMigrationBase {
         if ( $this->contentClassObject instanceof eZContentClass ) {
             $this->contentClassAttributes = $this->contentClassObject->fetchAttributes();
         }
-        OWScriptLogger::logNotice( "Content class '$this->classIdentifier'.", 'start_migration' );
+        OWScriptLogger::logNotice( "Content class '$this->classIdentifier'.", 'start_migration', true );
     }
 
     public function end() {
