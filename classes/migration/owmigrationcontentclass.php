@@ -166,7 +166,7 @@ class OWMigrationContentClass extends OWMigrationBase {
             return false;
         }
         if ( $this->hasAttribute( $classAttributeIdentifier ) ) {
-            OWScriptLogger::logError( "Attribute '$classAttributeIdentifier' already exists.", __FUNCTION__ );
+            OWScriptLogger::logWarning( "Attribute '$classAttributeIdentifier' already exists.", __FUNCTION__ );
             return false;
         }
 
