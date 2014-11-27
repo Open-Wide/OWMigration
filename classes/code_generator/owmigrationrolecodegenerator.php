@@ -65,6 +65,12 @@ class OWMigrationRoleCodeGenerator extends OWMigrationCodeGenerator {
                 $code .= sprintf( "\t\t\$migration->assignToUser( '%s'", self::escapeString( $roleAssignation->attribute( 'name' ) ) );
             }
             if( !empty( $roleAssignationArray['limit_ident'] ) ) {
+                if( $roleAssignationArray['limit_ident'] == 'Subtree' ) {
+                    $subtreeNode = eZContentObjectTreeNode::fetchByPath( $roleAssignationArray['limit_value'], false );
+                    if ( $subtreeNode ) {
+                        $roleAssignationArray['limit_value'] = $subtreeNode['path_identification_string'];
+                    }
+                }
                 $code .= sprintf( ", '%s', '%s'", self::escapeString( $roleAssignationArray['limit_ident'] ), self::escapeString( $roleAssignationArray['limit_value'] ) );
             }
             $code .= " );" . PHP_EOL;
