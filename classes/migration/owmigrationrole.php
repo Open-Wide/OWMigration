@@ -151,7 +151,15 @@ class OWMigrationRole extends OWMigrationBase {
                         if( $node ) {
                             $limitValue = $node['path_string'];
                         } else {
-                            OWScriptLogger::logNotice( "Node $limitValue not found.", __FUNCTION__ );
+                            OWScriptLogger::logError( "Node $limitValue not found.", __FUNCTION__ );
+                            return;
+                        }
+                    } elseif( is_string( $limitValue ) && !is_numeric( str_replace( '/', '', $limitValue )) ) {
+                        $node = eZContentObjectTreeNode::fetchByURLPath( $limitValue, false );
+                        if( $node ) {
+                            $limitValue = $node['path_string'];
+                        } else {
+                            OWScriptLogger::logError( "Node $limitValue not found.", __FUNCTION__ );
                             return;
                         }
                     }
