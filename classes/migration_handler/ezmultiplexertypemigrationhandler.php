@@ -188,7 +188,10 @@ class eZMultiplexerTypeMigrationHandler extends DefaultEventTypeMigrationHandler
                 }
             }
         }
-        foreach ( array( 'selected_sections', 'selected_classes' ) as $attributeIdentifier ) {
+        // Set default values :
+        // - data_text1 : selected_sections
+        // - data_text5 : selected_classes
+        foreach ( array( 'data_text1', 'data_text5' ) as $attributeIdentifier ) {
             $attributeValue = $event->attribute( $attributeIdentifier );
             if ( empty( $attributeValue ) ) {
                 $event->setAttribute( $attributeIdentifier, -1 );

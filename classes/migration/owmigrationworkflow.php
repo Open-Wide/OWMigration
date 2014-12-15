@@ -44,7 +44,7 @@ class OWMigrationWorkflow extends OWMigrationBase {
             $this->workflow->adjustEventPlacements( $this->eventList );
             $this->workflow->storeDefined( $this->eventList );
             $this->workflow->cleanupWorkFlowProcess();
-            //eZWorkflow::removeEvents( false, $WorkflowID, 1 );
+            eZWorkflow::removeEvents( false, $WorkflowID, 1 );
         }
         $this->workflowName = NULL;
         $this->workflow = NULL;
