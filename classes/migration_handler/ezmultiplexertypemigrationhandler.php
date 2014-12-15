@@ -181,14 +181,19 @@ class eZMultiplexerTypeMigrationHandler extends DefaultEventTypeMigrationHandler
                                 $optionsValue = eZMultiplexerType::VERSION_OPTION_ALL;
                                 break;
                         }
-                        $event->setAttribute( self::VERSION_OPTION, $optionsValue );
+                        $event->setAttribute( $optionsValue, $optionsValue );
                         break;
                     default :
                         $event->setAttribute( $optionsIdentifier, $optionsValue );
                 }
             }
         }
+        foreach ( array( 'selected_sections', 'selected_classes' ) as $attributeIdentifier ) {
+            $attributeValue = $event->attribute( $attributeIdentifier );
+            if ( empty( $attributeValue ) ) {
+                $event->setAttribute( $attributeIdentifier, -1 );
+            }
+        }
     }
 
 }
-?>
