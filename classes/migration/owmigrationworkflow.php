@@ -220,7 +220,7 @@ class OWMigrationWorkflow extends OWMigrationBase {
                 OWScriptLogger::logWarning( "Fail to save trigger.", __FUNCTION__ );
             }
         }
-        $connectType = $connectType == 'a' ? 'after' : ($triggerOperationType == 'b' ? 'before' : $connectType);
+        $connectType = $connectType == 'a' ? 'after' : ($connectType == 'b' ? 'before' : $connectType);
         OWScriptLogger::logNotice( "Workflow assigned to trigger '$module, $operation, $connectType'.", __FUNCTION__ );
     }
 
