@@ -101,7 +101,8 @@ class eZObjectRelationListTypeMigrationHandler extends DefaultDatatypeMigrationH
             4 => 'Multiple selection list',
             5 => 'Template based, multi',
             6 => 'Template based, single',
-            7 => 'Drop-down list display the parent folder'
+            7 => 'Drop-down list display the parent folder',
+            8 => 'Multiple list with the parent item selectable'
         );
     }
 
