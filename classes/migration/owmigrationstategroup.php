@@ -107,7 +107,7 @@ class OWMigrationStateGroup extends OWMigrationBase {
         if( $state instanceof eZContentObjectState ) {
             $this->fillStateWithParams( $state, $params );
             $state->store( );
-            OWScriptLogger::logNotice( "State '$identifier' upadted.", __FUNCTION__ );
+            OWScriptLogger::logNotice( "State '$identifier' updated.", __FUNCTION__ );
         } else {
             OWScriptLogger::logWarning( "State '$identifier' not found.", __FUNCTION__ );
         }

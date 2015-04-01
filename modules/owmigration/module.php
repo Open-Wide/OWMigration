@@ -62,7 +62,7 @@ $ViewList['codegenerator_workflows'] = array(
     )
 );
 
-$ViewList['state_groups'] = array(
+$ViewList['codegenerator_state_groups'] = array(
     'script' => 'codegenerator/state_groups.php',
     'functions' => array( 'read' ),
     'default_navigation_part' => 'owmigration',
@@ -100,8 +100,8 @@ $ViewList['description_workflows'] = array(
     'ui_context' => 'view',
 );
 
-$ViewList['description_state'] = array(
-    'script' => 'description/state.php',
+$ViewList['description_state_groups'] = array(
+    'script' => 'description/state_groups.php',
     'functions' => array( 'read' ),
     'default_navigation_part' => 'owmigration',
     'ui_context' => 'view',
