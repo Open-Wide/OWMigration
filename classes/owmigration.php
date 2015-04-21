@@ -16,20 +16,20 @@ class OWMigration {
 
     public function migrate( $toVersion = NULL, $forceDirection = NULL ) {
         try {
-            if ( $forceDirection ) {
-                if ( $toVersion ) {
+            if( $forceDirection ) {
+                if( $toVersion ) {
                     $this->_doMigrateStep( $forceDirection, $toVersion );
                 } else {
                     throw new Exception( $this->_extension . ' missing version with force option', 0 );
                 }
             } else {
-                if ( $toVersion === null ) {
+                if( $toVersion === null ) {
                     $toVersion = $this->getLatestVersion();
                 }
                 $this->_doMigrate( $toVersion );
             }
-        } catch ( Exception $e ) {
-            if ( $e->getCode() == 0 ) {
+        } catch( Exception $e ) {
+            if( $e->getCode() == 0 ) {
                 OWScriptLogger::logError( $e->getMessage(), 'migrate' );
             } else {
                 OWScriptLogger::logNotice( $e->getMessage(), 'migrate' );
@@ -41,7 +41,7 @@ class OWMigration {
 
     public function getCurrentVersion() {
         $currentVersion = OWMigrationVersion::fetchLastestVersion( $this->_extension );
-        if ( $currentVersion ) {
+        if( $currentVersion ) {
             return (int) $currentVersion->attribute( 'version' );
         }
         return 0;
@@ -56,7 +56,7 @@ class OWMigration {
 
     public function checkDatabase() {
         $db = eZDB::instance();
-        if ( method_exists( $db, 'setErrorHandling' ) ) {
+        if( method_exists( $db, 'setErrorHandling' ) ) {
             $db->setErrorHandling( eZDB::ERROR_HANDLING_EXCEPTIONS );
         }
         $dbSchema = eZDbSchema::instance();
@@ -66,9 +66,9 @@ class OWMigration {
 
             // merge schemas from all active extensions that declare some db schema
             $extensionsdir = eZExtension::baseDirectory();
-            foreach ( eZExtension::activeExtensions() as $activeextension ) {
-                if ( file_exists( $extensionsdir . '/' . $activeextension . '/share/db_schema.dba' ) ) {
-                    if ( $extensionschema = eZDbSchema::read( $extensionsdir . '/' . $activeextension . '/share/db_schema.dba' ) ) {
+            foreach( eZExtension::activeExtensions() as $activeextension ) {
+                if( file_exists( $extensionsdir . '/' . $activeextension . '/share/db_schema.dba' ) ) {
+                    if( $extensionschema = eZDbSchema::read( $extensionsdir . '/' . $activeextension . '/share/db_schema.dba' ) ) {
                         $originalSchema = eZDbSchema::merge( $originalSchema, $extensionschema );
                     }
                 }
@@ -79,24 +79,36 @@ class OWMigration {
             // but eZDbSchemaChecker::diff does not know how to re-localize the generated sql
             $dbSchema->transformSchema( $originalSchema, true );
             @$differences = eZDbSchemaChecker::diff( $dbSchema->schema( array( 'format' => 'local', 'force_autoincrement_rebuild' => true ) ), $originalSchema );
+            $migrationIni = eZINI::instance( 'owmigration.ini' );
+            if( $migrationIni->hasVariable( 'CheckDatabase', 'NoCheckOnTables' ) ) {
+                $noCheckTables = $migrationIni->variable( 'CheckDatabase', 'NoCheckOnTables' );
+                foreach( $differences as $action => $tableList ) {
+                    $tableList = array_keys( $tableList );
+                    foreach( $tableList as $table ) {
+                        if( in_array( $table, $noCheckTables ) ) {
+                            unset( $differences[$action][$table] );
+                        }
+                    }
+                }
+            }
             $sqlDiff = trim( $dbSchema->generateUpgradeFile( $differences ) );
             $sqlDiff = trim( $sqlDiff, ';' );
-            if ( empty( $sqlDiff ) ) {
+            if( empty( $sqlDiff ) ) {
                 OWScriptLogger::logNotice( "The database schema is up to date.", 'migrate' );
             } else {
                 $sqlDiffArray = explode( ';', $sqlDiff );
                 OWScriptLogger::logWarning( "The database schema not is up to date:" . PHP_EOL . $sqlDiff . PHP_EOL . "> Do you want to execute these queries? (y/n)", 'migrate' );
                 $fp = fopen( "php://stdin", "r" );
                 $badAnswer = true;
-                while ( $badAnswer ) {
+                while( $badAnswer ) {
                     $result = trim( fgets( $fp ) );
-                    if ( strtolower( $result ) == 'y' ) {
-                        foreach ( $sqlDiffArray as $query ) {
+                    if( strtolower( $result ) == 'y' ) {
+                        foreach( $sqlDiffArray as $query ) {
                             $db->query( $query );
                         }
                         OWScriptLogger::logNotice( "The database schema has been updated.", 'migrate' );
                         $badAnswer = false;
-                    } elseif ( strtolower( $result ) == 'n' ) {
+                    } elseif( strtolower( $result ) == 'n' ) {
                         OWScriptLogger::logNotice( "The database schema update skipped.", 'migrate' );
                         $badAnswer = false;
                     } else {
@@ -104,7 +116,7 @@ class OWMigration {
                     }
                 }
             }
-        } catch ( Exception $e ) {
+        } catch( Exception $e ) {
             OWScriptLogger::logNotice( "Database schema check failed : " . $e->getMessage(), 'migrate' );
         }
     }
@@ -113,25 +125,25 @@ class OWMigration {
 
         $directory = 'extension/' . $this->_extension . '/migrations';
         $directory = eZDir::path( array(
-                    eZSys::rootDir(),
-                    $directory
-                ) );
-        if ( file_exists( $directory ) && is_dir( $directory ) ) {
+                eZSys::rootDir(),
+                $directory
+            ) );
+        if( file_exists( $directory ) && is_dir( $directory ) ) {
             $classesToLoad = array();
             $classes = get_declared_classes();
             $it = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $directory ), RecursiveIteratorIterator::LEAVES_ONLY );
-            foreach ( $it as $file ) {
+            foreach( $it as $file ) {
                 $info = pathinfo( $file->getFileName() );
-                if ( $file->getPath() == $directory && isset( $info['extension'] ) && $info['extension'] == 'php' ) {
+                if( $file->getPath() == $directory && isset( $info['extension'] ) && $info['extension'] == 'php' ) {
                     require_once ($file->getPathName());
 
                     $array = array_diff( get_declared_classes(), $classes );
                     $className = end( $array );
 
-                    if ( $className ) {
+                    if( $className ) {
                         $e = explode( '_', $file->getFileName() );
                         $version = $e[0];
-                        if ( is_numeric( $version ) ) {
+                        if( is_numeric( $version ) ) {
                             $classesToLoad[$version] = array(
                                 'className' => $className,
                                 'path' => $file->getPathName()
@@ -148,18 +160,18 @@ class OWMigration {
     protected function _doMigrate( $toVersion ) {
 
         $fromVersion = $this->getCurrentVersion();
-        if ( $fromVersion == $toVersion ) {
+        if( $fromVersion == $toVersion ) {
             throw new Exception( $this->_extension . ' already at version # ' . $toVersion, 1 );
         }
 
         $direction = $fromVersion > $toVersion ? 'down' : 'up';
 
-        if ( $direction === 'up' ) {
-            for ( $i = $fromVersion + 1; $i <= $toVersion; $i++ ) {
+        if( $direction === 'up' ) {
+            for( $i = $fromVersion + 1; $i <= $toVersion; $i++ ) {
                 $this->_doMigrateStep( $direction, $i );
             }
         } else {
-            for ( $i = $fromVersion; $i > $toVersion; $i-- ) {
+            for( $i = $fromVersion; $i > $toVersion; $i-- ) {
                 $this->_doMigrateStep( $direction, $i );
             }
         }
@@ -170,7 +182,7 @@ class OWMigration {
     protected function _doMigrateStep( $direction, $num ) {
         OWScriptLogger::logNotice( 'Migrate ' . $direction . ' ' . $this->_extension . ' to version ' . sprintf( '%03d', $num ), 'migrate' );
         $migration = $this->_getMigrationClass( $num );
-        if ( method_exists( $migration, $direction ) ) {
+        if( method_exists( $migration, $direction ) ) {
             $migration->$direction();
         } else {
             OWScriptLogger::logNotice( 'Method ' . $direction . ' does not exist in version ' . sprintf( '%03d', $num ) . '. Nothing to do.', 'migrate' );
@@ -179,8 +191,8 @@ class OWMigration {
             'extension' => $this->_extension,
             'version' => sprintf( '%03d', $num ),
             'status' => OWMigrationVersion::INSTALLED_STATUS
-                ) );
-        if ( $direction == 'up' ) {
+            ) );
+        if( $direction == 'up' ) {
             $version->setAttribute( 'status', OWMigrationVersion::INSTALLED_STATUS );
         } else {
             $version->setAttribute( 'status', OWMigrationVersion::UNINSTALLED_STATUS );
@@ -190,7 +202,7 @@ class OWMigration {
 
     public function _getMigrationClass( $num ) {
         $num = sprintf( '%03d', $num );
-        if ( isset( $this->_migrationClasses[$num] ) ) {
+        if( isset( $this->_migrationClasses[$num] ) ) {
             $className = $this->_migrationClasses[$num]['className'];
             $path = $this->_migrationClasses[$num]['path'];
             include_once ($path);
@@ -203,10 +215,10 @@ class OWMigration {
         $extensionList = array();
         $ini = eZINI::instance();
         $migration = new self( );
-        if ( $ini->hasVariable( 'MigrationSettings', 'MigrationExtensions' ) ) {
+        if( $ini->hasVariable( 'MigrationSettings', 'MigrationExtensions' ) ) {
             $migrationExtensions = $ini->variable( 'MigrationSettings', 'MigrationExtensions' );
-            if ( $migrationExtensions ) {
-                foreach ( $migrationExtensions as $extension ) {
+            if( $migrationExtensions ) {
+                foreach( $migrationExtensions as $extension ) {
                     $migration->startMigrationOnExtension( $extension );
                     $extensionList[] = array(
                         'name' => $extension,
