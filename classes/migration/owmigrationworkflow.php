@@ -85,6 +85,30 @@ class OWMigrationWorkflow extends OWMigrationBase {
         }
         $ingroup = eZWorkflowGroupLink::create( $this->workflow->attribute( 'id' ), $this->workflow->attribute( "version" ), $workflowGroup->attribute( 'id' ), $groupName );
         $ingroup->store();
+        OWScriptLogger::logNotice( "Workflow added from group '$groupName'.", __FUNCTION__ );
+    }
+
+    public function removeFromGroup( $groupName )
+    {
+        if( !$this->workflow instanceof eZWorkflow )
+        {
+            OWScriptLogger::logError( "Workflow object not found.", __FUNCTION__ );
+            return;
+        }
+        $workflowGroupList = eZWorkflowGroup::fetchList();
+        foreach( $workflowGroupList as $workflowGroupItem )
+        {
+            if( $workflowGroupItem->attribute( 'name' ) == $groupName )
+            {
+                $workflowGroup = $workflowGroupItem;
+                break;
+            }
+        }
+        if( isset( $workflowGroup ) && $workflowGroup )
+        {
+            eZWorkflowGroupLink::removeByID( $this->workflow->attribute( 'id' ), $this->workflow->attribute( "version" ), $workflowGroup->attribute( 'id' ), $groupName );
+            OWScriptLogger::logNotice( "Workflow removed from group '$groupName'.", __FUNCTION__ );
+        }
     }
 
     public function getEvent( $description, $workflowTypeString ) {
@@ -271,7 +295,7 @@ class OWMigrationWorkflow extends OWMigrationBase {
 
     protected function fetchWorkflow() {
         return eZPersistentObject::fetchObject( eZWorkflow::definition(), null, array(
-                "name" => $this->workflowName ), TRUE );
+                    "name" => $this->workflowName ), TRUE );
     }
 
     protected function getNewEventPlacement() {
