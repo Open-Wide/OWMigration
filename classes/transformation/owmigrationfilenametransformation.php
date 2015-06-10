@@ -1,8 +1,10 @@
 <?php
 
-class OWMigrationFilenameTransformation {
+class OWMigrationFilenameTransformation
+{
 
-    static function executeCommand( $text, $command, $charsetName ) {
+    static function executeCommand( $text, $command, $charsetName )
+    {
         $text = str_replace( "#", "_", $text );
         $text = str_replace( " ", "_", $text );
         $text = str_replace( "'", "", $text );
@@ -64,7 +66,7 @@ class OWMigrationFilenameTransformation {
             'Û',
             'Ü',
             'Ý'
-        ), array(
+                ), array(
             'a',
             'a',
             'a',
@@ -116,10 +118,10 @@ class OWMigrationFilenameTransformation {
             'U',
             'U',
             'Y'
-        ), $text );
-        return $text;        
+                ), $text );
+        return $text;
     }
 
 }
-?>
+
 

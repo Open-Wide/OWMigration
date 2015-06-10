@@ -1,4 +1,6 @@
 <?php
 
-class OWMigrationRoleException extends Exception {
+class OWMigrationRoleException extends Exception
+{
+    
 }

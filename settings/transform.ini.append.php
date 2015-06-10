@@ -1,4 +1,4 @@
-<?php /* #?ini charset="utf-8"?
+<?php /*#?ini charset="utf-8"?
 
 [Extensions]
 Commands[]
@@ -49,6 +49,3 @@ Commands[]=diacritical
 Commands[]=lowercase
 Commands[]=identifier_cleanup
 Commands[]=humanize
-
- */
-?>  

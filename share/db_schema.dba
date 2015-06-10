@@ -1,4 +1,5 @@
 <?php
+
 // This array contains the database schema
 $schema = array(
     'owmigration_version' => array(

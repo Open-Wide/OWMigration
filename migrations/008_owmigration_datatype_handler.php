@@ -1,11 +1,13 @@
 <?php
 
-class OWMigration_008_NouvelleClasse {
+class OWMigration_008_NouvelleClasse
+{
 
-    public function up( ) {
+    public function up()
+    {
         $migration = new OWMigrationContentClass( );
         $migration->startMigrationOn( 'nouvelle_classe' );
-        $migration->createIfNotExists( );
+        $migration->createIfNotExists();
 
         $migration->name = array(
             'fre-FR' => 'Nouvelle classe',
@@ -29,14 +31,15 @@ class OWMigration_008_NouvelleClasse {
         ) );
 
         $migration->addToContentClassGroup( 'Test MVE' );
-        $migration->end( );
+        $migration->end();
     }
 
-    public function down( ) {
+    public function down()
+    {
         $migration = new OWMigrationContentClass( );
         $migration->startMigrationOn( 'nouvelle_classe' );
-        $migration->removeClass( );
+        $migration->removeClass();
     }
 
 }
-?>
+

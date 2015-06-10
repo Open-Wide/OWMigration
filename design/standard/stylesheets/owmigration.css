@@ -1,13 +1,13 @@
 .log_row {
-	display: none;
+    display: none;
 }
 
 .log_row .notice {
-	color: green;
+    color: green;
 }
 .log_row .warning {
-	color: orange;
+    color: orange;
 }
 .log_row .error {
-	color: red;
+    color: red;
 }

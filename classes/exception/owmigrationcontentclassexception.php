@@ -1,4 +1,6 @@
 <?php
 
-class OWMigrationContentClassException extends Exception {
+class OWMigrationContentClassException extends Exception
+{
+    
 }

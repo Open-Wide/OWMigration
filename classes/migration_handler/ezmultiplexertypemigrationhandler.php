@@ -1,6 +1,7 @@
 <?php
 
-class eZMultiplexerTypeMigrationHandler extends DefaultEventTypeMigrationHandler {
+class eZMultiplexerTypeMigrationHandler extends DefaultEventTypeMigrationHandler
+{
 
     const SELECTED_SECTIONS = "data_text1";
     const SELECTED_USERGROUPS = "data_text2";
@@ -9,24 +10,33 @@ class eZMultiplexerTypeMigrationHandler extends DefaultEventTypeMigrationHandler
     const LANGUAGE_LIST = "data_int2";
     const VERSION_OPTION = "data_int3";
 
-    static public function toArray( eZWorkflowEvent $event ) {
+    static public function toArray( eZWorkflowEvent $event )
+    {
         $eventType = $event->attribute( 'workflow_type' );
-        if( !$eventType instanceof eZMultiplexerType ) {
+        if( !$eventType instanceof eZMultiplexerType )
+        {
             throw new InvalidArgumentException( );
         }
-        $attributesArray = array( );
-        foreach( $eventType->typeFunctionalAttributes( ) as $attributeIdentifier ) {
+        $attributesArray = array();
+        foreach( $eventType->typeFunctionalAttributes() as $attributeIdentifier )
+        {
             $attribute = $eventType->attributeDecoder( $event, $attributeIdentifier );
             unset( $IDList );
-            switch ($attributeIdentifier) {
+            switch( $attributeIdentifier )
+            {
                 case 'selected_sections' :
-                    foreach( $attribute as $ID ) {
-                        if( $ID != '-1' ) {
+                    foreach( $attribute as $ID )
+                    {
+                        if( $ID != '-1' )
+                        {
                             $object = eZSection::fetch( $ID );
-                            if( $object instanceof eZSection ) {
-                                if( $object->hasAttribute( 'identifier' ) ) {
+                            if( $object instanceof eZSection )
+                            {
+                                if( $object->hasAttribute( 'identifier' ) )
+                                {
                                     $IDList[] = $object->attribute( 'identifier' );
-                                } else {
+                                } else
+                                {
                                     $IDList[] = $object->attribute( 'name' );
                                 }
                             }
@@ -34,22 +44,29 @@ class eZMultiplexerTypeMigrationHandler extends DefaultEventTypeMigrationHandler
                     }
                     break;
                 case 'selected_classes' :
-                    foreach( $attribute as $ID ) {
-                        if( $ID != '-1' ) {
+                    foreach( $attribute as $ID )
+                    {
+                        if( $ID != '-1' )
+                        {
                             $object = eZContentClass::fetch( $ID );
-                            if( $object instanceof eZContentClass ) {
+                            if( $object instanceof eZContentClass )
+                            {
                                 $IDList[] = $object->attribute( 'identifier' );
                             }
                         }
                     }
                     break;
                 case 'selected_usergroups' :
-                    foreach( $attribute as $ID ) {
-                        if( $ID != '-1' ) {
+                    foreach( $attribute as $ID )
+                    {
+                        if( $ID != '-1' )
+                        {
                             $object = eZContentObject::fetch( $ID );
-                            if( $object instanceof eZContentObject ) {
+                            if( $object instanceof eZContentObject )
+                            {
                                 $object = $object->attribute( 'main_node' );
-                                if( $object instanceof eZContentObjectTreeNode ) {
+                                if( $object instanceof eZContentObjectTreeNode )
+                                {
                                     $IDList[] = $object->attribute( 'path_identification_string' );
                                 }
                             }
@@ -58,22 +75,26 @@ class eZMultiplexerTypeMigrationHandler extends DefaultEventTypeMigrationHandler
                     break;
                 case 'selected_workflow' :
                     $object = eZWorkflow::fetch( $attribute );
-                    if( $object instanceof eZWorkflow ) {
+                    if( $object instanceof eZWorkflow )
+                    {
                         $IDList = $object->attribute( 'name' );
                     }
                     break;
                 case 'language_list' :
                     $attributeValue = $event->attribute( self::LANGUAGE_LIST );
-                    if( $attributeValue != 0 ) {
-                        $IDList = array( );
+                    if( $attributeValue != 0 )
+                    {
+                        $IDList = array();
                         $languages = eZContentLanguage::languagesByMask( $attributeValue );
-                        foreach( $languages as $language ) {
+                        foreach( $languages as $language )
+                        {
                             $IDList[$language->attribute( 'id' )] = $language->attribute( 'locale' );
                         }
                     }
                     break;
                 case 'version_option' :
-                    switch ($attribute) {
+                    switch( $attribute )
+                    {
                         case eZMultiplexerType::VERSION_OPTION_FIRST_ONLY :
                             $IDList = "first_only";
                             break;
@@ -89,85 +110,108 @@ class eZMultiplexerTypeMigrationHandler extends DefaultEventTypeMigrationHandler
                     break;
 
                 default :
-                    if( !empty( $attribute ) ) {
+                    if( !empty( $attribute ) )
+                    {
                         $IDList = $attribute;
                     }
                     break;
             }
-            if( isset( $IDList ) ) {
+            if( isset( $IDList ) )
+            {
                 $attributesArray[$attributeIdentifier] = $IDList;
             }
         }
         return $attributesArray;
     }
 
-    static public function fromArray( eZWorkflowEvent $event, array $options ) {
+    static public function fromArray( eZWorkflowEvent $event, array $options )
+    {
         $eventType = $event->attribute( 'workflow_type' );
-        if( !$eventType instanceof eZMultiplexerType ) {
+        if( !$eventType instanceof eZMultiplexerType )
+        {
             throw new InvalidArgumentException( );
         }
-        foreach( $options as $optionsIdentifier => $optionsValue ) {
-            if( $event->hasAttribute( $optionsIdentifier ) ) {
-                switch ($optionsIdentifier) {
+        foreach( $options as $optionsIdentifier => $optionsValue )
+        {
+            if( $event->hasAttribute( $optionsIdentifier ) )
+            {
+                switch( $optionsIdentifier )
+                {
                     case 'selected_sections' :
-                        if( is_array( $optionsValue ) ) {
-                            foreach( $optionsValue as $index => $option ) {
+                        if( is_array( $optionsValue ) )
+                        {
+                            foreach( $optionsValue as $index => $option )
+                            {
                                 $object = OWMigrationTools::findOrCreateSection( $option );
-                                if( $object instanceof eZSection ) {
+                                if( $object instanceof eZSection )
+                                {
                                     $optionsValue[$index] = $object->attribute( 'id' );
                                 }
                             }
                             $optionsValue = implode( ',', $optionsValue );
-                        } else {
+                        } else
+                        {
                             $optionsValue = '';
                         }
                         $event->setAttribute( self::SELECTED_SECTIONS, $optionsValue );
                         break;
                     case 'selected_classes' :
-                        if( is_array( $optionsValue ) ) {
-                            foreach( $optionsValue as $index => $option ) {
+                        if( is_array( $optionsValue ) )
+                        {
+                            foreach( $optionsValue as $index => $option )
+                            {
                                 $object = eZContentClass::fetchByIdentifier( $option );
-                                if( $object instanceof eZContentClass ) {
+                                if( $object instanceof eZContentClass )
+                                {
                                     $optionsValue[$index] = $object->attribute( 'id' );
                                 }
                             }
                             $optionsValue = implode( ',', $optionsValue );
-                        } else {
+                        } else
+                        {
                             $optionsValue = '';
                         }
                         $event->setAttribute( self::SELECTED_CLASSES, $optionsValue );
                         break;
                     case 'selected_usergroups' :
-                        if( is_array( $optionsValue ) ) {
-                            foreach( $optionsValue as $index => $option ) {
+                        if( is_array( $optionsValue ) )
+                        {
+                            foreach( $optionsValue as $index => $option )
+                            {
                                 $object = OWMigrationTools::findNode( $option );
-                                if( $object instanceof eZContentObjectTreeNode ) {
+                                if( $object instanceof eZContentObjectTreeNode )
+                                {
                                     $optionsValue[$index] = $object->attribute( 'contentobject_id' );
                                 }
                             }
                             $optionsValue = implode( ',', $optionsValue );
-                        } else {
+                        } else
+                        {
                             $optionsValue = '';
                         }
                         $event->setAttribute( self::SELECTED_USERGROUPS, $optionsValue );
                         break;
                     case 'selected_workflow' :
                         $object = OWMigrationTools::findOrCreateWorkflow( $optionsValue );
-                        if( $object instanceof eZWorkflow ) {
+                        if( $object instanceof eZWorkflow )
+                        {
                             $optionsValue = $object->attribute( 'id' );
                         }
                         $event->setAttribute( self::SELECTED_WORKFLOW, $optionsValue );
                         break;
                     case 'language_list' :
-                        if( is_array( $optionsValue ) ) {
+                        if( is_array( $optionsValue ) )
+                        {
                             $optionsValue = eZContentLanguage::maskByLocale( $optionsValue );
-                        } else {
+                        } else
+                        {
                             $optionsValue = '';
                         }
                         $event->setAttribute( self::LANGUAGE_LIST, $optionsValue );
                         break;
                     case 'version_option' :
-                        switch ($optionsValue) {
+                        switch( $optionsValue )
+                        {
                             case "first_only" :
                                 $optionsValue = eZMultiplexerType::VERSION_OPTION_FIRST_ONLY;
                                 break;
@@ -191,9 +235,11 @@ class eZMultiplexerTypeMigrationHandler extends DefaultEventTypeMigrationHandler
         // Set default values :
         // - data_text1 : selected_sections
         // - data_text5 : selected_classes
-        foreach ( array( 'data_text1', 'data_text5' ) as $attributeIdentifier ) {
+        foreach( array( 'data_text1', 'data_text5' ) as $attributeIdentifier )
+        {
             $attributeValue = $event->attribute( $attributeIdentifier );
-            if ( empty( $attributeValue ) ) {
+            if( empty( $attributeValue ) )
+            {
                 $event->setAttribute( $attributeIdentifier, -1 );
             }
         }

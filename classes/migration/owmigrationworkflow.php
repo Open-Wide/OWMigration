@@ -1,17 +1,21 @@
 <?php
 
-class OWMigrationWorkflow extends OWMigrationBase {
+class OWMigrationWorkflow extends OWMigrationBase
+{
 
     protected $workflowName;
     protected $workflow;
     protected $eventList = array();
 
-    public function startMigrationOn( $param ) {
+    public function startMigrationOn( $param )
+    {
         $this->workflowName = $param;
         $workflow = $this->fetchWorkflow();
-        if ( $workflow instanceof eZWorkflow ) {
+        if( $workflow instanceof eZWorkflow )
+        {
             $this->workflow = $workflow;
-        } else {
+        } else
+        {
             $currentUser = eZUser::currentUser();
             $this->workflow = eZWorkflow::create( $currentUser->attribute( 'contentobject_id' ) );
             $this->workflow->setAttribute( 'name', $this->workflowName );
@@ -22,10 +26,13 @@ class OWMigrationWorkflow extends OWMigrationBase {
         $this->eventList = $this->workflow->fetchEvents();
     }
 
-    public function end() {
-        if ( $this->workflow instanceof eZWorkflow ) {
+    public function end()
+    {
+        if( $this->workflow instanceof eZWorkflow )
+        {
             $currentGroupList = $this->workflow->attribute( 'ingroup_list' );
-            if ( empty( $currentGroupList ) ) {
+            if( empty( $currentGroupList ) )
+            {
                 $this->addToGroup( 'Standard' );
                 OWScriptLogger::logNotice( "Adding in the standard group", __FUNCTION__ );
             }
@@ -33,7 +40,8 @@ class OWMigrationWorkflow extends OWMigrationBase {
             $WorkflowID = $this->workflow->attribute( 'id' );
 
             $workflowgroups = eZWorkflowGroupLink::fetchGroupList( $WorkflowID, 1 );
-            foreach ( $workflowgroups as $workflowgroup ) {
+            foreach( $workflowgroups as $workflowgroup )
+            {
                 $workflowgroup->setAttribute( "workflow_version", 0 );
                 $workflowgroup->store();
             }
@@ -51,8 +59,10 @@ class OWMigrationWorkflow extends OWMigrationBase {
         $this->eventList = array();
     }
 
-    public function createIfNotExists() {
-        if ( $this->workflow instanceof eZWorkflow ) {
+    public function createIfNotExists()
+    {
+        if( $this->workflow instanceof eZWorkflow )
+        {
             OWScriptLogger::logNotice( "Workflow '$this->workflowName' exists, nothing to do.", __FUNCTION__ );
             return;
         }
@@ -64,19 +74,24 @@ class OWMigrationWorkflow extends OWMigrationBase {
         $this->addToGroup( 'Standard' );
     }
 
-    public function addToGroup( $groupName ) {
-        if ( !$this->workflow instanceof eZWorkflow ) {
+    public function addToGroup( $groupName )
+    {
+        if( !$this->workflow instanceof eZWorkflow )
+        {
             OWScriptLogger::logError( "Workflow object not found.", __FUNCTION__ );
             return;
         }
         $workflowGroupList = eZWorkflowGroup::fetchList();
-        foreach ( $workflowGroupList as $workflowGroupItem ) {
-            if ( $workflowGroupItem->attribute( 'name' ) == $groupName ) {
+        foreach( $workflowGroupList as $workflowGroupItem )
+        {
+            if( $workflowGroupItem->attribute( 'name' ) == $groupName )
+            {
                 $workflowGroup = $workflowGroupItem;
                 break;
             }
         }
-        if ( !isset( $workflowGroup ) || !$workflowGroup ) {
+        if( !isset( $workflowGroup ) || !$workflowGroup )
+        {
             OWScriptLogger::logNotice( "Workflow group '$groupName' created.", __FUNCTION__ );
             $user = eZUser::currentUser();
             $workflowGroup = eZWorkflowGroup::create( $user->attribute( 'contentobject_id' ) );
@@ -111,57 +126,71 @@ class OWMigrationWorkflow extends OWMigrationBase {
         }
     }
 
-    public function getEvent( $description, $workflowTypeString ) {
-        if ( !$this->workflow instanceof eZWorkflow ) {
+    public function getEvent( $description, $workflowTypeString )
+    {
+        if( !$this->workflow instanceof eZWorkflow )
+        {
             OWScriptLogger::logError( "Workflow object not found.", __FUNCTION__ );
             return;
         }
-        foreach ( $this->eventList as $event ) {
-            if ( $event->attribute( 'description' ) == $description && $event->attribute( 'workflow_type_string' ) == $workflowTypeString ) {
+        foreach( $this->eventList as $event )
+        {
+            if( $event->attribute( 'description' ) == $description && $event->attribute( 'workflow_type_string' ) == $workflowTypeString )
+            {
                 return $event;
             }
         }
         return NULL;
     }
 
-    public function hasEvent( $description, $workflowTypeString ) {
-        if ( !$this->workflow instanceof eZWorkflow ) {
+    public function hasEvent( $description, $workflowTypeString )
+    {
+        if( !$this->workflow instanceof eZWorkflow )
+        {
             OWScriptLogger::logError( "Workflow object not found.", __FUNCTION__ );
             return;
         }
         $event = $this->getEvent( $description, $workflowTypeString );
-        if ( $event instanceof eZWorkflowEvent ) {
+        if( $event instanceof eZWorkflowEvent )
+        {
             return TRUE;
         }
         return FALSE;
     }
 
-    public function addEvent( $description, $workflowTypeString, $params = array() ) {
-        if ( !$this->workflow instanceof eZWorkflow ) {
+    public function addEvent( $description, $workflowTypeString, $params = array() )
+    {
+        if( !$this->workflow instanceof eZWorkflow )
+        {
             OWScriptLogger::logError( "Workflow object not found.", __FUNCTION__ );
             return;
         }
-        if ( $this->hasEvent( $description, $workflowTypeString ) ) {
+        if( $this->hasEvent( $description, $workflowTypeString ) )
+        {
             OWScriptLogger::logWarning( "Event '$description' ($workflowTypeString) already exists.", __FUNCTION__ );
             return;
         }
         $event = eZWorkflowEvent::create( $this->workflow->attribute( 'id' ), $workflowTypeString );
         $event->setAttribute( 'description', $description );
         $eventType = $event->eventType();
-        if ( !$eventType ) {
+        if( !$eventType )
+        {
             OWScriptLogger::logError( "Event type '$workflowTypeString' unknown.", __FUNCTION__ );
             return;
         }
         $this->workflow->store( $this->eventList );
         $eventType->initializeEvent( $event );
         $workflowTypeHandlerClass = get_class( $event->attribute( 'workflow_type' ) ) . 'MigrationHandler';
-        if ( !class_exists( $workflowTypeHandlerClass ) || !is_callable( $workflowTypeHandlerClass . '::toArray' ) ) {
+        if( !class_exists( $workflowTypeHandlerClass ) || !is_callable( $workflowTypeHandlerClass . '::toArray' ) )
+        {
             $workflowTypeHandlerClass = "DefaultEventTypeMigrationHandler";
         }
         call_user_func( "$workflowTypeHandlerClass::fromArray", $event, $params );
-        if ( isset( $params['placement'] ) && is_numeric( $params['placement'] ) ) {
+        if( isset( $params['placement'] ) && is_numeric( $params['placement'] ) )
+        {
             $eventType->setAttribute( 'placement', (int) $params['placement'] );
-        } else {
+        } else
+        {
             $eventType->setAttribute( 'placement', $this->getNewEventPlacement() );
         }
 
@@ -172,28 +201,34 @@ class OWMigrationWorkflow extends OWMigrationBase {
         return $event;
     }
 
-    public function updateEvent( $description, $workflowTypeString, $params = array() ) {
-        if ( !$this->workflow instanceof eZWorkflow ) {
+    public function updateEvent( $description, $workflowTypeString, $params = array() )
+    {
+        if( !$this->workflow instanceof eZWorkflow )
+        {
             OWScriptLogger::logError( "Workflow object not found.", __FUNCTION__ );
             return;
         }
         $event = $this->getEvent( $description, $workflowTypeString );
-        if ( !$event ) {
+        if( !$event )
+        {
             OWScriptLogger::logWarning( "Event '$description' ($workflowTypeString) not found.", __FUNCTION__ );
             return FALSE;
         }
         $workflowTypeHandlerClass = get_class( $event->attribute( 'workflow_type' ) ) . 'MigrationHandler';
-        if ( !class_exists( $workflowTypeHandlerClass ) || !is_callable( $workflowTypeHandlerClass . '::toArray' ) ) {
+        if( !class_exists( $workflowTypeHandlerClass ) || !is_callable( $workflowTypeHandlerClass . '::toArray' ) )
+        {
             $workflowTypeHandlerClass = "DefaultEventTypeMigrationHandler";
         }
         $currentAttributeValues = call_user_func( "$workflowTypeHandlerClass::toArray", $event );
         $finalAttributeValues = array_merge( $currentAttributeValues, $params );
-        if ( OWMigrationTools::compareArray( $currentAttributeValues, $finalAttributeValues ) ) {
+        if( OWMigrationTools::compareArray( $currentAttributeValues, $finalAttributeValues ) )
+        {
             OWScriptLogger::logNotice( "Event '$description' ($workflowTypeString) did not need to be updated.", __FUNCTION__ );
             return $event;
         }
         $eventAttributes = call_user_func( "$workflowTypeHandlerClass::fromArray", $event, $params );
-        if ( isset( $params['placement'] ) && is_numeric( $params['placement'] ) ) {
+        if( isset( $params['placement'] ) && is_numeric( $params['placement'] ) )
+        {
             $event->setAttribute( 'placement', (int) $params['placement'] );
         }
         $event->store();
@@ -203,13 +238,17 @@ class OWMigrationWorkflow extends OWMigrationBase {
         return $event;
     }
 
-    public function removeEvent( $description, $workflowTypeString ) {
-        if ( !$this->workflow instanceof eZWorkflow ) {
+    public function removeEvent( $description, $workflowTypeString )
+    {
+        if( !$this->workflow instanceof eZWorkflow )
+        {
             OWScriptLogger::logError( "Workflow object not found.", __FUNCTION__ );
             return;
         }
-        foreach ( $this->eventList as $index => $event ) {
-            if ( $event->attribute( 'description' ) == $description && $event->attribute( 'workflow_type_string' ) == $workflowTypeString ) {
+        foreach( $this->eventList as $index => $event )
+        {
+            if( $event->attribute( 'description' ) == $description && $event->attribute( 'workflow_type_string' ) == $workflowTypeString )
+            {
                 $event->remove();
                 unset( $this->eventList[$index] );
                 OWScriptLogger::logNotice( "Event '$description' ($workflowTypeString) removed.", __FUNCTION__ );
@@ -219,8 +258,10 @@ class OWMigrationWorkflow extends OWMigrationBase {
         OWScriptLogger::logWarning( "Event '$description' ($workflowTypeString) not found.", __FUNCTION__ );
     }
 
-    public function assignToTrigger( $module, $operation, $connectType ) {
-        if ( !$this->workflow instanceof eZWorkflow ) {
+    public function assignToTrigger( $module, $operation, $connectType )
+    {
+        if( !$this->workflow instanceof eZWorkflow )
+        {
             OWScriptLogger::logError( "Workflow object not found.", __FUNCTION__ );
             return;
         }
@@ -232,15 +273,19 @@ class OWMigrationWorkflow extends OWMigrationBase {
 
         $triggerList = eZTrigger::fetchList( $parameters );
 
-        if ( count( $triggerList ) ) {
+        if( count( $triggerList ) )
+        {
             $trigger = $triggerList[0];
             $trigger->setAttribute( 'workflow_id', $this->workflow->attribute( 'id' ) );
             $trigger->store();
-        } else {
-            try {
+        } else
+        {
+            try
+            {
                 $db = eZDB::instance();
                 $newTrigger = eZTrigger::createNew( $module, $operation, $connectType, $this->workflow->attribute( 'id' ) );
-            } catch ( Exception $e ) {
+            } catch( Exception $e )
+            {
                 OWScriptLogger::logWarning( "Fail to save trigger.", __FUNCTION__ );
             }
         }
@@ -248,29 +293,37 @@ class OWMigrationWorkflow extends OWMigrationBase {
         OWScriptLogger::logNotice( "Workflow assigned to trigger '$module, $operation, $connectType'.", __FUNCTION__ );
     }
 
-    public function unassignFromTrigger( $module = NULL, $operation = NULL, $connectType = NULL ) {
-        if ( !$this->workflow instanceof eZWorkflow ) {
+    public function unassignFromTrigger( $module = NULL, $operation = NULL, $connectType = NULL )
+    {
+        if( !$this->workflow instanceof eZWorkflow )
+        {
             OWScriptLogger::logError( "Workflow object not found.", __FUNCTION__ );
             return;
         }
 
         $connectType = $connectType[0];
         $parameters = array();
-        if ( $module ) {
+        if( $module )
+        {
             $parameters['module'] = $module;
         }
-        if ( $operation ) {
+        if( $operation )
+        {
             $parameters['function'] = $operation;
         }
-        if ( $connectType ) {
+        if( $connectType )
+        {
             $parameters['connectType'] = $connectType;
         }
 
         $triggerList = eZTrigger::fetchList( $parameters );
 
-        if ( count( $triggerList ) ) {
-            foreach ( $triggerList as $trigger ) {
-                if ( $trigger->attribute( 'workflow_id' ) == $this->workflow->attribute( 'id' ) ) {
+        if( count( $triggerList ) )
+        {
+            foreach( $triggerList as $trigger )
+            {
+                if( $trigger->attribute( 'workflow_id' ) == $this->workflow->attribute( 'id' ) )
+                {
                     $triggerModule = $trigger->attribute( 'module_name' );
                     $triggerOperation = $trigger->attribute( 'function_name' );
                     $triggerOperationType = $trigger->attribute( 'connect_type' );
@@ -282,8 +335,10 @@ class OWMigrationWorkflow extends OWMigrationBase {
         }
     }
 
-    public function removeWorkflow() {
-        if ( !$this->workflow instanceof eZWorkflow ) {
+    public function removeWorkflow()
+    {
+        if( !$this->workflow instanceof eZWorkflow )
+        {
             OWScriptLogger::logError( "Workflow object not found.", __FUNCTION__ );
             return;
         }
@@ -293,15 +348,19 @@ class OWMigrationWorkflow extends OWMigrationBase {
         OWScriptLogger::logNotice( "Workflow '$this->workflowName' removed.", __FUNCTION__ );
     }
 
-    protected function fetchWorkflow() {
+    protected function fetchWorkflow()
+    {
         return eZPersistentObject::fetchObject( eZWorkflow::definition(), null, array(
                     "name" => $this->workflowName ), TRUE );
     }
 
-    protected function getNewEventPlacement() {
+    protected function getNewEventPlacement()
+    {
         $maxPlacement = -1;
-        foreach ( $this->eventList as $event ) {
-            if ( $event->attribute( 'placement' ) > $maxPlacement ) {
+        foreach( $this->eventList as $event )
+        {
+            if( $event->attribute( 'placement' ) > $maxPlacement )
+            {
                 $maxPlacement = $event->attribute( 'placement' );
             }
         }

@@ -29,13 +29,16 @@ eZUser::setCurrentlyLoggedInUser( $user, $user->attribute( 'contentobject_id' ) 
 
 
 
-if ( isset( $options['extension'] ) ) {
+if( isset( $options['extension'] ) )
+{
     $extention = $options['extension'];
-    if ( !is_dir( 'extension/' . $extention . '/migrations' ) ) {
+    if( !is_dir( 'extension/' . $extention . '/migrations' ) )
+    {
         $cli->error( 'Migration directory is missing in ' . $extention . ' folder.' );
         $script->shutdown( 1 );
     }
-} else {
+} else
+{
     $cli->error( '--extension parameter is missing.' );
     $script->shutdown( 1 );
 }
@@ -45,32 +48,40 @@ $specifyRoles = $options['all'] || $options['roles'] ? true : false;
 $specifyWorkflows = $options['all'] || $options['classes'] ? true : false;
 $specifyObjectStates = $options['all'] || $options['object_states'] ? true : false;
 
-if ( $specifyClasses ) {
+if( $specifyClasses )
+{
     $result = array();
     $classesList = eZContentClass::fetchAllClasses();
-    foreach ( $classesList as $class ) {
+    foreach( $classesList as $class )
+    {
         $result[$class->attribute( 'identifier' )] = call_user_func( "eZContentClassMigrationHandler::toArray", $class );
         $attributesList = $class->fetchAttributes();
         $result[$class->attribute( 'identifier' )]['attributes'] = array();
-        foreach ( $attributesList as $attribute ) {
+        foreach( $attributesList as $attribute )
+        {
             $contentClassAttributeHandlerClass = get_class( $attribute ) . 'MigrationHandler';
             $contentClassAttributeArray = call_user_func( "$contentClassAttributeHandlerClass::toArray", $attribute );
-            if ( $attribute->dataType() ) {
+            if( $attribute->dataType() )
+            {
                 $datatypeHandlerClass = get_class( $attribute->dataType() ) . 'MigrationHandler';
-                if ( !class_exists( $datatypeHandlerClass ) || !is_callable( $datatypeHandlerClass . '::toArray' ) ) {
+                if( !class_exists( $datatypeHandlerClass ) || !is_callable( $datatypeHandlerClass . '::toArray' ) )
+                {
                     $datatypeHandlerClass = "DefaultDatatypeMigrationHandler";
                 }
                 $attributeDatatypeArray = call_user_func( "$datatypeHandlerClass::toArray", $attribute );
                 $attributeArray = array_merge( $contentClassAttributeArray, $attributeDatatypeArray );
-            } else {
+            } else
+            {
                 $attributeArray = $contentClassAttributeArray;
             }
             $result[$class->attribute( 'identifier' )]['attributes'][$attribute->attribute( 'identifier' )] = $attributeArray;
         }
     }
-    if ( version_compare( PHP_VERSION, '5.4.0' ) >= 0 ) {
+    if( version_compare( PHP_VERSION, '5.4.0' ) >= 0 )
+    {
         $jsonEncodeOption = JSON_PRETTY_PRINT;
-    } else {
+    } else
+    {
         $jsonEncodeOption = 0;
     }
     file_put_contents( 'extension/' . $extention . '/migrations/spec_classes.json', json_encode( $result, $jsonEncodeOption ) );

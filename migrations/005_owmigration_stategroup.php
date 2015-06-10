@@ -1,11 +1,13 @@
 <?php
 
-class OWMigration_v005 {
+class OWMigration_v005
+{
 
-    public function up( ) {
+    public function up()
+    {
         $migration = new OWMigrationStateGroup( );
         $migration->startMigrationOn( 'my_state' );
-        $migration->createIfNotExists( );
+        $migration->createIfNotExists();
         $migration->update( array(
             'fre-FR' => array( 'name' => 'Mon état' ),
             'eng-GB' => array( 'description' => 'My super state' ),
@@ -31,13 +33,14 @@ class OWMigration_v005 {
             )
         ) );
         $migration->removeState( 'my_state_1' );
-        $migration->end( );
+        $migration->end();
     }
 
-    public function down( ) {
+    public function down()
+    {
         $migration = new OWMigrationStateGroup( );
         $migration->startMigrationOn( 'my_state' );
-        $migration->removeStateGroup( );
+        $migration->removeStateGroup();
     }
 
 }

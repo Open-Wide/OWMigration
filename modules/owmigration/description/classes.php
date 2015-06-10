@@ -2,29 +2,35 @@
 
 $Module = $Params["Module"];
 include_once ('kernel/common/template.php');
-if ( is_callable( 'eZTemplate::factory' ) ) {
+if( is_callable( 'eZTemplate::factory' ) )
+{
     $tpl = eZTemplate::factory();
-} else {
+} else
+{
     $tpl = templateInit();
 }
 
 $contentClassList = eZContentClass::fetchList( eZContentClass::VERSION_STATUS_DEFINED, true, false, array( 'identifier' => 'asc' ) );
 $classList = array();
-foreach ( $contentClassList as $contentClass ) {
+foreach( $contentClassList as $contentClass )
+{
     $contentClassInfos = call_user_func( 'ContentClassMigrationHandler::toArray', $contentClass );
     $attributesList = $contentClass->fetchAttributes();
-    foreach ( $attributesList as $attribute ) {
+    foreach( $attributesList as $attribute )
+    {
         $contentClassAttributeHandlerClass = get_class( $attribute ) . 'MigrationHandler';
         $contentClassAttributeArray = call_user_func( "$contentClassAttributeHandlerClass::toArray", $attribute );
         $datatypeHandlerClass = get_class( $attribute->dataType() ) . 'MigrationHandler';
-        if ( !class_exists( $datatypeHandlerClass ) || !is_callable( $datatypeHandlerClass . '::toArray' ) ) {
+        if( !class_exists( $datatypeHandlerClass ) || !is_callable( $datatypeHandlerClass . '::toArray' ) )
+        {
             $datatypeHandlerClass = "DefaultDatatypeMigrationHandler";
         }
         $attributeDatatypeArray = call_user_func( "$datatypeHandlerClass::toArray", $attribute );
         $attributesInfos = array_merge( $contentClassAttributeArray, $attributeDatatypeArray );
         $contentClassInfos['attributes'][$attribute->attribute( 'identifier' )] = $attributesInfos;
         $classGroupList = array();
-        foreach ( $contentClass->attribute( 'ingroup_list' ) as $classGroup ) {
+        foreach( $contentClass->attribute( 'ingroup_list' ) as $classGroup )
+        {
             $classGroupList[] = $classGroup->attribute( 'group_name' );
         }
         $contentClassInfos['class_groups'] = $classGroupList;
@@ -35,7 +41,8 @@ $tpl->setVariable( 'class_list', $classList );
 
 $Result['content'] = $tpl->fetch( 'design:owmigration/description/classes.tpl' );
 $Result['left_menu'] = 'design:owmigration/menu.tpl';
-if ( function_exists( 'ezi18n' ) ) {
+if( function_exists( 'ezi18n' ) )
+{
     $Result['path'] = array(
         array(
             'url' => 'owmigration/dashboard',
@@ -47,7 +54,8 @@ if ( function_exists( 'ezi18n' ) ) {
             'text' => ezi18n( 'design/admin/parts/owmigration/menu', 'Content class' )
         )
     );
-} else {
+} else
+{
     $Result['path'] = array(
         array(
             'url' => 'owmigration/dashboard',
