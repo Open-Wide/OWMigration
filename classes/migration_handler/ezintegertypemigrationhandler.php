@@ -1,26 +1,34 @@
 <?php
 
-class eZIntegerTypeMigrationHandler extends DefaultDatatypeMigrationHandler {
+class eZIntegerTypeMigrationHandler extends DefaultDatatypeMigrationHandler
+{
 
-    static public function toArray( eZContentClassAttribute $attribute ) {
-        $return = array( );
-        if( $attribute->attribute( eZIntegerType::MIN_VALUE_FIELD ) != 0 ) {
+    static public function toArray( eZContentClassAttribute $attribute )
+    {
+        $return = array();
+        if( $attribute->attribute( eZIntegerType::MIN_VALUE_FIELD ) != 0 )
+        {
             $return['min_value'] = $attribute->attribute( eZIntegerType::MIN_VALUE_FIELD );
         }
-        if( $attribute->attribute( eZIntegerType::MAX_VALUE_FIELD ) != 0 ) {
+        if( $attribute->attribute( eZIntegerType::MAX_VALUE_FIELD ) != 0 )
+        {
             $return['max_value'] = $attribute->attribute( eZIntegerType::MAX_VALUE_FIELD );
         }
-        if( $attribute->attribute( eZIntegerType::DEFAULT_VALUE_FIELD ) != 0 ) {
+        if( $attribute->attribute( eZIntegerType::DEFAULT_VALUE_FIELD ) != 0 )
+        {
             $return['default_value'] = $attribute->attribute( eZIntegerType::DEFAULT_VALUE_FIELD );
         }
         return $return;
     }
 
-    static public function fromArray( eZContentClassAttribute $attribute, array $options ) {
+    static public function fromArray( eZContentClassAttribute $attribute, array $options )
+    {
         $hasMin = FALSE;
         $hasMax = FALSE;
-        foreach( $options as $key => $value ) {
-            switch ($key) {
+        foreach( $options as $key => $value )
+        {
+            switch( $key )
+            {
                 case 'min_value' :
                     $attribute->setAttribute( eZIntegerType::MIN_VALUE_FIELD, $value );
                     $hasMin = TRUE;
@@ -34,13 +42,17 @@ class eZIntegerTypeMigrationHandler extends DefaultDatatypeMigrationHandler {
                     break;
             }
         }
-        if( $hasMin === TRUE && $hasMax === TRUE ) {
+        if( $hasMin === TRUE && $hasMax === TRUE )
+        {
             $attribute->setAttribute( eZIntegerType::INPUT_STATE_FIELD, eZIntegerType::HAS_MIN_MAX_VALUE );
-        } elseif( $hasMin === FALSE && $hasMax === FALSE ) {
+        } elseif( $hasMin === FALSE && $hasMax === FALSE )
+        {
             $attribute->setAttribute( eZIntegerType::INPUT_STATE_FIELD, eZIntegerType::NO_MIN_MAX_VALUE );
-        } elseif( $hasMin === TRUE ) {
+        } elseif( $hasMin === TRUE )
+        {
             $attribute->setAttribute( eZIntegerType::INPUT_STATE_FIELD, eZIntegerType::HAS_MIN_VALUE );
-        } elseif( $hasMax === TRUE ) {
+        } elseif( $hasMax === TRUE )
+        {
             $attribute->setAttribute( eZIntegerType::INPUT_STATE_FIELD, eZIntegerType::HAS_MAX_VALUE );
         }
     }

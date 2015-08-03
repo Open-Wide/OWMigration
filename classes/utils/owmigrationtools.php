@@ -1,17 +1,21 @@
 <?php
 
-class OWMigrationTools {
+class OWMigrationTools
+{
 
-    static function getPolicyLimitationArray( $policy ) {
-        $returnValue = array( );
-        $names = array( );
-        if( !$policy ) {
+    static function getPolicyLimitationArray( $policy )
+    {
+        $returnValue = array();
+        $names = array();
+        if( !$policy )
+        {
             return $returnValue;
         }
 
         $currentModule = $policy->attribute( 'module_name' );
         $mod = eZModule::exists( $currentModule );
-        if( !is_object( $mod ) ) {
+        if( !is_object( $mod ) )
+        {
             eZDebug::writeError( 'Failed to fetch instance for module ' . $currentModule );
             return $returnValue;
         }
@@ -20,16 +24,20 @@ class OWMigrationTools {
 
         $currentFunction = $policy->attribute( 'function_name' );
 
-        foreach( $policy->limitationList() as $limitation ) {
+        foreach( $policy->limitationList() as $limitation )
+        {
             $valueList = $limitation->attribute( 'values_as_array' );
             $limitation = $functions[$currentFunction][$limitation->attribute( 'identifier' )];
-            $limitationValueArray = array( );
-            switch( $limitation['name'] ) {
+            $limitationValueArray = array();
+            switch( $limitation['name'] )
+            {
                 case 'Class' :
                 case 'ParentClass' :
-                    foreach( $valueList as $value ) {
+                    foreach( $valueList as $value )
+                    {
                         $contentClass = eZContentClass::fetch( $value, false );
-                        if( $contentClass != null ) {
+                        if( $contentClass != null )
+                        {
                             $limitationValueArray[] = $contentClass['identifier'];
                         }
                     }
@@ -39,18 +47,23 @@ class OWMigrationTools {
                     $limitationValueArray = $valueList;
                     break;
                 default :
-                    if( $limitation && isset( $limitation['class'] ) && count( $limitation['values'] ) == 0 ) {
-                        $obj = new $limitation['class']( array( ) );
+                    if( $limitation && isset( $limitation['class'] ) && count( $limitation['values'] ) == 0 )
+                    {
+                        $obj = new $limitation['class']( array() );
                         $limitationValueList = call_user_func_array( array(
                             $obj,
                             $limitation['function']
-                        ), $limitation['parameter'] );
-                        foreach( $limitationValueList as $limitationValue ) {
-                            if( in_array( $limitationValue['id'], $valueList ) ) {
-                                switch( $limitation['class'] ) {
+                                ), $limitation['parameter'] );
+                        foreach( $limitationValueList as $limitationValue )
+                        {
+                            if( in_array( $limitationValue['id'], $valueList ) )
+                            {
+                                switch( $limitation['class'] )
+                                {
                                     case 'eZContentObjectStateGroup' :
                                         $state = eZContentObjectState::fetchByID( $limitationValue['id'] );
-                                        if( $state instanceof eZContentObjectState ) {
+                                        if( $state instanceof eZContentObjectState )
+                                        {
                                             $limitationValueArray[] = $state->attribute( 'identifier' );
                                         }
                                         break;
@@ -59,7 +72,8 @@ class OWMigrationTools {
                                 }
                             }
                         }
-                    } else {
+                    } else
+                    {
                         $limitationValueArray = $valueList;
                     }
                     break;
@@ -70,117 +84,151 @@ class OWMigrationTools {
         return $returnValue;
     }
 
-    static function correctLimitationArray( $limitationArray ) {
-        $trans = eZCharTransform::instance( );
-        foreach( $limitationArray as $limitationKey => $limitation ) {
-            if( !is_array( $limitation ) ) {
+    static function correctLimitationArray( $limitationArray )
+    {
+        $trans = eZCharTransform::instance();
+        foreach( $limitationArray as $limitationKey => $limitation )
+        {
+            if( !is_array( $limitation ) )
+            {
                 $limitationArray[$limitationKey] = array( $limitation );
-            } else {
+            } else
+            {
                 sort( $limitationArray[$limitationKey] );
             }
         }
         return $limitationArray;
     }
 
-    static function compareArray( $array1, $array2 ) {
+    static function compareArray( $array1, $array2 )
+    {
         $isAssoc1 = array_keys( $array1 ) !== range( 0, count( $array1 ) - 1 );
         $isAssoc2 = array_keys( $array2 ) !== range( 0, count( $array2 ) - 1 );
-        if( $isAssoc1 === $isAssoc2 && $isAssoc2 === TRUE ) {
-            foreach( $array1 as $key1 => $value1 ) {
-                if( array_key_exists( $key1, $array2 ) ) {
-                    if( $array2[$key1] != $value1 ) {
+        if( $isAssoc1 === $isAssoc2 && $isAssoc2 === TRUE )
+        {
+            foreach( $array1 as $key1 => $value1 )
+            {
+                if( array_key_exists( $key1, $array2 ) )
+                {
+                    if( $array2[$key1] != $value1 )
+                    {
                         return FALSE;
                     }
-                } else {
+                } else
+                {
                     return FALSE;
                 }
             }
-        } elseif( $isAssoc1 === $isAssoc2 && $isAssoc2 === FALSE ) {
+        } elseif( $isAssoc1 === $isAssoc2 && $isAssoc2 === FALSE )
+        {
             return $array1 == $array2;
-        } else {
+        } else
+        {
             return FALSE;
         }
         return TRUE;
     }
 
-    static function findSection( $section ) {
+    static function findSection( $section )
+    {
         $object = FALSE;
-        if( self::sectionsHasIdentifier( ) ) {
+        if( self::sectionsHasIdentifier() )
+        {
             $object = eZSection::fetchByIdentifier( $section );
         }
-        if( !$object ) {
-            $object = eZPersistentObject::fetchObject( eZSection::definition( ), null, array( "name" => $section ) );
+        if( !$object )
+        {
+            $object = eZPersistentObject::fetchObject( eZSection::definition(), null, array( "name" => $section ) );
         }
         return $object instanceof eZSection ? $object : FALSE;
-
     }
 
-    static function findOrCreateSection( $section ) {
+    static function findOrCreateSection( $section )
+    {
         $object = self::findSection( $section );
-        if( $object instanceof eZSection ) {
+        if( $object instanceof eZSection )
+        {
             return $object;
         }
-        if( self::sectionsHasIdentifier( ) ) {
-            $trans = eZCharTransform::instance( );
+        if( self::sectionsHasIdentifier() )
+        {
+            $trans = eZCharTransform::instance();
             $sectionIdentifier = $trans->transformByGroup( $section, 'identifier' );
             $sectionName = $sectionIdentifier == $section ? $trans->transformByGroup( $section, 'humanize' ) : $section;
             $sectionRow = array(
                 'name' => $sectionName,
                 'identifier' => $sectionIdentifier
             );
-        } else {
+        } else
+        {
             $sectionRow = array( 'name' => $section );
         }
         $object = new eZSection( $sectionRow );
-        $object->store( );
+        $object->store();
         return $object;
     }
 
-    static function sectionsHasIdentifier( ) {
-        $sectionDefinition = eZSection::definition( );
-        if( isset( $sectionDefinition['fields']['identifier'] ) ) {
+    static function sectionsHasIdentifier()
+    {
+        $sectionDefinition = eZSection::definition();
+        if( isset( $sectionDefinition['fields']['identifier'] ) )
+        {
             return TRUE;
         }
         return FALSE;
     }
 
-    static function findNode( $nodeIdentifier, $classIdentifier = false ) {
-        if( is_numeric( $nodeIdentifier ) ) {
+    static function findNode( $nodeIdentifier, $classIdentifier = false )
+    {
+        if( is_numeric( $nodeIdentifier ) )
+        {
             $node = eZContentObjectTreeNode::fetch( $nodeIdentifier );
-        } else {
-            $matches = array( );
-            if( preg_match( "/([0-9]+\/?)+/", $nodeIdentifier, $matches ) > 0 ) {
+        } else
+        {
+            $matches = array();
+            if( preg_match( "/([0-9]+\/?)+/", $nodeIdentifier, $matches ) > 0 )
+            {
                 $node = eZContentObjectTreeNode::fetchNodesByPathString( $nodeIdentifier );
-                if( is_array( $node ) ) {
+                if( is_array( $node ) )
+                {
                     $node = current( $node );
                 }
-                if( !$node instanceof eZContentObjectTreeNode ) {
+                if( !$node instanceof eZContentObjectTreeNode )
+                {
                     $node = eZContentObjectTreeNode::fetchByPath( $nodeIdentifier );
-                    if( is_array( $node ) ) {
+                    if( is_array( $node ) )
+                    {
                         $node = current( $node );
                     }
                 }
-            } else {
+            } else
+            {
                 $node = eZContentObjectTreeNode::fetchByURLPath( $nodeIdentifier );
-                if( is_array( $node ) ) {
+                if( is_array( $node ) )
+                {
                     $node = current( $node );
                 }
-                if( !$node instanceof eZContentObjectTreeNode ) {
-                    $matches = array( );
+                if( !$node instanceof eZContentObjectTreeNode )
+                {
+                    $matches = array();
                     $nodeID = eZURLAliasML::fetchNodeIDByPath( $nodeIdentifier );
-                    if( $nodeID !== FALSE ) {
+                    if( $nodeID !== FALSE )
+                    {
                         $node = eZContentObjectTreeNode::fetch( $nodeID );
                     }
                 }
             }
-            if( !$node instanceof eZContentObjectTreeNode ) {
+            if( !$node instanceof eZContentObjectTreeNode )
+            {
                 $cond = array( 'name' => $nodeIdentifier, );
-                if( $classIdentifier ) {
+                if( $classIdentifier )
+                {
                     $contentClass = eZContentClass::fetchByIdentifier( $classIdentifier );
                     $cond['contentclass_id'] = $contentClass->attribute( 'id' );
                 }
                 $contentObject = current( eZContentObject::fetchFilteredList( $cond ) );
-                if( $contentObject instanceof eZContentObject ) {
+                if( $contentObject instanceof eZContentObject )
+                {
                     return $contentObject->attribute( 'main_node' );
                 }
             }
@@ -188,54 +236,66 @@ class OWMigrationTools {
         return isset( $node ) && !empty( $node ) ? $node : FALSE;
     }
 
-    static function findWorkflow( $workflow ) {
+    static function findWorkflow( $workflow )
+    {
         $object = FALSE;
-        if( !$object ) {
-            $object = eZPersistentObject::fetchObject( eZWorkflow::definition( ), null, array( "name" => $workflow ) );
+        if( !$object )
+        {
+            $object = eZPersistentObject::fetchObject( eZWorkflow::definition(), null, array( "name" => $workflow ) );
         }
         return $object instanceof eZWorkflow ? $object : FALSE;
-
     }
 
-    static function findOrCreateWorkflow( $workflow ) {
+    static function findOrCreateWorkflow( $workflow )
+    {
         $object = self::findWorkflow( $workflow );
-        if( $object instanceof eZWorkflow ) {
+        if( $object instanceof eZWorkflow )
+        {
             return $object;
         }
-        $currentUser = eZUser::currentUser( );
+        $currentUser = eZUser::currentUser();
         $object = eZWorkflow::create( $currentUser->attribute( 'contentobject_id' ) );
         $object->setAttribute( 'name', $workflow );
         $object->setAttribute( 'version', 0 );
-        $object->store( );
-        $workflowGroupList = eZWorkflowGroup::fetchList( );
+        $object->store();
+        $workflowGroupList = eZWorkflowGroup::fetchList();
         $workflowGroup = current( $workflowGroupList );
-        if( $workflowGroup instanceof eZWorkflowGroup ) {
+        if( $workflowGroup instanceof eZWorkflowGroup )
+        {
             $ingroup = eZWorkflowGroupLink::create( $object->attribute( 'id' ), $object->attribute( "version" ), $workflowGroup->attribute( 'id' ), $workflowGroup->attribute( 'name' ) );
-            $ingroup->store( );
+            $ingroup->store();
         }
         return $object;
     }
 
-    static function cleanupNameList( $nameList ) {
+    static function cleanupNameList( $nameList )
+    {
         $nameListValue = FALSE;
-        $topLanguage = eZContentLanguage::topPriorityLanguage( );
+        $topLanguage = eZContentLanguage::topPriorityLanguage();
         $topLocal = $topLanguage->attribute( 'locale' );
-        if( isset( $nameList['always-available'] ) ) {
+        if( isset( $nameList['always-available'] ) )
+        {
             $nameListAlwaysAvailable = $nameList['always-available'];
             unset( $nameList['always-available'] );
-        } else {
+        } else
+        {
             $nameListAlwaysAvailable = $topLocal;
         }
-        if( implode( '', array_keys( $nameList ) ) == $topLocal && $nameList[$topLocal] != '' ) {
+        if( implode( '', array_keys( $nameList ) ) == $topLocal && $nameList[$topLocal] != '' )
+        {
             $nameListValue = $nameList[$topLocal];
-        } else {
-            $nameListValue = array( );
-            foreach( $nameList as $key => $value ) {
-                if( $value != '' ) {
+        } else
+        {
+            $nameListValue = array();
+            foreach( $nameList as $key => $value )
+            {
+                if( $value != '' )
+                {
                     $nameListValue[$key] = $value;
                 }
             }
-            if( !empty( $nameListValue ) ) {
+            if( !empty( $nameListValue ) )
+            {
                 $nameListValue['always-available'] = $nameListAlwaysAvailable;
             }
         }
@@ -243,4 +303,4 @@ class OWMigrationTools {
     }
 
 }
-?>
+

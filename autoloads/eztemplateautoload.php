@@ -2,7 +2,7 @@
 
 // Operator autoloading
 
-$eZTemplateOperatorArray = array( );
+$eZTemplateOperatorArray = array();
 
 $eZTemplateOperatorArray[] = array(
     'script' => 'extension/owmigration/autoloads/owmigrationoperators.php',
@@ -15,4 +15,3 @@ $eZTemplateOperatorArray[] = array(
         'display_state_group_migration_class'
     )
 );
-?>

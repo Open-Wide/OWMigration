@@ -1,9 +1,12 @@
 <?php
 
-class OWMigrationHumanizeTransformation {
+class OWMigrationHumanizeTransformation
+{
 
-    static function executeCommand( $text, $command, $charsetName ) {
-        if( substr( $text, -3 ) === '_id' ) {
+    static function executeCommand( $text, $command, $charsetName )
+    {
+        if( substr( $text, -3 ) === '_id' )
+        {
             $text = substr( $text, 0, -3 );
         }
 
@@ -11,5 +14,5 @@ class OWMigrationHumanizeTransformation {
     }
 
 }
-?>
+
 

@@ -1,6 +1,7 @@
 <?php
 
-class OWMigrationVersion extends eZPersistentObject {
+class OWMigrationVersion extends eZPersistentObject
+{
 
     const INSTALLED_STATUS = 'installed';
     const UNINSTALLED_STATUS = 'uninstalled';
@@ -8,7 +9,9 @@ class OWMigrationVersion extends eZPersistentObject {
     const NONEXISTANT_STATUS = 'nonexistent';
 
     /* eZPersistentObject methods */
-    public static function definition( ) {
+
+    public static function definition()
+    {
         return array(
             'fields' => array(
                 'extension' => array(
@@ -36,25 +39,28 @@ class OWMigrationVersion extends eZPersistentObject {
             ),
             'class_name' => 'OWMigrationVersion',
             'name' => 'owmigration_version',
-            'function_attributes' => array( ),
-            'set_functions' => array( ),
-            'grouping' => array( )
+            'function_attributes' => array(),
+            'set_functions' => array(),
+            'grouping' => array()
         );
     }
 
-    static function fetch( $extension, $version ) {
+    static function fetch( $extension, $version )
+    {
         $conds = array(
             'extension' => $extension,
             'version' => $version
         );
-        return self::fetchObject( self::definition( ), null, $conds );
+        return self::fetchObject( self::definition(), null, $conds );
     }
 
-    static function fetchAllVersion( $extension ) {
+    static function fetchAllVersion( $extension )
+    {
         return self::fetchList( array( 'extension' => $extension ) );
     }
 
-    static function fetchLastestVersion( $extension, $status = self::INSTALLED_STATUS ) {
+    static function fetchLastestVersion( $extension, $status = self::INSTALLED_STATUS )
+    {
         $conds = array(
             'extension' => $extension,
             'status' => $status
@@ -63,21 +69,23 @@ class OWMigrationVersion extends eZPersistentObject {
                 'operation' => 'MAX( version )',
                 'name' => 'version'
             ) );
-        switch ($status) {
+        switch( $status )
+        {
             case self::NONEXISTANT_STATUS :
-                return array( );
+                return array();
                 break;
             case self::NEVER_INSTALLED_STATUS :
                 // TODO scan extension directory
-                return array( );
+                return array();
                 break;
             default :
-                return self::fetchObject( self::definition( ), null, $conds, true, array( 'extension' ), $customFields );
+                return self::fetchObject( self::definition(), null, $conds, true, array( 'extension' ), $customFields );
         }
     }
 
-    static function fetchList( $conds = array(), $limit = NULL ) {
-        return self::fetchObjectList( self::definition( ), null, $conds, array( 'version' => 'asc', ), $limit, true, false, null, null, null );
+    static function fetchList( $conds = array(), $limit = NULL )
+    {
+        return self::fetchObjectList( self::definition(), null, $conds, array( 'version' => 'asc', ), $limit, true, false, null, null, null );
     }
 
 }

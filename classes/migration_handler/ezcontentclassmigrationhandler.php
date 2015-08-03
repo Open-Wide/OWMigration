@@ -1,39 +1,48 @@
 <?php
 
-class eZContentClassMigrationHandler {
+class eZContentClassMigrationHandler
+{
 
-    static public function toArray( eZContentClass $attribute ) {
+    static public function toArray( eZContentClass $attribute )
+    {
         $attributesArray = array();
-        foreach ( $attribute->attributes() as $attributeIdentifier ) {
+        foreach( $attribute->attributes() as $attributeIdentifier )
+        {
             $attributeValue = $attribute->attribute( $attributeIdentifier );
-            switch ( $attributeIdentifier ) {
+            switch( $attributeIdentifier )
+            {
                 case 'name' :
                 case 'description' :
                     $nameList = $attribute->attribute( $attributeIdentifier . 'List' );
                     $nameListValue = OWMigrationTools::cleanupNameList( $nameList );
-                    if ( !empty( $nameListValue ) ) {
+                    if( !empty( $nameListValue ) )
+                    {
                         $attributesArray[$attributeIdentifier] = $nameListValue;
                     }
                     break;
                 case 'contentobject_name' :
                 case 'url_alias_name' :
-                    if ( $attributeValue != '' ) {
+                    if( $attributeValue != '' )
+                    {
                         $contentClassArray[$attributeIdentifier] = $attributeValue;
                     }
                     break;
                 case 'is_container' :
                 case 'always_available' :
-                    if ( $attributeValue == FALSE ) {
+                    if( $attributeValue == FALSE )
+                    {
                         $attributesArray[$attributeIdentifier] = FALSE;
                     }
                     break;
                 case 'sort_field' :
-                    if ( $attributeValue != 1 ) {
+                    if( $attributeValue != 1 )
+                    {
                         $contentClassArray[$attributeIdentifier] = $attributeValue;
                     }
                     break;
                 case 'sort_order' :
-                    if ( $attributeValue == FALSE ) {
+                    if( $attributeValue == FALSE )
+                    {
                         $contentClassArray[$attributeIdentifier] = FALSE;
                     }
                     break;
@@ -43,10 +52,10 @@ class eZContentClassMigrationHandler {
         return $attributesArray;
     }
 
-    static public function fromArray( eZContentClassAttribute $attribute, array $options ) {
+    static public function fromArray( eZContentClassAttribute $attribute, array $options )
+    {
         
     }
 
 }
 
-?>

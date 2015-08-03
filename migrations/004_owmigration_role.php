@@ -1,11 +1,13 @@
 <?php
 
-class OWMigration_v004 {
+class OWMigration_v004
+{
 
-    public function up( ) {
+    public function up()
+    {
         $migration = new OWMigrationRole( );
         $migration->startMigrationOn( 'Mon rôle 1' );
-        $migration->createIfNotExists( );
+        $migration->createIfNotExists();
         $migration->addPolicy( 'content', 'create', array(
             'Class' => self::getContentClassId( array(
                 'folder',
@@ -45,10 +47,11 @@ class OWMigration_v004 {
         $migration->assignToUser( array(
             'Tu Tu',
             'To To'
-        ), 'Subtree', 2 );
+                ), 'Subtree', 2 );
     }
 
-    public function down( ) {
+    public function down()
+    {
         $migration = new OWMigrationRole( 'Mon rôle 1' );
         $migration->removePolicies( 'content', 'create', array(
             'Class' => self::getContentClassId( array(
@@ -73,16 +76,21 @@ class OWMigration_v004 {
         $migration->unassignToUser( 'Tu Tu', 'Subtree', 2 );
     }
 
-    protected function getContentClassId( $classIdentifer ) {
-        if( is_array( $classIdentifer ) ) {
-            $result = array( );
-            foreach( $classIdentifer as $identifier ) {
+    protected function getContentClassId( $classIdentifer )
+    {
+        if( is_array( $classIdentifer ) )
+        {
+            $result = array();
+            foreach( $classIdentifer as $identifier )
+            {
                 $result[] = self::getContentClassId( $identifier );
             }
             return $result;
-        } else {
+        } else
+        {
             $class = eZContentClass::fetchByIdentifier( $classIdentifer );
-            if( $class instanceof eZContentClass ) {
+            if( $class instanceof eZContentClass )
+            {
                 return $class->attribute( 'id' );
             }
             return NULL;

@@ -1,8 +1,10 @@
 <?php
 
-class OWMigration_v003 {
+class OWMigration_v003
+{
 
-    public function up( ) {
+    public function up()
+    {
         $migration = new OWMigrationContentClass( );
         $migration->startMigrationOn( 'my_class' );
         $migration->createIfNotExists();
@@ -33,7 +35,7 @@ class OWMigration_v003 {
             eZStringType::MAX_LEN_FIELD => 100
         ) );
         $migration->addToContentClassGroup( 'Migration classes' );
-        $migration->end( );
+        $migration->end();
 
         $migration->startMigrationOn( 'my_class_2' );
         $migration->createIfNotExists();
@@ -45,19 +47,20 @@ class OWMigration_v003 {
             'eng-GB' => 'My class (bis)'
         );
         $migration->addAttribute( 'name' );
-        $migration->end( );
+        $migration->end();
     }
 
-    public function down( ) {
+    public function down()
+    {
         $migration = new OWMigrationContentClass( );
         $migration->startMigrationOn( 'my_class' );
         $migration->removeAttribute( 'body' );
         $migration->removeFromContentClassGroup( 'Migration classes' );
         $migration->addToContentClassGroup( 'Content' );
-        $migration->end( );
+        $migration->end();
 
         $migration->startMigrationOn( 'my_class_2' );
-        $migration->removeClass( );
+        $migration->removeClass();
     }
 
 }

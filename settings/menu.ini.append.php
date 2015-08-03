@@ -1,4 +1,4 @@
-<?php /*
+<?php /*#?ini charset="utf-8"?
 
 [NavigationPart]
 Part[owmigration]=Migration
@@ -30,13 +30,23 @@ LinkNames[dashboard]=Dashboard
 
 [Leftmenu_owmigration_codegenerator]
 Name=Code generator
-Links[content_class]=owmigration/classes
-Links[role]=owmigration/roles
-Links[workflow]=owmigration/workflows
-Links[state_group]=owmigration/state_groups
-LinkNames[content_class]=Content class
-LinkNames[role]=Role
-LinkNames[workflow]=Workflow
-LinkNames[state_group]=State group
+Links[codegenerator_content_class]=owmigration/codegenerator_classes
+Links[codegenerator_role]=owmigration/codegenerator_roles
+Links[codegenerator_workflow]=owmigration/codegenerator_workflows
+Links[codegenerator_state_group]=owmigration/codegenerator_state_groups
+LinkNames[codegenerator_content_class]=Content class
+LinkNames[codegenerator_role]=Role
+LinkNames[codegenerator_workflow]=Workflow
+LinkNames[codegenerator_state_group]=State group
 
-*/ ?>
+[Leftmenu_owmigration_description]
+Name=Description
+Links[description_content_class]=owmigration/description_classes
+Links[description_role]=owmigration/description_roles
+Links[description_workflow]=owmigration/description_workflows
+Links[description_state_group]=owmigration/description_state_groups
+LinkNames[description_content_class]=Content class
+LinkNames[description_role]=Role
+LinkNames[description_workflow]=Workflow
+LinkNames[description_state_group]=State group
+

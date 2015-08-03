@@ -17,6 +17,10 @@
         <translation>Générateur de code</translation>
     </message>
     <message>
+        <source>Description</source>
+        <translation>Description</translation>
+    </message>
+    <message>
         <source>Content class</source>
         <translation>Classe de contenu</translation>
     </message>
@@ -57,6 +61,10 @@
     <message>
         <source>Migrate content class</source>
         <translation>Migration de classe de contenu</translation>
+    </message>
+    <message>
+        <source>Describe content class</source>
+        <translation>Description des classes de contenu</translation>
     </message>
     <message>
         <source>Classes list</source>
